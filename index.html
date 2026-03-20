@@ -8,12 +8,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* ── Variáveis ──────────────────────────────────────── */
+        :root {
+            --verde-escuro:  #1a3c34;
+            --verde-medio:   #2e7d52;
+            --verde-claro:   #4CAF50;
+            --verde-fundo:   #f0f7f2;
+            --azul:          #1565C0;
+            --azul-hover:    #0d47a1;
+            --vermelho:      #c62828;
+            --vermelho-hover:#b71c1c;
+            --cinza-borda:   #d8e0d8;
+            --cinza-fundo:   #f5f7f5;
+            --texto:         #1c2b1c;
+            --texto-leve:    #4a5c4a;
+        }
+
+        /* ── Base ───────────────────────────────────────────── */
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
             margin: 0;
-            padding: 30px;
-            background-color: #f0f2f5;
+            padding: 24px 16px;
+            background-color: #eaf0ea;
             display: flex;
             justify-content: center;
         }
@@ -21,249 +39,467 @@
             max-width: 1000px;
             width: 100%;
             background-color: #ffffff;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
+            padding: 0 0 32px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+            border-radius: 12px;
+            overflow: hidden;
         }
+
+        /* ── Cabeçalho ──────────────────────────────────────── */
         h2 {
             text-align: center;
-            color: #1a3c34;
-            margin-bottom: 30px;
-            font-size: 28px;
-            font-weight: 600;
-            text-transform: uppercase;
-            background-color: #e8f5e9;
-            padding: 10px;
-            border-radius: 6px;
-            border-bottom: 3px solid #4CAF50;
-        }
-        h3 {
-            color: #2e5e56;
-            margin: 30px 0 20px;
+            color: #ffffff;
+            margin: 0 0 0;
             font-size: 20px;
-            font-weight: 500;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde-medio) 100%);
+            padding: 20px 16px;
+            border-radius: 0;
         }
+
+        /* ── Títulos de seção ───────────────────────────────── */
+        h3 {
+            color: var(--verde-escuro);
+            margin: 24px 0 16px;
+            font-size: 17px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--cinza-borda);
+            padding-bottom: 6px;
+        }
+
+        /* ── Labels com barra colorida ──────────────────────── */
         label {
             font-weight: 600;
             display: block;
             margin-top: 20px;
-            color: #333;
-            font-size: 16px;
+            color: var(--texto);
+            font-size: 15px;
+            padding-left: 10px;
+            border-left: 3px solid var(--verde-claro);
         }
         label.required::after {
             content: " *";
-            color: #d32f2f;
+            color: var(--vermelho);
         }
+
+        /* ── Campos de entrada ──────────────────────────────── */
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            margin-top: 8px;
-            border: 1px solid #d0d0d0;
-            border-radius: 6px;
+            padding: 13px 14px;
+            margin-top: 6px;
+            border: 1.5px solid var(--cinza-borda);
+            border-radius: 8px;
             box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
-            background-color: #fafafa;
-            transition: border-color 0.3s;
-            text-transform: uppercase; /* Adicionado para maiúsculas */
+            background-color: #fafcfa;
+            color: var(--texto);
+            transition: border-color 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
         }
         input:focus, select:focus, textarea:focus {
-            border-color: #4CAF50;
+            border-color: var(--verde-claro);
             outline: none;
             background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
         }
         input:invalid:not(:focus), select:invalid:not(:focus) {
-            border-color: #d32f2f;
+            border-color: var(--vermelho);
         }
         input[readonly] {
-            background-color: #e0e0e0;
+            background-color: #e8ede8;
+            color: var(--texto-leve);
             cursor: not-allowed;
         }
         textarea {
             resize: vertical;
             min-height: 100px;
         }
+
+        /* ── Botões — base ──────────────────────────────────── */
         button {
-            padding: 12px 25px;
-            margin: 20px 10px 0 0;
-            background-color: #4CAF50;
+            padding: 11px 20px;
+            margin: 12px 8px 0 0;
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 7px;
             cursor: pointer;
-            font-size: 15px;
-            transition: background-color 0.3s;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+            background-color: var(--verde-claro);
         }
-        button:hover {
-            background-color: #45a049;
+        button:hover  { filter: brightness(1.08); }
+        button:active { transform: scale(0.97); }
+
+        /* Botão excluir */
+        .btnRemover {
+            background-color: var(--vermelho);
+            padding: 6px 12px;
+            font-size: 13px;
+            margin: 0;
         }
-        .container {
-            border: 1px solid #e5e5e5;
-            padding: 20px;
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            border-radius: 6px;
+        .btnRemover:hover { background-color: var(--vermelho-hover); }
+
+        /* Botões de editar (Editar Rotas / Editar Agentes) */
+        #btnEditarRotas, #btnEditarAgentes,
+        #btnAdicionarNovaRota, #btnAdicionarNovoAgente {
+            background-color: var(--azul);
         }
-        .comando, .missao, .apoio-ctafor, .rendicao-vl, .afericao {
-            border: 1px solid #e0e0e0;
-            padding: 20px;
-            margin-top: 20px;
+        #btnEditarRotas:hover, #btnEditarAgentes:hover,
+        #btnAdicionarNovaRota:hover, #btnAdicionarNovoAgente:hover {
+            background-color: var(--azul-hover);
+        }
+
+        /* Botões salvar */
+        #btnSalvarRotas, #btnSalvarAgentes,
+        #btnSalvarRascunho {
+            background-color: var(--verde-escuro);
+        }
+
+        /* Botão carregar rascunho */
+        #btnCarregarRascunho {
+            background-color: #5c6e5c;
+        }
+
+        /* Botão pré-visualizar */
+        #btnPreVisualizar {
+            background-color: #6a5acd;
+        }
+
+        /* Botão PDF */
+        #gerarPdfBtn {
+            background-color: #b71c1c;
+        }
+        #gerarPdfBtn:hover { background-color: #7f0000; }
+
+        /* Botão Excel */
+        #gerarExcelBtn {
+            background-color: #1b5e20;
+        }
+
+        /* ── Seções e containers ─────────────────────────────── */
+        .section {
+            padding: 20px 24px;
             background-color: #fff;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 0;
+        }
+        .section:first-of-type { padding-top: 24px; }
+
+        /* Cards dos itens dinâmicos (rotas, apoios, etc.) */
+        .container {
+            border: none;
+            padding: 8px 0 4px;
+            margin-top: 6px;
+            background-color: transparent;
+            border-radius: 0;
+        }
+
+        /* Cada linha/item dentro do container */
+        .item-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 8px;
+            padding: 12px 14px;
+            background-color: var(--verde-fundo);
+            border-radius: 8px;
+            border-left: 4px solid var(--verde-claro);
             animation: fadeIn 0.3s;
         }
-        .outra-rota {
-            display: none;
-            margin-top: 8px;
+
+        /* Cards de missão, comando, apoio */
+        .comando, .missao, .apoio-ctafor, .rendicao-vl, .afericao {
+            border: 1px solid var(--cinza-borda);
+            border-left: 4px solid var(--azul);
+            padding: 16px;
+            margin-top: 12px;
+            background-color: #f5f8ff;
+            border-radius: 8px;
+            animation: fadeIn 0.3s;
         }
+
+        /* ── Campo agentes — destaque maior ─────────────────── */
+        .campo-agentes,
+        input[placeholder='Digite os nomes dos agentes'] {
+            min-height: 50px;
+            font-size: 15px;
+            background-color: #fffde7;
+            border-color: #c8b84a;
+        }
+        .campo-agentes:focus,
+        input[placeholder='Digite os nomes dos agentes']:focus {
+            border-color: var(--verde-claro);
+            background-color: #fff;
+        }
+
+        /* ── Outros ──────────────────────────────────────────── */
+        .outra-rota { display: none; margin-top: 6px; }
+
         .error-message {
-            color: #d32f2f;
+            color: var(--vermelho);
             font-size: 14px;
             margin-top: 15px;
             display: none;
             font-weight: 500;
         }
-        .section {
-            padding: 20px;
-            background-color: #fefefe;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #ececec;
-        }
-        .row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        .row div {
-            flex: 1;
-            min-width: 200px;
-        }
-        .item-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            animation: fadeIn 0.3s;
-        }
-        .btnRemover {
-            background-color: #d32f2f;
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-        .btnRemover:hover {
-            background-color: #b71c1c;
-        }
-        #editRotasContainer {
+        .row { display: flex; gap: 16px; flex-wrap: wrap; }
+        .row div { flex: 1; min-width: 200px; }
+
+        #editRotasContainer, #editAgentesContainer {
             display: none;
-            padding: 15px;
-            background-color: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            padding: 14px;
+            background-color: #f9fbf9;
+            border: 1px solid var(--cinza-borda);
+            border-radius: 8px;
             margin-top: 10px;
         }
-        #editRotasList {
+        #editRotasList, #editAgentesList {
             list-style: none;
             padding: 0;
         }
-        #editRotasList li {
+        #editRotasList li, #editAgentesList li {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            gap: 10px;
+            margin-bottom: 8px;
+            gap: 8px;
         }
-        #editRotasList li input {
+        #editRotasList li input, #editAgentesList li input {
             flex: 1;
             min-width: 150px;
-            max-width: 100%;
-            padding: 8px;
+            padding: 9px 12px;
             font-size: 14px;
         }
+
+        /* ── Autocomplete ────────────────────────────────────── */
         .suggestions {
             position: absolute;
             z-index: 1000;
             background: white;
-            border: 1px solid #ccc;
-            max-height: 150px;
+            border: 1.5px solid var(--verde-claro);
+            border-top: none;
+            max-height: 180px;
             overflow-y: auto;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            border-radius: 0 0 8px 8px;
             width: auto;
             min-width: 200px;
         }
-        .suggestions ul {
-            list-style: none;
+        .suggestions ul { list-style: none; padding: 0; margin: 0; }
+        .suggestions li { padding: 8px 12px; cursor: pointer; font-size: 14px; }
+        .suggestions li:hover,
+        .suggestions li.selected { background: var(--verde-fundo); color: var(--verde-escuro); font-weight: 500; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ── Painéis de edição com grade + busca ───────────────── */
+        .edit-panel {
+            background: #f9fbf9;
+            border: 1.5px solid var(--cinza-borda);
+            border-radius: 10px;
+            margin-top: 12px;
+            overflow: hidden;
+            animation: fadeIn 0.2s;
+        }
+        .edit-panel-header {
+            background: var(--verde-escuro);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .edit-panel-header span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .edit-panel-search {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 6px 10px;
+            gap: 6px;
+            flex: 1;
+            max-width: 280px;
+        }
+        .edit-panel-search input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 13px;
+            width: 100%;
             padding: 0;
             margin: 0;
+            min-height: unset;
+            text-transform: none;
+            outline: none;
         }
-        .suggestions li {
-            padding: 5px 10px;
+        .edit-panel-search input::placeholder { color: rgba(255,255,255,0.6); }
+        .edit-panel-search i { color: rgba(255,255,255,0.7); font-size: 12px; }
+        .edit-panel-count {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            white-space: nowrap;
+        }
+        .edit-panel-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            padding: 12px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .edit-panel-grid.rotas-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .edit-grid-item {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 1px solid var(--cinza-borda);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .edit-grid-item:focus-within {
+            border-color: var(--verde-claro);
+        }
+        .edit-grid-item input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 10px;
+            font-size: 13px;
+            min-height: unset;
+            margin: 0;
+            text-transform: uppercase;
+            color: var(--texto);
+        }
+        .edit-grid-item input:focus { outline: none; box-shadow: none; }
+        .edit-grid-item .btnRemoverGrid {
+            background: none;
+            border: none;
+            color: #aaa;
+            padding: 6px 8px;
+            margin: 0;
+            min-height: unset;
+            width: auto;
+            font-size: 12px;
             cursor: pointer;
+            transition: color 0.2s;
+            border-radius: 0;
         }
-        .suggestions li:hover,
-        .suggestions li.selected {
-            background: #f0f0f0;
+        .edit-grid-item .btnRemoverGrid:hover { color: var(--vermelho); background: #fff0f0; }
+        .edit-panel-footer {
+            display: flex;
+            gap: 8px;
+            padding: 10px 12px;
+            border-top: 1px solid var(--cinza-borda);
+            background: #f0f4f0;
+            flex-wrap: wrap;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .edit-panel-footer button {
+            margin: 0;
+            padding: 9px 16px;
+            font-size: 13px;
+            min-height: unset;
+            flex: 1;
         }
-        @media (max-width: 600px) {
+        .edit-hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .edit-panel-grid { grid-template-columns: repeat(2, 1fr); max-height: 260px; }
+            .edit-panel-grid.rotas-grid { grid-template-columns: 1fr; }
+            .edit-panel-header { flex-wrap: wrap; gap: 8px; }
+            .edit-panel-search { max-width: 100%; }
+            .edit-panel-footer button { min-height: 44px; }
+        }
+        @media (max-width: 768px) {
+            body { padding: 0; background: #eaf0ea; }
+            .report-container { border-radius: 0; box-shadow: none; padding-bottom: 24px; }
+            h2 { font-size: 16px; padding: 16px 12px; letter-spacing: 0; }
+            h3 { font-size: 15px; }
+            .section { padding: 14px 14px; }
+            label { font-size: 14px; margin-top: 16px; }
+            .row { gap: 8px; }
             .row div { min-width: 100%; }
-            button { 
-                width: 100%; 
-                margin: 10px 0; 
+
+            /* Campos maiores no mobile */
+            input, select, textarea {
+                padding: 15px 13px;
+                font-size: 16px;
+                min-height: 52px;
+                border-radius: 8px;
+                margin-top: 5px;
+            }
+            /* Campo agentes ainda maior */
+            .campo-agentes,
+            input[placeholder='Digite os nomes dos agentes'] {
+                min-height: 58px;
+                font-size: 16px;
+            }
+            textarea { min-height: 90px; }
+
+            /* Botões grandes */
+            button {
+                width: 100%;
+                margin: 8px 0 0;
+                padding: 16px 12px;
+                font-size: 15px;
+                min-height: 52px;
+                border-radius: 8px;
+            }
+            .btnRemover {
+                min-height: 46px;
                 padding: 10px;
                 font-size: 14px;
+                margin-top: 6px;
             }
-            .report-container { padding: 15px; }
+
+            /* Items empilhados */
             .item-container {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 6px;
+                padding: 12px;
             }
             .item-container input,
             .item-container select {
                 width: 100%;
-                margin-top: 5px;
-                padding: 10px;
-                font-size: 14px;
+                margin-top: 0;
+                min-height: 52px;
+                font-size: 16px;
+                padding: 14px 13px;
             }
-            .btnRemover {
-                width: auto;
-                padding: 5px 8px;
-                font-size: 12px;
-                margin-top: 5px;
+            .item-container .campo-agentes,
+            .item-container input[placeholder='Digite os nomes dos agentes'] {
+                min-height: 58px;
             }
+
+            /* Cards missão/comando */
             .comando, .missao, .apoio-ctafor, .rendicao-vl, .afericao {
-                padding: 10px;
+                padding: 12px;
             }
-            .comando button, .missao button, .apoio-ctafor button, .rendicao-vl button, .afericao button {
-                width: 100%;
-                margin: 5px 0;
-                padding: 10px;
-                font-size: 14px;
+            .comando button, .missao button,
+            .apoio-ctafor button, .rendicao-vl button, .afericao button {
+                width: 100%; margin: 6px 0 0; padding: 14px; font-size: 14px;
             }
-            #editRotasList li {
-                flex-direction: column;
-                align-items: stretch;
+
+            /* Edição listas */
+            #editRotasList li, #editAgentesList li {
+                flex-direction: column; align-items: stretch; gap: 6px;
             }
-            #editRotasList li input {
-                width: 100%;
-                min-width: 0;
-                margin-right: 0;
-                padding: 10px;
-                font-size: 14px;
+            #editRotasList li input, #editAgentesList li input {
+                width: 100%; min-width: 0; padding: 14px 12px; font-size: 16px;
             }
-            #editRotasList li .btnRemover {
-                width: 100%;
-                padding: 8px;
-                font-size: 12px;
-            }
-            input, select, textarea {
-                padding: 10px;
-                font-size: 14px;
+            #editRotasList li .btnRemover,
+            #editAgentesList li .btnRemover {
+                width: 100%; padding: 10px; font-size: 13px;
             }
         }
     </style>
@@ -338,15 +574,35 @@
             <button id="btnAdicionarRota"><i class="fas fa-plus"></i> Adicionar Rota</button>
             <button id="btnEditarRotas"><i class="fas fa-edit"></i> Editar Rotas</button>
             <button id="btnEditarAgentes"><i class="fas fa-user-edit"></i> Editar Agentes</button>
-            <div id="editRotasContainer">
-                <ul id="editRotasList"></ul>
-                <button id="btnAdicionarNovaRota"><i class="fas fa-plus"></i> Nova Rota</button>
-                <button id="btnSalvarRotas"><i class="fas fa-save"></i> Salvar Rotas</button>
+            <div id="editRotasContainer" class="edit-panel">
+                <div class="edit-panel-header">
+                    <span><i class="fas fa-route"></i> Editar Rotas</span>
+                    <div class="edit-panel-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscaRotas" placeholder="Buscar rota..." oninput="filtrarEditLista('editRotasList','buscaRotas','contadorRotas')">
+                    </div>
+                    <span class="edit-panel-count" id="contadorRotas"></span>
+                </div>
+                <ul id="editRotasList" class="edit-panel-grid rotas-grid"></ul>
+                <div class="edit-panel-footer">
+                    <button id="btnAdicionarNovaRota"><i class="fas fa-plus"></i> Nova Rota</button>
+                    <button id="btnSalvarRotas"><i class="fas fa-save"></i> Salvar Rotas</button>
+                </div>
             </div>
-            <div id="editAgentesContainer" style="display: none; padding: 15px; background-color: #fff; border: 1px solid #e0e0e0; border-radius: 6px; margin-top: 10px;">
-                <ul id="editAgentesList"></ul>
-                <button id="btnAdicionarNovoAgente"><i class="fas fa-plus"></i> Novo Agente</button>
-                <button id="btnSalvarAgentes"><i class="fas fa-save"></i> Salvar Agentes</button>
+            <div id="editAgentesContainer" class="edit-panel">
+                <div class="edit-panel-header">
+                    <span><i class="fas fa-users"></i> Editar Agentes</span>
+                    <div class="edit-panel-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="buscaAgentes" placeholder="Buscar agente..." oninput="filtrarEditLista('editAgentesList','buscaAgentes','contadorAgentes')">
+                    </div>
+                    <span class="edit-panel-count" id="contadorAgentes"></span>
+                </div>
+                <ul id="editAgentesList" class="edit-panel-grid"></ul>
+                <div class="edit-panel-footer">
+                    <button id="btnAdicionarNovoAgente"><i class="fas fa-plus"></i> Novo Agente</button>
+                    <button id="btnSalvarAgentes"><i class="fas fa-save"></i> Salvar Agentes</button>
+                </div>
             </div>
 
             <label>08. Apoio CTAFOR:</label>
@@ -723,18 +979,7 @@
                 <button class="btnRemover"><i class="fas fa-trash"></i></button>
             `;
             const inputAgentes = div.querySelector("input[placeholder='Digite os nomes dos agentes']");
-            inputAgentes.addEventListener("input", function() {
-                this.value = this.value.replace(/[^A-ZÀ-Ú\s.,]/gi, '').toUpperCase();
-                atualizarContagem();
-            });
-            inputAgentes.addEventListener("paste", function(e) {
-                e.preventDefault();
-                const textoColado = (e.clipboardData || window.clipboardData).getData('text')
-                    .replace(/[^A-ZÀ-Ú\s.,]/gi, '')
-                    .toUpperCase();
-                this.value = textoColado;
-                atualizarContagem();
-            });
+            adicionarEventosAgentes(inputAgentes);
             div.querySelector(".btnRemover").addEventListener("click", () => {
                 div.remove();
                 atualizarContagem();
@@ -811,18 +1056,7 @@
                     <button class="btnRemover"><i class="fas fa-trash"></i></button>
                 `;
                 const inputAgentes = div.querySelector("input[placeholder='Digite os nomes dos agentes']");
-                inputAgentes.addEventListener("input", function() {
-                    this.value = this.value.replace(/[^A-ZÀ-Ú\s.,]/gi, '').toUpperCase();
-                    atualizarContagem();
-                });
-                inputAgentes.addEventListener("paste", function(e) {
-                    e.preventDefault();
-                    const textoColado = (e.clipboardData || window.clipboardData).getData('text')
-                        .replace(/[^A-ZÀ-Ú\s.,]/gi, '')
-                        .toUpperCase();
-                    this.value = textoColado;
-                    atualizarContagem();
-                });
+                adicionarEventosAgentes(inputAgentes);
                 div.querySelector(".btnRemover").addEventListener("click", () => {
                     div.remove();
                     atualizarContagem();
@@ -859,29 +1093,54 @@
             });
         }
 
+        function criarItemGrid(valor, classe) {
+            const li = document.createElement("li");
+            li.className = "edit-grid-item";
+            li.innerHTML = `
+                <input type="text" class="${classe}" value="${valor}">
+                <button class="btnRemoverGrid" title="Remover"><i class="fas fa-times"></i></button>
+            `;
+            li.querySelector(".btnRemoverGrid").addEventListener("click", () => {
+                li.remove();
+                // Atualizar contador após remoção
+                const listaId = classe === "edit-agente-input" ? "editAgentesList" : "editRotasList";
+                const buscaId = classe === "edit-agente-input" ? "buscaAgentes" : "buscaRotas";
+                const contId  = classe === "edit-agente-input" ? "contadorAgentes" : "contadorRotas";
+                filtrarEditLista(listaId, buscaId, contId);
+            });
+            return li;
+        }
+
+        function filtrarEditLista(listaId, buscaId, contadorId) {
+            const busca = document.getElementById(buscaId).value.toUpperCase().trim();
+            const items = document.getElementById(listaId).querySelectorAll("li.edit-grid-item");
+            let visiveis = 0;
+            items.forEach(li => {
+                const val = li.querySelector("input").value.toUpperCase();
+                const visivel = !busca || val.includes(busca);
+                li.classList.toggle("edit-hidden", !visivel);
+                if (visivel) visiveis++;
+            });
+            const total = items.length;
+            document.getElementById(contadorId).textContent = busca ? `${visiveis}/${total}` : `${total}`;
+        }
+
         function mostrarEditarRotas() {
             const container = document.getElementById("editRotasContainer");
             const lista = document.getElementById("editRotasList");
             lista.innerHTML = "";
-            rotas.forEach(rota => {
-                const li = document.createElement("li");
-                li.innerHTML = `
-                    <input type="text" class="edit-rota-input" value="${rota}">
-                    <button class="btnRemover" onclick="this.parentNode.remove()"><i class="fas fa-trash"></i></button>
-                `;
-                lista.appendChild(li);
-            });
-            container.style.display = "block";
+            rotas.forEach(rota => lista.appendChild(criarItemGrid(rota, "edit-rota-input")));
+            document.getElementById("buscaRotas").value = "";
+            filtrarEditLista("editRotasList", "buscaRotas", "contadorRotas");
+            container.style.display = container.style.display === "block" ? "none" : "block";
         }
 
         function adicionarNovaRota() {
             const lista = document.getElementById("editRotasList");
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <input type="text" class="edit-rota-input" placeholder="Nova rota">
-                <button class="btnRemover" onclick="this.parentNode.remove)"><i class="fas fa-trash"></i></button>
-            `;
+            const li = criarItemGrid("", "edit-rota-input");
             lista.appendChild(li);
+            li.querySelector("input").focus();
+            filtrarEditLista("editRotasList", "buscaRotas", "contadorRotas");
         }
 
         function salvarRotas() {
@@ -895,29 +1154,23 @@
             document.getElementById("editRotasContainer").style.display = "none";
             alert("Rotas salvas com sucesso!");
         }
+
         function mostrarEditarAgentes() {
             const container = document.getElementById("editAgentesContainer");
             const lista = document.getElementById("editAgentesList");
             lista.innerHTML = "";
-            agentes.forEach(agente => {
-                const li = document.createElement("li");
-                li.innerHTML = `
-                    <input type="text" class="edit-agente-input" value="${agente}">
-                    <button class="btnRemover" onclick="this.parentNode.remove()"><i class="fas fa-trash"></i></button>
-                `;
-                lista.appendChild(li);
-            });
-            container.style.display = "block";
+            agentes.forEach(agente => lista.appendChild(criarItemGrid(agente, "edit-agente-input")));
+            document.getElementById("buscaAgentes").value = "";
+            filtrarEditLista("editAgentesList", "buscaAgentes", "contadorAgentes");
+            container.style.display = container.style.display === "block" ? "none" : "block";
         }
 
         function adicionarNovoAgente() {
             const lista = document.getElementById("editAgentesList");
-            const li = document.createElement("li");
-            li.innerHTML = `
-                <input type="text" class="edit-agente-input" placeholder="Novo agente">
-                <button class="btnRemover" onclick="this.parentNode.remove()"><i class="fas fa-trash"></i></button>
-            `;
+            const li = criarItemGrid("", "edit-agente-input");
             lista.appendChild(li);
+            li.querySelector("input").focus();
+            filtrarEditLista("editAgentesList", "buscaAgentes", "contadorAgentes");
         }
 
         function salvarAgentes() {
@@ -930,6 +1183,121 @@
             document.getElementById("editAgentesContainer").style.display = "none";
             alert("Lista de agentes salva com sucesso!");
         }
+
+        // ── Funções globais de autocomplete ─────────────────────────────────────
+        function adicionarEventosAgentes(input) {
+            input.addEventListener('input', function() {
+                this.value = this.value.toUpperCase().replace(/\s+/g, ' ');
+                atualizarContagem();
+                mostrarSugestoes(this);
+            });
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                let textoColado = (e.clipboardData || window.clipboardData).getData('text')
+                    .toUpperCase()
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                if (this.value && !this.value.endsWith(',')) {
+                    textoColado = `, ${textoColado}`;
+                }
+                document.execCommand('insertText', false, textoColado);
+                atualizarContagem();
+            });
+            input.addEventListener('keydown', function(e) {
+                const suggestions = this.nextElementSibling && this.nextElementSibling.classList.contains('suggestions') ? this.nextElementSibling : null;
+                if (!suggestions) return;
+                const items = suggestions.querySelectorAll('li');
+                let selectedIndex = -1;
+                items.forEach((item, index) => {
+                    if (item.classList.contains('selected')) selectedIndex = index;
+                });
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (selectedIndex < items.length - 1) {
+                        if (selectedIndex >= 0) items[selectedIndex].classList.remove('selected');
+                        selectedIndex++;
+                        items[selectedIndex].classList.add('selected');
+                        suggestions.scrollTop = items[selectedIndex].offsetTop - suggestions.clientHeight + items[selectedIndex].clientHeight;
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedIndex > 0) {
+                        items[selectedIndex].classList.remove('selected');
+                        selectedIndex--;
+                        items[selectedIndex].classList.add('selected');
+                        suggestions.scrollTop = items[selectedIndex].offsetTop - suggestions.clientHeight + items[selectedIndex].clientHeight;
+                    }
+                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                    e.preventDefault();
+                    const selectedSuggestion = items[selectedIndex].textContent.trim();
+                    let currentValue = this.value.replace(/\s+/g, ' ').trim();
+                    const lastCommaIndex = currentValue.lastIndexOf(',');
+                    let prefix = lastCommaIndex >= 0 ? currentValue.substring(0, lastCommaIndex + 1).trim() : '';
+                    if (prefix && !prefix.endsWith(',')) prefix = `${prefix},`;
+                    this.value = (prefix ? `${prefix} ${selectedSuggestion},` : `${selectedSuggestion},`).replace(/\s+/g, ' ').trim() + ' ';
+                    if (suggestions) suggestions.remove();
+                    atualizarContagem();
+                } else if (e.key === 'Escape') {
+                    if (suggestions) suggestions.remove();
+                }
+            });
+            input.addEventListener('blur', function() {
+                setTimeout(() => {
+                    const suggestions = this.nextElementSibling && this.nextElementSibling.classList.contains('suggestions') ? this.nextElementSibling : null;
+                    if (suggestions) suggestions.remove();
+                }, 200);
+            });
+        }
+
+        function mostrarSugestoes(input) {
+            let suggestionsContainer = input.nextElementSibling;
+            if (suggestionsContainer && suggestionsContainer.classList.contains('suggestions')) {
+                suggestionsContainer.remove();
+            }
+            const value = input.value.replace(/\s+/g, ' ').trim();
+            const lastCommaIndex = value.lastIndexOf(',');
+            const currentWord = (lastCommaIndex >= 0 ? value.substring(lastCommaIndex + 1) : value).trim();
+            if (!currentWord) return;
+            const filteredAgentes = agentes.filter(agente =>
+                agente.toUpperCase().startsWith(currentWord.toUpperCase())
+            );
+            if (filteredAgentes.length === 0) return;
+            suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'suggestions';
+            input.parentNode.insertBefore(suggestionsContainer, input.nextSibling);
+            const rect = input.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            suggestionsContainer.style.cssText = `
+                position: absolute;
+                z-index: 1000;
+                background: white;
+                border: 1px solid #ccc;
+                max-height: 150px;
+                overflow-y: auto;
+                width: ${rect.width}px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                left: ${rect.left + window.pageXOffset}px;
+                top: ${rect.bottom + scrollTop}px;
+            `;
+            suggestionsContainer.innerHTML = '<ul style="list-style: none; padding: 0; margin: 0;">' +
+                filteredAgentes.map(agente => `
+                    <li style="padding: 5px 10px; cursor: pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'">
+                    ${agente}
+                    </li>
+                `).join('') + '</ul>';
+            const items = suggestionsContainer.querySelectorAll('li');
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const selectedSuggestion = item.textContent.trim();
+                    const prefix = lastCommaIndex >= 0 ? value.substring(0, lastCommaIndex + 1).trim() : '';
+                    input.value = (prefix ? `${prefix} ${selectedSuggestion},` : `${selectedSuggestion},`).replace(/\s+/g, ' ').trim() + ' ';
+                    suggestionsContainer.remove();
+                    atualizarContagem();
+                    input.focus();
+                });
+            });
+        }
+        // ─────────────────────────────────────────────────────────────────────
 
         // Configuração dos eventos
         document.addEventListener("DOMContentLoaded", function() {
@@ -977,137 +1345,6 @@
                 const input = document.getElementById(id);
                 adicionarEventosAgentes(input);
             });
-
-            // Validação, conversão para maiúsculas e autocomplete para todos os campos de agentes
-            function adicionarEventosAgentes(input) {
-                input.addEventListener('input', function() {
-                    // Converte para maiúsculas e substitui múltiplos espaços por um único espaço
-                    this.value = this.value.toUpperCase().replace(/\s+/g, ' ');
-                    atualizarContagem();
-                    mostrarSugestoes(this);
-                });
-                input.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    let textoColado = (e.clipboardData || window.clipboardData).getData('text')
-                      .toUpperCase()
-                      .replace(/\s+/g, ' ') // Substitui múltiplos espaços por um único
-                      .trim(); // Remove espaços no início e fim
-                  // Adiciona vírgula e espaço se o campo não estiver vazio e não terminar com vírgula
-                  if (this.value && !this.value.endsWith(',')) {
-                      textoColado = `, ${textoColado}`;
-                  }
-                  document.execCommand('insertText', false, textoColado);
-                  atualizarContagem();
-              });
-              input.addEventListener('keydown', function(e) {
-                  const suggestions = this.nextElementSibling && this.nextElementSibling.classList.contains('suggestions') ? this.nextElementSibling : null;
-                  if (!suggestions) return;
-                  const items = suggestions.querySelectorAll('li');
-                  let selectedIndex = -1;
-                  items.forEach((item, index) => {
-                      if (item.classList.contains('selected')) selectedIndex = index;
-                  });
-                  if (e.key === 'ArrowDown') {
-                      e.preventDefault();
-                      if (selectedIndex < items.length - 1) {
-                          if (selectedIndex >= 0) items[selectedIndex].classList.remove('selected');
-                          selectedIndex++;
-                          items[selectedIndex].classList.add('selected');
-                          suggestions.scrollTop = items[selectedIndex].offsetTop - suggestions.clientHeight + items[selectedIndex].clientHeight;
-                      }
-                  } else if (e.key === 'ArrowUp') {
-                      e.preventDefault();
-                      if (selectedIndex > 0) {
-                          items[selectedIndex].classList.remove('selected');
-                          selectedIndex--;
-                          items[selectedIndex].classList.add('selected');
-                          suggestions.scrollTop = items[selectedIndex].offsetTop - suggestions.clientHeight + items[selectedIndex].clientHeight;
-                      }
-                  } else if (e.key === 'Enter' && selectedIndex >= 0) {
-                      e.preventDefault();
-                      const selectedSuggestion = items[selectedIndex].textContent.trim();
-                      // Normaliza o valor atual, removendo espaços extras
-                      let currentValue = this.value.replace(/\s+/g, ' ').trim();
-                      const lastCommaIndex = currentValue.lastIndexOf(',');
-                      let prefix = lastCommaIndex >= 0 ? currentValue.substring(0, lastCommaIndex + 1).trim() : '';
-                      // Garante que o prefixo termine com vírgula, se não estiver vazio
-                      if (prefix && !prefix.endsWith(',')) {
-                          prefix = `${prefix},`;
-                      }
-                      // Adiciona o nome selecionado com uma vírgula e um espaço
-                      this.value = (prefix ? `${prefix} ${selectedSuggestion},` : `${selectedSuggestion},`).replace(/\s+/g, ' ').trim() + ' ';
-                      if (suggestions) suggestions.remove();
-                      atualizarContagem();
-                      console.log('Valor após Enter:', this.value, this.value.split('').map(c => c.charCodeAt(0))); // Log de depuração
-                  } else if (e.key === 'Escape') {
-                      if (suggestions) suggestions.remove();
-                  }
-              });
-              input.addEventListener('blur', function() {
-                  setTimeout(() => {
-                      const suggestions = this.nextElementSibling && this.nextElementSibling.classList.contains('suggestions') ? this.nextElementSibling : null;
-                      if (suggestions) suggestions.remove();
-                  }, 200);
-              });
-            }
-
-            function mostrarSugestoes(input) {
-                // Remover qualquer caixa de sugestões existente
-                let suggestionsContainer = input.nextElementSibling;
-                if (suggestionsContainer && suggestionsContainer.classList.contains('suggestions')) {
-                    suggestionsContainer.remove();
-                }
-
-                const value = input.value.replace(/\s+/g, ' ').trim();
-                console.log('Valor para sugestões:', value, 'CurrentWord:', value.substring(value.lastIndexOf(',') + 1).trim()); // Log de depuração
-                const lastCommaIndex = value.lastIndexOf(',');
-                const currentWord = (lastCommaIndex >= 0 ? value.substring(lastCommaIndex + 1) : value).trim();
-                if (!currentWord) return;
-
-                const filteredAgentes = agentes.filter(agente =>
-                    agente.toUpperCase().startsWith(currentWord.toUpperCase())
-                );
-                if (filteredAgentes.length === 0) return;
-
-                // Criar nova caixa de sugestões
-                suggestionsContainer = document.createElement('div');
-                suggestionsContainer.className = 'suggestions';
-                input.parentNode.insertBefore(suggestionsContainer, input.nextSibling);
-
-                // Calcular posição da caixa de sugestões
-                const rect = input.getBoundingClientRect();
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                suggestionsContainer.style.cssText = `
-                    position: absolute;
-                    z-index: 1000;
-                    background: white;
-                    border: 1px solid #ccc;
-                    max-height: 150px;
-                    overflow-y: auto;
-                    width: ${rect.width}px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                    left: ${rect.left + window.pageXOffset}px;
-                    top: ${rect.bottom + scrollTop}px;
-                `;
-
-                suggestionsContainer.innerHTML = '<ul style="list-style: none; padding: 0; margin: 0;">' +
-                    filteredAgentes.map(agente => `
-                        <li style="padding: 5px 10px; cursor: pointer;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='white'">
-                        ${agente}
-                        </li>
-                    `).join('') + '</ul>';
-                const items = suggestionsContainer.querySelectorAll('li');
-                items.forEach(item => {
-                    item.addEventListener('click', () => {
-                        const selectedSuggestion = item.textContent.trim();
-                        const prefix = lastCommaIndex >= 0 ? value.substring(0, lastCommaIndex + 1).trim() : '';
-                        input.value = (prefix ? `${prefix} ${selectedSuggestion},` : `${selectedSuggestion},`).replace(/\s+/g, ' ').trim() + ' ';
-                        suggestionsContainer.remove();
-                        atualizarContagem();
-                        input.focus();
-                    });
-                });
-            }
 
             // Campos internos iniciais
             document.querySelectorAll('input[type="text"][placeholder="Digite os nomes dos agentes"], input[type="text"][placeholder="Digite os nomes dos operadores"]').forEach(adicionarEventosAgentes);
@@ -1174,6 +1411,20 @@
                     atualizarContagem();
                 });
                 return div;
+            };
+
+            // Sobrescrever adicionarZonaAzul para incluir autocomplete
+            const adicionarZonaAzulOriginal = adicionarZonaAzul;
+            adicionarZonaAzul = function() {
+                adicionarZonaAzulOriginal();
+                const container = document.getElementById("zonaAzulContainer");
+                const div = container.lastElementChild;
+                const inputAgentes = div.querySelector("input[placeholder='Digite os nomes dos agentes']");
+                // Remove listeners antigos trocando por adicionarEventosAgentes
+                const novoInput = inputAgentes.cloneNode(true);
+                inputAgentes.parentNode.replaceChild(novoInput, inputAgentes);
+                adicionarEventosAgentes(novoInput);
+                novoInput.addEventListener("input", atualizarContagem);
             };
 
             atualizarContagem();
@@ -1563,14 +1814,14 @@
             const alturaPagina = 297;
             const alturaCabecalho = 15;
             const alturaRodape = 15;
-            let y = alturaCabecalho + 15;
+            let y = alturaCabecalho + 18;
             let paginaAtual = 1;
 
             const urlCabecalho = "https://i.imgur.com/ugHshEu.jpeg";
             const urlRodape = "https://i.imgur.com/9QqgR97.jpg";
             const data = document.getElementById("data").value;
             const turno = document.getElementById("turno").value;
-            const fileName = `Relatorio_${data}_${turno}.pdf`;
+            const fileName = `Relatorio_${formatarData(data).replace(/\//g,"_")}_${turno}.pdf`;
 
             async function carregarImagem(url) {
                 return new Promise((resolve, reject) => {
@@ -1586,13 +1837,16 @@
                 try {
                     const img = await carregarImagem(urlCabecalho);
                     doc.addImage(img, "PNG", margemEsquerda, 2, larguraMaxima, alturaCabecalho - 2);
+                    // Faixa de título
+                    doc.setFillColor(46, 94, 86);
+                    doc.rect(margemEsquerda, alturaCabecalho + 1, larguraMaxima, 9, "F");
                     doc.setFont("helvetica", "bold");
-                    doc.setFontSize(16);
-                    doc.setTextColor(76, 175, 80);
+                    doc.setFontSize(13);
+                    doc.setTextColor(255, 255, 255);
                     const titulo = "RELATÓRIO OPERACIONAL DE TURNO - AMC";
                     const larguraTitulo = doc.getTextWidth(titulo);
                     const xCentralizado = (210 - larguraTitulo) / 2;
-                    doc.text(titulo, xCentralizado, alturaCabecalho + 8);
+                    doc.text(titulo, xCentralizado, alturaCabecalho + 7);
                     doc.setFont("helvetica", "normal");
                     doc.setFontSize(10);
                     doc.setTextColor(0, 0, 0);
@@ -1659,25 +1913,129 @@
                     head: [columns],
                     body: data,
                     theme: "grid",
-                    headStyles: { fillColor: [76, 175, 80], textColor: [255, 255, 255] },
-                    styles: { fontSize: 10, cellPadding: 2, lineColor: [200, 200, 200], lineWidth: 0.1 },
-                    margin: { left: margemEsquerda }
+                    headStyles: {
+                        fillColor: [46, 94, 86],
+                        textColor: [255, 255, 255],
+                        fontStyle: "bold",
+                        fontSize: 10,
+                        cellPadding: 3
+                    },
+                    alternateRowStyles: { fillColor: [245, 250, 245] },
+                    styles: {
+                        fontSize: 9.5,
+                        cellPadding: 3,
+                        lineColor: [210, 230, 210],
+                        lineWidth: 0.2,
+                        overflow: "linebreak"
+                    },
+                    columnStyles: { 0: { cellWidth: 8 } },
+                    margin: { left: margemEsquerda, right: 10 }
                 });
                 y = doc.lastAutoTable.finalY + 5;
             }
 
             async function adicionarLinhaDivisoria() {
-                if (y + 2 > alturaPagina - alturaRodape - 10) {
+                if (y + 4 > alturaPagina - alturaRodape - 10) {
                     await adicionarRodape();
                     doc.addPage();
                     paginaAtual++;
                     await adicionarCabecalho();
                     y = alturaCabecalho + 15;
                 }
-                doc.setLineWidth(0.2);
-                doc.setDrawColor(200);
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(46, 94, 86);
                 doc.line(margemEsquerda, y, margemEsquerda + larguraMaxima, y);
-                y += 5;
+                y += 7;
+            }
+
+            // Desenha card cinza com borda colorida para campos de texto (Local, Chefe, etc.)
+            async function adicionarCardInfo(campos) {
+                // campos: [{rotulo, valor}, ...]
+                const padding = 4;
+                const xTexto = margemEsquerda + 3 + padding;
+                const larguraCard = larguraMaxima;
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(10);
+
+                // Calcular altura total do card
+                let alturaTotal = padding;
+                const linhasPorCampo = campos.map(({ rotulo, valor }) => {
+                    const larguraRotulo = doc.getTextWidth(rotulo + " ");
+                    const linhas = doc.splitTextToSize(valor, larguraCard - larguraRotulo - 8 - padding);
+                    const h = Math.max(linhas.length * (10 * 0.3528), 10 * 0.3528);
+                    alturaTotal += h + 3;
+                    return { rotulo, valor, linhas, larguraRotulo, h };
+                });
+                alturaTotal += padding;
+
+                if (y + alturaTotal + 5 > alturaPagina - alturaRodape - 10) {
+                    await adicionarRodape();
+                    doc.addPage();
+                    paginaAtual++;
+                    await adicionarCabecalho();
+                    y = alturaCabecalho + 15;
+                }
+
+                // Fundo cinza claro
+                doc.setFillColor(245, 247, 245);
+                doc.setDrawColor(46, 94, 86);
+                doc.setLineWidth(0.1);
+                doc.roundedRect(margemEsquerda, y, larguraCard, alturaTotal, 2, 2, "FD");
+                // Borda esquerda verde
+                doc.setFillColor(46, 94, 86);
+                doc.rect(margemEsquerda, y, 3, alturaTotal, "F");
+
+                let yTexto = y + padding + 3;
+                for (const { rotulo, valor, linhas, larguraRotulo, h } of linhasPorCampo) {
+                    // Rótulo em verde negrito
+                    doc.setFont("helvetica", "bold");
+                    doc.setTextColor(46, 94, 86);
+                    doc.text(rotulo, xTexto, yTexto);
+                    // Valor em preto normal
+                    doc.setFont("helvetica", "normal");
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(linhas, xTexto + larguraRotulo, yTexto);
+                    yTexto += h + 3;
+                }
+                y += alturaTotal + 4;
+            }
+
+            // Subtítulo "Viaturas/Motos:" destacado
+            // A verificação de página é feita pelos chamadores antes de chamar esta função
+            function adicionarSubtituloViaturas() {
+                doc.setFont("helvetica", "bolditalic");
+                doc.setFontSize(9.5);
+                doc.setTextColor(80, 80, 80);
+                doc.text("Viaturas/Motos:", margemEsquerda, y);
+                doc.setLineWidth(0.2);
+                doc.setDrawColor(180, 200, 180);
+                doc.line(margemEsquerda + doc.getTextWidth("Viaturas/Motos:") + 2, y - 1, margemEsquerda + larguraMaxima, y - 1);
+                y += 4;
+            }
+
+            // Número de missão/comando em destaque (quadrado verde)
+            // Verifica se há espaço para o badge + altura mínima do card (25mm)
+            // antes de desenhar, virando página se necessário
+            async function adicionarNumeroBadge(numero) {
+                const alturaMinima = 25; // espaço mínimo para badge + card
+                if (y + alturaMinima > alturaPagina - alturaRodape - 10) {
+                    await adicionarRodape();
+                    doc.addPage();
+                    paginaAtual++;
+                    await adicionarCabecalho();
+                    y = alturaCabecalho + 15;
+                }
+                const size = 6;
+                const xBadge = margemEsquerda;
+                doc.setFillColor(46, 94, 86);
+                doc.roundedRect(xBadge, y - 4.5, size, size, 1, 1, "F");
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(8);
+                doc.setTextColor(255, 255, 255);
+                const numStr = String(numero);
+                const xNum = xBadge + (size - doc.getTextWidth(numStr)) / 2;
+                doc.text(numStr, xNum, y - 0.5);
+                doc.setTextColor(0, 0, 0);
             }
 
             await adicionarCabecalho();
@@ -1789,22 +2147,31 @@
                 const items = document.getElementById(id).children;
                 if (items.length) {
                     let contador = 1;
-                    await adicionarTexto(title, 12, margemEsquerda, true, [76, 175, 80]);
+                    await adicionarTexto(title, 12, margemEsquerda, true, [46, 94, 86]);
                     for (const item of Array.from(items)) {
                         const local = item.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
-                        await adicionarTexto(`${contador}. Local: ${local}`, 10);
+                        // Badge com número
+                        y += 6;
+                        await adicionarNumeroBadge(contador);
+                        // Card com campos
+                        await adicionarCardInfo([
+                            { rotulo: "Local:", valor: local }
+                        ]);
                         const viaturas = item.querySelectorAll('.viaturasContainer div');
                         if (viaturas.length) {
-                            const yAntesViaturas = await adicionarTexto("Viaturas/Motos:", 10, margemEsquerda, false, [0, 0, 0], 2);
+                            // Verificar se há espaço para subtítulo + tabela mínima juntos
+                            if (y + 25 > alturaPagina - alturaRodape - 10) {
+                                await adicionarRodape(); doc.addPage(); paginaAtual++;
+                                await adicionarCabecalho(); y = alturaCabecalho + 15;
+                            }
+                            adicionarSubtituloViaturas();
                             const tabelaData = [];
                             Array.from(viaturas).forEach(viatura => {
                                 const tipo = viatura.querySelector('select').value;
                                 const agentes = viatura.querySelector('input').value.toUpperCase();
                                 tabelaData.push(["", tipo, agentes]);
                             });
-                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], yAntesViaturas);
-                        } else {
-                            y += 2;
+                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], y);
                         }
                         contador++;
                     }
@@ -1816,24 +2183,30 @@
                 const items = document.getElementById(id).children;
                 if (items.length) {
                     let contador = 1;
-                    await adicionarTexto(title, 12, margemEsquerda, true, [76, 175, 80]);
+                    await adicionarTexto(title, 12, margemEsquerda, true, [46, 94, 86]);
                     for (const item of Array.from(items)) {
                         const local = item.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const chefe = item.querySelector('input[placeholder="Digite o chefe da missão"]').value.toUpperCase();
-                        await adicionarTexto(`${contador}. Local: ${local}`, 10);
-                        await adicionarTexto(`Chefe da Missão: ${chefe}`, 10);
+                        y += 6;
+                        await adicionarNumeroBadge(contador);
+                        await adicionarCardInfo([
+                            { rotulo: "Local:", valor: local },
+                            { rotulo: "Chefe da Missão:", valor: chefe }
+                        ]);
                         const viaturas = item.querySelectorAll('.viaturasContainer div');
                         if (viaturas.length) {
-                            const yAntesViaturas = await adicionarTexto("Viaturas/Motos:", 10, margemEsquerda, false, [0, 0, 0], 2);
+                            if (y + 25 > alturaPagina - alturaRodape - 10) {
+                                await adicionarRodape(); doc.addPage(); paginaAtual++;
+                                await adicionarCabecalho(); y = alturaCabecalho + 15;
+                            }
+                            adicionarSubtituloViaturas();
                             const tabelaData = [];
                             Array.from(viaturas).forEach(viatura => {
                                 const tipo = viatura.querySelector('select').value;
                                 const agentes = viatura.querySelector('input').value.toUpperCase();
                                 tabelaData.push(["", tipo, agentes]);
                             });
-                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], yAntesViaturas);
-                        } else {
-                            y += 2;
+                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], y);
                         }
                         contador++;
                     }
@@ -1845,24 +2218,30 @@
                 const comandos = document.getElementById("comandoContainer").children;
                 if (comandos.length) {
                     let contador = 1;
-                    await adicionarTexto("15. Comando", 12, margemEsquerda, true, [76, 175, 80]);
+                    await adicionarTexto("15. Comando", 12, margemEsquerda, true, [46, 94, 86]);
                     for (const comando of Array.from(comandos)) {
                         const local = comando.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const coordenador = comando.querySelector('input[placeholder="Digite o coordenador responsável"]').value.toUpperCase();
-                        await adicionarTexto(`${contador}. Local: ${local}`, 10);
-                        await adicionarTexto(`Coordenador: ${coordenador}`, 10);
+                        y += 6;
+                        await adicionarNumeroBadge(contador);
+                        await adicionarCardInfo([
+                            { rotulo: "Local:", valor: local },
+                            { rotulo: "Coordenador:", valor: coordenador }
+                        ]);
                         const viaturas = comando.querySelectorAll('.viaturasContainer div');
                         if (viaturas.length) {
-                            const yAntesViaturas = await adicionarTexto("Viaturas/Motos:", 10, margemEsquerda, false, [0, 0, 0], 2);
+                            if (y + 25 > alturaPagina - alturaRodape - 10) {
+                                await adicionarRodape(); doc.addPage(); paginaAtual++;
+                                await adicionarCabecalho(); y = alturaCabecalho + 15;
+                            }
+                            adicionarSubtituloViaturas();
                             const tabelaData = [];
                             Array.from(viaturas).forEach(viatura => {
                                 const tipo = viatura.querySelector('select').value;
                                 const agentes = viatura.querySelector('input').value.toUpperCase();
                                 tabelaData.push(["", tipo, agentes]);
                             });
-                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], yAntesViaturas);
-                        } else {
-                            y += 2;
+                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes"], y);
                         }
                         contador++;
                     }
@@ -1874,17 +2253,25 @@
                 const missoes = document.getElementById("missaoContainer").children;
                 if (missoes.length) {
                     let contador = 1;
-                    await adicionarTexto("16. Outras Missões", 12, margemEsquerda, true, [76, 175, 80]);
+                    await adicionarTexto("16. Outras Missões", 12, margemEsquerda, true, [46, 94, 86]);
                     for (const missao of Array.from(missoes)) {
                         const evento = missao.querySelector('input[placeholder="Digite missão ou evento"]').value.toUpperCase();
                         const local = missao.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const chefe = missao.querySelector('input[placeholder="Digite o chefe da missão"]').value.toUpperCase();
-                        await adicionarTexto(`${contador}. Missão/Evento: ${evento}`, 10);
-                        await adicionarTexto(`Local: ${local}`, 10);
-                        await adicionarTexto(`Chefe da Missão: ${chefe}`, 10);
+                        y += 6;
+                        await adicionarNumeroBadge(contador);
+                        await adicionarCardInfo([
+                            { rotulo: "Missão/Evento:", valor: evento },
+                            { rotulo: "Local:", valor: local },
+                            { rotulo: "Chefe da Missão:", valor: chefe }
+                        ]);
                         const viaturas = missao.querySelectorAll('.viaturasContainer div');
                         if (viaturas.length) {
-                            const yAntesViaturas = await adicionarTexto("Viaturas/Motos:", 10, margemEsquerda, false, [0, 0, 0], 2);
+                            if (y + 25 > alturaPagina - alturaRodape - 10) {
+                                await adicionarRodape(); doc.addPage(); paginaAtual++;
+                                await adicionarCabecalho(); y = alturaCabecalho + 15;
+                            }
+                            adicionarSubtituloViaturas();
                             const tabelaData = [];
                             Array.from(viaturas).forEach(viatura => {
                                 const tipo = viatura.querySelector('select').value;
@@ -1892,9 +2279,7 @@
                                 const postoBase = viatura.querySelector("input[placeholder='Digite o Posto Base']").value.toUpperCase();
                                 tabelaData.push(["", tipo, agentes, postoBase]);
                             });
-                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes", "Posto Base"], yAntesViaturas);
-                        } else {
-                            y += 2;
+                            await adicionarTabela(tabelaData, ["", "Veículo", "Agentes", "Posto Base"], y);
                         }
                         contador++;
                     }
@@ -1929,7 +2314,7 @@
             const ws_data = [];
             const data = document.getElementById("data").value;
             const turno = document.getElementById("turno").value;
-            const fileName = `Relatorio_${data}_${turno}.xlsx`;
+            const fileName = `Relatorio_${formatarData(data).replace(/\//g,"_")}_${turno}.xlsx`;
 
             ws_data.push(["RELATÓRIO OPERACIONAL DE TURNO - AMC"]);
             ws_data.push([]);
