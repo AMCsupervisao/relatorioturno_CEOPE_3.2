@@ -680,16 +680,16 @@
             "CLAUDIO", "CLAUDNILSON", "CLEBIO", "CLECIANO", "CLEITON", "CONCEICAO", "CORREIA", "COSMO", "COSTA", "CRIS",
             "CRUZ", "DALINY", "DAMASCENO", "DANIEL", "DANIELLI PAZ", "DANTAS", "DARIO", "DAVID", "DE MORAIS", "DEHON",
             "DELANO", "DELMA", "DEMETRIO", "DENISE", "DIANA", "DIAS", "DIEGO", "DIOGO", "DJALMA", "DUARTE",
-            "DULCE", "E. COSTA", "EDIAN", "EDNARDO", "EDNILSON", "EDSON", "EDVANDO NUNES", "ELEINA", "EMILIO CARLOS", "ENEAS",
+            "DULCE", "E. COSTA", "EDIAN", "EDNARDO", "EDNILSON", "EDSON", "EDVANDO NUNES", "ELEINA", "EMERSON ANDRADE", "EMILIO CARLOS", "ENEAS",
             "EREMYLTO", "ERIC", "ERISTON", "ERMESON", "EUCLIDES", "EVANDRO", "EVANDRO SILVA", "EVELINE", "EVELYN", "EWERTON",
             "F. ALENCAR", "F. ROLIM", "F. SOUZA", "F. SANTOS", "F. VIANA", "FABIANO", "FABIO AUGUSTO", "FABRICIO", "FACANHA", "FACO",
             "FARIAS", "FATIMA", "FELIX", "FERNANDES", "FERNANDO", "FERREIRA", "FERRO", "FLAVIANA", "FLAVIO", "FLAVIO ANTONIO",
             "FONSECA", "FONTELES", "FONTENELE", "FRANCA", "FRANCINETE", "FRANCISCO", "FRANCISCO ANTONIO", "FREIRE", "FROTA", "FURTADO",
-            "G. ROCHA", "G. SOUSA", "G. TAVARES", "GABRIEL", "GADELHA", "GALBERE", "GALVAO", "GARCIA", "GASPAR", "GEOVANA",
+            "G. ROCHA", "G. SOUSA", "G. TAVARES", "GABRIEL", "GABRIEL OLIVEIRA", "GADELHA", "GALBERE", "GALVAO", "GARCIA", "GASPAR", "GEOVANA",
             "GEOVANILDO", "GERALDO BORGES", "GERARDO", "GERCIONE", "GILBERT", "GILSON", "GILVAN", "GLEDSON", "GLEYCIANE", "GOES",
             "GONCALO", "GUEDES", "GUILHERME", "GURGEL", "GUSTAVO", "HARIADYNNE", "HEBERFRAN", "HELANO", "HELDER", "HELIO",
             "HELLEN", "HENRIQUE", "HERBERT", "HERMES", "HERNANDO", "HILDA", "HONORATO", "HORANA", "IARA", "IEDA",
-            "IGOR", "INES", "IRACEMA", "IRI GONCALVES", "ISIS", "ISRAEL", "IURY", "IVANILTON", "IZABEL", "J. PORTELA",
+            "IGOR", "INACIO", "INES", "IRACEMA", "IRI GONCALVES", "ISIS", "ISRAEL", "IURY", "IVANILTON", "IZABEL", "J. PORTELA",
             "J. LOPES", "J. MARCELO", "J. MARQUES", "J. PEIXOTO", "J. SALES", "J. VASCONCELOS", "JAC MARREIRO", "JACELIO", "JACQUELINE", "JADSON",
             "JALES", "JAMILLY", "JANCEY", "JANNE", "JEFFERSON", "JESOINA", "JESSE", "JOAMARO", "JOANA", "JOAO AVELINO",
             "JOAO BEZERRA", "JOAO BOSCO", "JOAO DE DEUS", "JOAO FILHO", "JOAO GOMES", "JOAO MARCOS", "JOAO PAULO", "JOAO RAMOS", "JOAO RODRIGUES",
@@ -714,7 +714,7 @@
             "SAMUEL", "SANDRA", "SANTOS", "SARA", "SARAIVA", "SERGIO", "SEVERO", "SHARLES", "SILAS", "SILVA",
             "SIPAUBA", "SOCORRO TEIXEIRA", "SOLON", "SOUZA", "SOUZA LIMA", "SULINO", "SYNTIA MEIRELES", "T. OLIVEIRA", "TAIS TAVARES", "TALES",
             "TALITA", "TARCISIO", "TARCISIO FILHO", "TAUANNE", "TAUMATURGO", "TAVARES", "TEIXEIRA", "TELES", "TEMISTOCLES", "TEMOTEO",
-            "THAIS", "THAYMISSA", "TICIANO", "TORRES", "TRAJANO", "UCHOA", "UNIAS", "V. MARTINS", "VALDETARIO", "VANESSA",
+            "THAIS", "THAYMISSA", "TICIANO", "TORRES", "TRAJANO", "UCHOA", "UNIAS", "V. MARTINS", "V. NUNES", "VALDETARIO", "VANESSA",
             "VASCONCELOS", "VENICIO SALES", "VENTURA", "VIANA NETO", "VILMA", "VINICIUS", "VIRGINIA", "VITORINO", "VIVIANE", "VLADIA",
             "WALDEMBERG", "WANDERSON", "WASHINGTON", "WASHINGTON LUIS", "WELBER", "WELLINGTON", "WERBENA", "WESLEY", "WLADIEL", "XAVIER",
             "YVES"
@@ -2014,17 +2014,17 @@
             }
 
             // Número de missão/comando em destaque (quadrado verde)
-            // Verifica se há espaço para o badge + altura mínima do card (25mm)
-            // antes de desenhar, virando página se necessário
-            async function adicionarNumeroBadge(numero) {
-                const alturaMinima = 25; // espaço mínimo para badge + card
-                if (y + alturaMinima > alturaPagina - alturaRodape - 10) {
+            // Reserva 40mm antes de desenhar (badge + card mínimo com até 3 campos)
+            async function adicionarNumeroBadge(numero, reserva = 40) {
+                // Verifica espaço ANTES do y+=6 para garantir que badge+card caibam juntos
+                if (y + reserva > alturaPagina - alturaRodape - 10) {
                     await adicionarRodape();
                     doc.addPage();
                     paginaAtual++;
                     await adicionarCabecalho();
                     y = alturaCabecalho + 15;
                 }
+                y += 6; // avança após garantir espaço
                 const size = 6;
                 const xBadge = margemEsquerda;
                 doc.setFillColor(46, 94, 86);
@@ -2151,7 +2151,6 @@
                     for (const item of Array.from(items)) {
                         const local = item.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         // Badge com número
-                        y += 6;
                         await adicionarNumeroBadge(contador);
                         // Card com campos
                         await adicionarCardInfo([
@@ -2187,7 +2186,6 @@
                     for (const item of Array.from(items)) {
                         const local = item.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const chefe = item.querySelector('input[placeholder="Digite o chefe da missão"]').value.toUpperCase();
-                        y += 6;
                         await adicionarNumeroBadge(contador);
                         await adicionarCardInfo([
                             { rotulo: "Local:", valor: local },
@@ -2222,7 +2220,6 @@
                     for (const comando of Array.from(comandos)) {
                         const local = comando.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const coordenador = comando.querySelector('input[placeholder="Digite o coordenador responsável"]').value.toUpperCase();
-                        y += 6;
                         await adicionarNumeroBadge(contador);
                         await adicionarCardInfo([
                             { rotulo: "Local:", valor: local },
@@ -2258,7 +2255,6 @@
                         const evento = missao.querySelector('input[placeholder="Digite missão ou evento"]').value.toUpperCase();
                         const local = missao.querySelector('input[placeholder="Digite o local"]').value.toUpperCase();
                         const chefe = missao.querySelector('input[placeholder="Digite o chefe da missão"]').value.toUpperCase();
-                        y += 6;
                         await adicionarNumeroBadge(contador);
                         await adicionarCardInfo([
                             { rotulo: "Missão/Evento:", valor: evento },
