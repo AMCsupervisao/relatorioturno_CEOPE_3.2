@@ -19,7 +19,7 @@
   --verde:#1a3c34;--verde2:#2e7d52;--verde3:#4CAF50;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;overscroll-behavior-y:contain;}
 
 /* ── LOGIN ── */
 #loginScreen{position:fixed;inset:0;z-index:1000;background:var(--navy);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
@@ -200,8 +200,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .qrv-row-nomes{font-size:12px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qrv-row-rota{font-size:10px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qrv-row-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.qrv-saida-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 4px;width:62px;outline:none;-webkit-appearance:none;}
-.qrv-saida-input::-webkit-calendar-picker-indicator{filter:invert(0.5);width:10px;padding:0;}
+.qrv-saida-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 4px;width:62px;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
+.qrv-saida-input::-webkit-calendar-picker-indicator{display:none !important;}
+.qrv-saida-input::-webkit-inner-spin-button{display:none;}
 .qrv-saida-input:focus{border-color:var(--accent2);}
 .qrv-status-pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;font-family:'IBM Plex Mono',monospace;}
 .qrv-status-pill.livre{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
@@ -470,20 +471,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
         </div>
       </div>
 
-      <div class="frow" style="margin-bottom:8px;">
-        <div>
-          <span class="flabel">Motorista</span>
-          <div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvMotorista" placeholder="Motorista" autocomplete="off"></div>
-        </div>
-        <div>
-          <span class="flabel">Chefe de VT</span>
-          <div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvChefe" placeholder="Chefe" autocomplete="off"></div>
-        </div>
-      </div>
-
       <div style="margin-bottom:8px;">
-        <span class="flabel">Passageiro(s) <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(opcional)</span></span>
-        <div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvPassag" placeholder="Passageiro(s)" autocomplete="off"></div>
+        <span class="flabel">Agentes <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">Motorista, Chefe, Passageiro</span></span>
+        <div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvAgentes" placeholder="Motorista, Chefe, Passageiro..." autocomplete="off"></div>
       </div>
       <div style="margin-bottom:8px;">
         <span class="flabel">Rota</span>
@@ -560,12 +550,12 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 <div id="qrvEditModal" style="position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.7);display:none;align-items:flex-end;justify-content:center;">
   <div class="qrv-modal-box" style="max-height:85vh;overflow-y:auto;">
     <div class="qrv-modal-title">Editar Registro</div>
+    <div id="qrvEditErr" style="display:none;color:var(--red2);font-size:12px;text-align:center;margin-bottom:8px;padding:6px;background:rgba(239,68,68,0.1);border-radius:6px;"></div>
     <div style="margin-bottom:10px;"><span class="flabel">VT / MT</span><div class="vt-wrap" id="qrvEditVtWrap"></div></div>
-    <div class="frow" style="margin-bottom:8px;">
-      <div><span class="flabel">Motorista</span><div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvEditMotorista" placeholder="Motorista" autocomplete="off"></div></div>
-      <div><span class="flabel">Chefe</span><div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvEditChefe" placeholder="Chefe" autocomplete="off"></div></div>
+    <div style="margin-bottom:8px;">
+      <span class="flabel">Agentes <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">Motorista, Chefe, Passageiro</span></span>
+      <div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvEditAgentes" placeholder="Motorista, Chefe, Passageiro..." autocomplete="off"></div>
     </div>
-    <div style="margin-bottom:8px;"><span class="flabel">Passageiro(s)</span><div class="input-wrap"><input type="text" class="finput finput-agentes" id="qrvEditPassag" placeholder="Passageiro(s)" autocomplete="off"></div></div>
     <div style="margin-bottom:8px;"><span class="flabel">Rota</span><div class="input-wrap" id="qrvEditRotaWrap"><input type="text" class="finput" id="qrvEditRota" placeholder="Rota" autocomplete="off" style="text-transform:uppercase;width:100%;"></div></div>
     <div style="margin-bottom:8px;"><span class="flabel">Hora de Saída</span><input type="time" class="finput" id="qrvEditSaida" style="text-transform:none;"></div>
     <div style="margin-bottom:14px;"><span class="flabel">Seção</span>
@@ -578,7 +568,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     </div>
     <div style="display:flex;gap:8px;">
       <button onclick="qrvFecharEditModal()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Cancelar</button>
-      <button onclick="qrvSalvarEdicao()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
+      <button id="qrvBtnSalvarEdicao" onclick="qrvSalvarEdicao()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
     </div>
   </div>
 </div>
@@ -1772,7 +1762,7 @@ function qrvIniciarInput(){
   // Remover validação de duplicata cross-formulário — no QRV só valida internamente
   wrap.appendChild(vtWrap);
   // Autocomplete agentes
-  ['qrvMotorista','qrvChefe','qrvPassag'].forEach(id=>{
+  ['qrvAgentes'].forEach(id=>{
     const el=document.getElementById(id);
     if(el)addEventosAgentes(el);
   });
@@ -1851,6 +1841,11 @@ function qrvAbrirEditModal(id){
   const reg=qrvRegistros.find(r=>r.id==id);
   if(!reg)return;
   qrvEditId=id;
+  // Reset botão e erro
+  const btn=document.getElementById('qrvBtnSalvarEdicao');
+  if(btn){btn.disabled=false;btn.textContent='Salvar';}
+  const errEl=document.getElementById('qrvEditErr');
+  if(errEl){errEl.style.display='none';errEl.textContent='';}
   // VT input
   const wrap=document.getElementById('qrvEditVtWrap');
   wrap.innerHTML='';
@@ -1859,19 +1854,17 @@ function qrvAbrirEditModal(id){
   inp.className='finput';
   inp.style.cssText='width:100%;padding:15px 14px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:16px;outline:none;text-transform:uppercase;min-height:58px;box-sizing:border-box;';
   wrap.appendChild(vtW);
-  document.getElementById('qrvEditMotorista').value=reg.motorista||'';
-  document.getElementById('qrvEditChefe').value=reg.chefe||'';
-  document.getElementById('qrvEditPassag').value=reg.passag||'';
+  // Campo agentes unificado — concatenar motorista + chefe + passag
+  const agentesVal=[reg.motorista,reg.chefe,reg.passag].filter(Boolean).join(', ');
+  document.getElementById('qrvEditAgentes').value=agentesVal;
   document.getElementById('qrvEditRota').value=reg.rota||'';
   document.getElementById('qrvEditSaida').value=reg.saida||'';
   // Seção atual
   const secaoAtual=reg.secao||(qrvVtsPrincipais.includes(reg.vt)?'principal':qrvVtsSupervisao.includes(reg.vt)?'supervisao':'demais');
   qrvEditSelecionarSecao(secaoAtual);
   // Autocomplete
-  ['qrvEditMotorista','qrvEditChefe','qrvEditPassag'].forEach(fid=>{
-    const el=document.getElementById(fid);
-    if(el) addEventosAgentes(el);
-  });
+  const agEl=document.getElementById('qrvEditAgentes');
+  if(agEl) addEventosAgentes(agEl);
   document.getElementById('qrvEditModal').style.display='flex';
 }
 function qrvFecharEditModal(){
@@ -1885,22 +1878,37 @@ async function qrvSalvarEdicao(){
   const vtInp=document.getElementById('qrvEditVtWrap').querySelector('input');
   const novoVt=(vtInp?.value||'').trim().toUpperCase();
   const novaSecao=document.getElementById('qrvEditSecao').value;
+
+  // Feedback visual
+  const btn=document.getElementById('qrvBtnSalvarEdicao');
+  if(btn){btn.disabled=true;btn.textContent='Salvando...';}
+  const errEl=document.getElementById('qrvEditErr');
+  if(errEl){errEl.style.display='none';errEl.textContent='';}
+
   reg.vt=novoVt;
-  reg.motorista=(document.getElementById('qrvEditMotorista').value||'').trim().toUpperCase();
-  reg.chefe=(document.getElementById('qrvEditChefe').value||'').trim().toUpperCase();
-  reg.passag=(document.getElementById('qrvEditPassag').value||'').trim().toUpperCase();
+  // Campo unificado — salvar em motorista, limpar chefe e passag
+  reg.motorista=(document.getElementById('qrvEditAgentes').value||'').trim().toUpperCase();
+  reg.chefe='';
+  reg.passag='';
   reg.rota=(document.getElementById('qrvEditRota').value||'').trim().toUpperCase();
   reg.saida=document.getElementById('qrvEditSaida').value||'';
   reg.secao=novaSecao;
   if(novaSecao==='principal'&&novoVt&&!qrvVtsPrincipais.includes(novoVt)) qrvVtsPrincipais.push(novoVt);
   if(novaSecao==='supervisao'&&novoVt&&!qrvVtsSupervisao.includes(novoVt)) qrvVtsSupervisao.push(novoVt);
   try{
-    if(reg.deSupervisor){reg.deSupervisor=false;await api('saveQrv',{data:isoData(G.data),turno:G.turno,registro:reg});}
-    else await api('updateQrv',{data:isoData(G.data),turno:G.turno,id:qrvEditId,campo:'__all__',valor:reg});
-  }catch(ex){}
-  qrvFecharEditModal();
-  qrvRenderCards();
-  toast('Registro atualizado ✓','ok');
+    if(reg.deSupervisor){
+      reg.deSupervisor=false;
+      await api('saveQrv',{data:isoData(G.data),turno:G.turno,registro:reg});
+    } else {
+      await api('updateQrv',{data:isoData(G.data),turno:G.turno,id:qrvEditId,campo:'__all__',valor:reg});
+    }
+    qrvFecharEditModal();
+    qrvRenderCards();
+    toast('Registro atualizado ✓','ok');
+  }catch(ex){
+    if(btn){btn.disabled=false;btn.textContent='Salvar';}
+    if(errEl){errEl.style.display='block';errEl.textContent='Erro ao salvar: '+ex.message+'. Tente novamente.';}
+  }
 }
 
 // ── Drag de seções inteiras ────────────────────────────────────
@@ -2011,18 +2019,17 @@ function qrvPrePopular(d){
 async function qrvRegistrar(){
   const vtInp=document.getElementById('qrvVtWrap').querySelector('.vt-input')||document.getElementById('qrvVtWrap').querySelector('input');
   const vt=(vtInp?.value||'').trim().toUpperCase();
-  const motorista=(document.getElementById('qrvMotorista').value||'').trim().toUpperCase();
-  const chefe=(document.getElementById('qrvChefe').value||'').trim().toUpperCase();
-  if(!vt&&!motorista){toast('Informe ao menos o VT/MT ou o motorista.','err');return;}
-  // Verificar duplicata somente dentro do QRV
+  const agentes=(document.getElementById('qrvAgentes').value||'').trim().toUpperCase();
+  if(!vt&&!agentes){toast('Informe ao menos o VT/MT ou os agentes.','err');return;}
   if(vt&&qrvRegistros.some(r=>r.vt===vt)){
     toast('⚠️ '+vt+' já tem registro neste turno!','err');return;
   }
   const saida=document.getElementById('qrvSaida').value||'';
   const secaoSel=document.getElementById('qrvSecaoSelecionada')?.value||'principal';
   const reg={
-    id:Date.now(),vt,motorista,chefe,
-    passag:(document.getElementById('qrvPassag').value||'').trim().toUpperCase(),
+    id:Date.now(),vt,
+    motorista:agentes, // campo unificado salvo em motorista para compatibilidade
+    chefe:'',passag:'',
     rota:(document.getElementById('qrvRota').value||'').trim().toUpperCase(),
     saida,chegada:'',secao:secaoSel,
     statusQar:false,horaQar:'',
@@ -2036,9 +2043,8 @@ async function qrvRegistrar(){
     await api('saveQrv',{data:isoData(G.data),turno:G.turno,registro:reg});
     qrvRegistros.unshift(reg);
     qrvRenderCards();
-    // Limpar formulário
     if(vtInp)vtInp.value='';
-    ['qrvMotorista','qrvChefe','qrvPassag','qrvRota','qrvObs'].forEach(id=>{document.getElementById(id).value='';});
+    ['qrvAgentes','qrvRota','qrvObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     qrvAtualizarHoraSaida();
     toast('QRV registrado! ✓','ok');
     if(vtInp)vtInp.focus();
