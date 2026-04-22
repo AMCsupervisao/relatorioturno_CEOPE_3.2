@@ -200,9 +200,8 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .qrv-row-nomes{font-size:12px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qrv-row-rota{font-size:10px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qrv-row-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
-.qrv-saida-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 4px;width:62px;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;}
-.qrv-saida-input::-webkit-calendar-picker-indicator{display:none !important;}
-.qrv-saida-input::-webkit-inner-spin-button{display:none;}
+.qrv-saida-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 2px 2px 4px;width:80px;outline:none;}
+.qrv-saida-input::-webkit-calendar-picker-indicator{filter:invert(0.6);width:12px;height:12px;padding:0;margin:0;cursor:pointer;flex-shrink:0;}
 .qrv-saida-input:focus{border-color:var(--accent2);}
 .qrv-status-pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;white-space:nowrap;font-family:'IBM Plex Mono',monospace;}
 .qrv-status-pill.livre{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
@@ -698,6 +697,17 @@ function boot(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+// Bloquear pull-to-refresh no mobile
+let _touchStartY=0;
+document.addEventListener('touchstart',e=>{_touchStartY=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchmove',e=>{
+  const dy=e.touches[0].clientY-_touchStartY;
+  // Bloquear apenas quando no topo da página e puxando para baixo
+  if(dy>0&&(window.scrollY||document.documentElement.scrollTop)===0){
+    e.preventDefault();
+  }
+},{passive:false});
+
 document.getElementById('loginRole').addEventListener('change',function(){
   document.getElementById('lnameGroup').style.display=this.value?'block':'none';
 });
@@ -2288,12 +2298,14 @@ async function qrvSalvarCampo(id,campo,valor){
   reg[campo]=valor;
   try{
     if(reg.deSupervisor){
+      // Primeiro save do registro que veio do relatório — não re-renderizar para não perder foco
       reg.deSupervisor=false;
       await api('saveQrv',{data:isoData(G.data),turno:G.turno,registro:reg});
     } else {
       await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo,valor});
     }
   }catch(ex){}
+  // NÃO re-renderizar — evita perda de foco e duplicações
 }
 
 // ── Registrar evento no histórico ────────────────────────────
