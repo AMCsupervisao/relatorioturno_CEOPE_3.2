@@ -1963,23 +1963,31 @@ function qrvRowDrop(e,secao){
 }
 
 function qrvPrePopular(d){
-  const vtExistentes=new Set(qrvRegistros.map(r=>r.vt).filter(Boolean));
-  const nomesExistentes=new Set(qrvRegistros.map(r=>r.motorista).filter(Boolean));
+  // Construir sets com TUDO que já está salvo na planilha QRV
+  // Incluir VTs normalizadas E agentes, para pegar registros editados que mudaram de VT vazia para preenchida
+  const vtsSalvas=new Set(qrvRegistros.map(r=>(r.vt||'').trim().toUpperCase()).filter(Boolean));
+  const agentesSalvos=new Set(qrvRegistros.map(r=>(r.motorista||'').trim().toUpperCase()).filter(Boolean));
+  // IDs já existentes para garantia extra
+  const idsSalvos=new Set(qrvRegistros.map(r=>String(r.id)));
   const novas=[];
   let idBase=Date.now();
 
-  const addVt=(vt,agentes,chefe,passag,rota,secao)=>{
+  const addVt=(vt,agentes,rota,secao)=>{
     vt=(vt||'').trim().toUpperCase();
     agentes=(agentes||'').trim().toUpperCase();
-    if(vt&&vtExistentes.has(vt))return;
-    if(!vt&&agentes&&nomesExistentes.has(agentes))return;
-    if(vt) vtExistentes.add(vt);
-    if(agentes) nomesExistentes.add(agentes);
+    // Se VT já está salva, não criar novo card
+    if(vt&&vtsSalvas.has(vt))return;
+    // Se agente já está salvo (VT pode estar vazia mas agente foi editado), não criar
+    if(agentes&&agentesSalvos.has(agentes))return;
+    // Se nem VT nem agentes, pular
+    if(!vt&&!agentes)return;
+    // Marcar como existente para evitar duplicata dentro do próprio loop
+    if(vt) vtsSalvas.add(vt);
+    if(agentes) agentesSalvos.add(agentes);
     const eOcupado=secao!=='principal';
     const reg={
       id:idBase++,vt,motorista:agentes,
-      chefe:(chefe||'').trim().toUpperCase(),
-      passag:(passag||'').trim().toUpperCase(),
+      chefe:'',passag:'',
       rota:(rota||'').trim().toUpperCase(),
       saida:'',chegada:'',secao,
       statusQar:false,horaQar:'',
@@ -1992,39 +2000,34 @@ function qrvPrePopular(d){
       deSupervisor:true,
     };
     novas.push(reg);
-    // Atualizar listas de VTs por seção
     if(vt){
       if(secao==='principal'&&!qrvVtsPrincipais.includes(vt)) qrvVtsPrincipais.push(vt);
       if(secao==='supervisao'&&!qrvVtsSupervisao.includes(vt)) qrvVtsSupervisao.push(vt);
     }
   };
 
-  // 07. Rotas — seção principal
-  (d.rotas||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','',r.rota,'principal'));
-  // 08-10
+  (d.rotas||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'principal'));
   [...(d.apoioCtafor||[]),...(d.rendicaoVl||[])].forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','',item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
   });
   (d.afericao||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','',item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
   });
-  // 11-14
-  (d.apoioEtufor||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','','','demais'));
-  (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','',r.rota,'demais'));
-  (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','','','demais'));
-  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','',r.rota,'demais'));
-  // 15-16
+  (d.apoioEtufor||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais'));
+  (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais'));
+  (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais'));
+  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais'));
   (d.comando||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','',item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
   });
   (d.missao||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','',item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
   });
-  // 17. Supervisão — seção própria
-  (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','',r.rota,'supervisao'));
+  (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao'));
 
   if(novas.length>0) qrvRegistros=[...qrvRegistros,...novas];
 }
+
 
 async function qrvRegistrar(){
   const vtInp=document.getElementById('qrvVtWrap').querySelector('.vt-input')||document.getElementById('qrvVtWrap').querySelector('input');
@@ -2244,9 +2247,15 @@ function qrvRenderCards(){
     expandidos.add(id);
   });
 
-  const principal=qrvRegistros.filter(r=>(r.secao==='principal')||(!r.secao&&qrvVtsPrincipais.includes(r.vt)));
-  const supervisao=qrvRegistros.filter(r=>(r.secao==='supervisao')||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&qrvVtsSupervisao.includes(r.vt)));
-  const demais=qrvRegistros.filter(r=>r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt)));
+  // Ordenar cronologicamente por hora de saída (sem hora vai para o final)
+  const porHora=(a,b)=>{
+    const ha=a.saida||'99:99';const hb=b.saida||'99:99';
+    return ha.localeCompare(hb);
+  };
+
+  const principal=qrvRegistros.filter(r=>(r.secao==='principal')||(!r.secao&&qrvVtsPrincipais.includes(r.vt))).sort(porHora);
+  const supervisao=qrvRegistros.filter(r=>(r.secao==='supervisao')||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&qrvVtsSupervisao.includes(r.vt))).sort(porHora);
+  const demais=qrvRegistros.filter(r=>r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt))).sort(porHora);
 
   const cont=(n)=>n?`(${n})`:'';
   document.getElementById('qrvContPrincipal').textContent=cont(principal.length);
@@ -2348,37 +2357,53 @@ async function qrvGerarPDF(){
   }catch(e){}
   doc.setFillColor(46,94,86);doc.rect(mL,16,lMax,8,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(255,255,255);
-  const t='REGISTRO DE SAÍDA E CHEGADA DE VT\'S & MT\'S';
+  const t='REGISTRO DE SAÍDA DE VT\'S & MT\'S';
   doc.text(t,(297-doc.getTextWidth(t))/2,21.5);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(0,0,0);
   doc.text(`Data: ${fmtData(isoData(G.data))}   Turno: ${G.turno}`,mL,30);
+
   const U=s=>(s||'').toUpperCase();
   const status=r=>{const s=[];if(r.statusQar)s.push('QAR'+(r.horaQar?' '+r.horaQar:''));if(r.statusPosto)s.push('POSTO'+(r.horaPosto?' '+r.horaPosto:''));return s.join(' | ');};
   const agentes=r=>[U(r.motorista),U(r.chefe),U(r.passag)].filter(Boolean).join(', ');
-  doc.autoTable({
-    startY:33,
-    head:[['VT/MT','Agentes','Rota','Saída','QAR/POSTO','Observação']],
-    body:qrvRegistros.map(r=>[
-      U(r.vt),
-      agentes(r),
-      U(r.rota),
-      r.saida||'',
-      status(r),
-      U(r.obs)
-    ]),
-    theme:'grid',
-    headStyles:{fillColor:[46,94,86],textColor:[255,255,255],fontStyle:'bold',fontSize:8,cellPadding:2.5},
-    styles:{fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'},
-    columnStyles:{
-      0:{cellWidth:22},   // VT/MT
-      1:{cellWidth:70},   // Agentes
-      2:{cellWidth:45},   // Rota
-      3:{cellWidth:16},   // Saída
-      4:{cellWidth:28},   // QAR/POSTO
-      5:{cellWidth:'auto'}, // Observação — ocupa o restante
-    },
-    margin:{left:mL,right:10},
-  });
+  const porHora=(a,b)=>{const ha=a.saida||'99:99';const hb=b.saida||'99:99';return ha.localeCompare(hb);};
+
+  // Separar por seção e ordenar cronologicamente
+  const principal=qrvRegistros.filter(r=>(r.secao==='principal')||(!r.secao&&qrvVtsPrincipais.includes(r.vt))).sort(porHora);
+  const supervisao=qrvRegistros.filter(r=>(r.secao==='supervisao')||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&qrvVtsSupervisao.includes(r.vt))).sort(porHora);
+  const demais=qrvRegistros.filter(r=>r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt))).sort(porHora);
+
+  const colStyles={0:{cellWidth:22},1:{cellWidth:70},2:{cellWidth:45},3:{cellWidth:16},4:{cellWidth:28},5:{cellWidth:'auto'}};
+  const tableStyles={fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'};
+  const head=[['VT/MT','Agentes','Rota','Saída','QAR/POSTO','Observação']];
+  const toRow=r=>[U(r.vt),agentes(r),U(r.rota),r.saida||'',status(r),U(r.obs)];
+
+  let startY=33;
+
+  const addSecao=(lista,titulo,corFundo,corTexto)=>{
+    if(!lista.length)return;
+    // Cabeçalho da seção
+    const y=doc.lastAutoTable?doc.lastAutoTable.finalY+6:startY;
+    doc.setFillColor(...corFundo);
+    doc.rect(mL,y,lMax,6,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...corTexto);
+    doc.text(titulo,mL+3,y+4.2);
+    doc.setTextColor(0,0,0);
+    doc.autoTable({
+      startY:y+6,
+      head,
+      body:lista.map(toRow),
+      theme:'grid',
+      headStyles:{fillColor:[70,110,100],textColor:[255,255,255],fontStyle:'bold',fontSize:8,cellPadding:2},
+      styles:tableStyles,
+      columnStyles:colStyles,
+      margin:{left:mL,right:10},
+    });
+  };
+
+  addSecao(principal,'ROTAS DO TURNO',[46,94,86],[255,255,255]);
+  addSecao(supervisao,'SUPERVISAO',[80,60,130],[255,255,255]);
+  addSecao(demais,'DEMAIS REGISTROS',[60,80,90],[255,255,255]);
+
   const geradoPor=G.name;
   const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(120);
