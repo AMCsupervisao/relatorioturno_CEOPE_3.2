@@ -712,6 +712,7 @@ document.addEventListener('touchmove',e=>{
 },{passive:false});
 
 document.getElementById('loginRole').addEventListener('change',function(){
+  // Mostrar campo de nome para todos os perfis
   document.getElementById('lnameGroup').style.display=this.value?'block':'none';
 });
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -726,14 +727,16 @@ async function doLogin(){
   const err=document.getElementById('loginErr');
   const btn=document.getElementById('btnLogin');
   if(!role){err.textContent='Selecione um perfil.';err.style.display='block';return;}
-  if(!name&&role!=='central'&&role!=='chefia'){err.textContent='Informe seu nome de guerra.';err.style.display='block';return;}
+  // Todos os perfis precisam informar nome de guerra
+  if(!name){err.textContent='Informe seu nome de guerra.';err.style.display='block';return;}
+  // Rejeitar matrículas (somente números)
+  if(/^\d+$/.test(name)){err.textContent='Use seu nome de guerra, não sua matrícula.';err.style.display='block';return;}
   btn.textContent='Verificando...';btn.disabled=true;
-  // Tentar buscar senhas da planilha
   try{const r=await api('getPasswords',{});if(r.data)G.pw={...DPW,...r.data};}catch(e){}
   btn.textContent='Entrar';btn.disabled=false;
   if(pass!==G.pw[role]){err.textContent='Senha incorreta.';err.style.display='block';return;}
   err.style.display='none';
-  G.role=role;G.name=name?name.toUpperCase():RL[role];
+  G.role=role;G.name=name.toUpperCase();
   try{localStorage.setItem(LS.session,JSON.stringify({role:G.role,name:G.name}));}catch(e){}
   initApp();
 }
@@ -783,8 +786,11 @@ function initApp(){
   if (btnL) btnL.style.display = ['admin','supervisor'].includes(G.role) ? 'inline-flex' : 'none';
   // Mostrar aba QRV só para central e admin
   const tabs=document.getElementById('appTabs');
-  if(tabs)tabs.style.display=['admin','central'].includes(G.role)?'flex':'none';
+  if(tabs)tabs.style.display=['admin','central','supervisor','chefia'].includes(G.role)?'flex':'none';
   // Inicializar campo VT do QRV
+  const podeEditarQrv=['admin','central'].includes(G.role);
+  const btnNovoReg=document.getElementById('qrvBtnNovoReg');
+  if(btnNovoReg) btnNovoReg.style.display=podeEditarQrv?'flex':'none';
   qrvIniciarInput();
   qrvSincData();
   if(G.autoTimer)clearInterval(G.autoTimer);
@@ -1561,7 +1567,7 @@ async function gerarPDF(){
     startY=y;
     doc.autoTable({startY,head:[cols],body:data,theme:'grid',headStyles:{fillColor:[46,94,86],textColor:[255,255,255],fontStyle:'bold',fontSize:10,cellPadding:3},alternateRowStyles:{fillColor:[245,250,245]},styles:{fontSize:9.5,cellPadding:3,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'},columnStyles:{0:{cellWidth:8}},margin:{left:mL,right:10}});y=doc.lastAutoTable.finalY+5;}
   async function addCard(campos){const pad=5,xT=mL+3+pad,lC=lMax;doc.setFont('helvetica','normal');doc.setFontSize(10);let alt=pad;const fs=campos.map(({rotulo,valor})=>{const lw=doc.getTextWidth(rotulo+' ');const valUp=(valor||'—').toUpperCase();const ls=doc.splitTextToSize(valUp,lC-lw-8-pad);const h=Math.max(ls.length*(10*0.3528),10*0.3528)+2;alt+=h+3;return{rotulo,valor:valUp,ls,lw,h};});alt+=pad+2;await checkPage(alt+10);doc.setFillColor(245,247,245);doc.setDrawColor(46,94,86);doc.setLineWidth(0.1);doc.roundedRect(mL,y,lC,alt,2,2,'FD');doc.setFillColor(46,94,86);doc.rect(mL,y,3,alt,'F');let yT=y+pad+3;for(const{rotulo,valor,ls,lw,h}of fs){doc.setFont('helvetica','bold');doc.setTextColor(46,94,86);doc.text(rotulo,xT,yT);doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);doc.text(ls,xT+lw,yT);yT+=h+3;}y+=alt+4;}
-  async function addBadge(n){await checkPage(40);y+=6;const s=6,xB=mL;doc.setFillColor(46,94,86);doc.roundedRect(xB,y-4.5,s,s,1,1,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);const ns=String(n),xN=xB+(s-doc.getTextWidth(ns))/2;doc.text(ns,xN,y-0.5);doc.setTextColor(0,0,0);}
+  async function addBadge(n,spaceNeeded=60){await checkPage(spaceNeeded);y+=6;const s=6,xB=mL;doc.setFillColor(46,94,86);doc.roundedRect(xB,y-4.5,s,s,1,1,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);const ns=String(n),xN=xB+(s-doc.getTextWidth(ns))/2;doc.text(ns,xN,y-0.5);doc.setTextColor(0,0,0);}
   function addSubViaturas(){doc.setFont('helvetica','bolditalic');doc.setFontSize(9.5);doc.setTextColor(80,80,80);doc.text('Viaturas/Motos:',mL,y);doc.setLineWidth(0.2);doc.setDrawColor(180,200,180);doc.line(mL+doc.getTextWidth('Viaturas/Motos:')+2,y-1,mL+lMax,y-1);y+=4;}
   async function procTabela(arr,titulo,hasRota=false,cols=['#','Rota','Veículo','Agentes']){
     if(!arr||!arr.length)return;
