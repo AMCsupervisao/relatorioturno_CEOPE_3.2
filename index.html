@@ -2087,18 +2087,18 @@ function qrvAbrirModal(id){
   const btns=document.getElementById('qrvModalBtns');
   const agora=()=>{const n=new Date();return`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;};
   const libBtns=[];
-  if(reg.statusQar) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar(${id},'qar')"><i class="fas fa-check"></i> Liberar QAR (${reg.horaQar})</button>`);
-  if(reg.statusPosto) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar(${id},'posto')"><i class="fas fa-check"></i> Liberar POSTO (${reg.horaPosto})</button>`);
-  if(reg.statusOutros) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar(${id},'outros')"><i class="fas fa-check"></i> Liberar OUTROS</button>`);
+  if(reg.statusQar) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar('${id}','qar')"><i class="fas fa-check"></i> Liberar QAR (${reg.horaQar})</button>`);
+  if(reg.statusPosto) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar('${id}','posto')"><i class="fas fa-check"></i> Liberar POSTO (${reg.horaPosto})</button>`);
+  if(reg.statusOutros) libBtns.push(`<button class="qrv-modal-btn liberar" onclick="qrvLiberar('${id}','outros')"><i class="fas fa-check"></i> Liberar OUTROS</button>`);
   btns.innerHTML=`
-    ${!reg.statusQar?`<button class="qrv-modal-btn qar" onclick="qrvSetStatus(${id},'qar')"><i class="fas fa-coffee"></i> QAR</button>`:''}
-    ${!reg.statusPosto?`<button class="qrv-modal-btn posto" onclick="qrvSetStatus(${id},'posto')"><i class="fas fa-gas-pump"></i> POSTO</button>`:''}
-    ${!reg.statusOutros?`<button class="qrv-modal-btn outros" onclick="qrvSetStatus(${id},'outros')"><i class="fas fa-exclamation-triangle"></i> OUTROS</button>`:''}
-    ${!reg.chegada?`<button class="qrv-modal-btn chegada" onclick="qrvSetChegada(${id})"><i class="fas fa-flag-checkered"></i> CHEGADA</button>`:''}
+    ${!reg.statusQar?`<button class="qrv-modal-btn qar" onclick="qrvSetStatus('${id}','qar')"><i class="fas fa-coffee"></i> QAR</button>`:''}
+    ${!reg.statusPosto?`<button class="qrv-modal-btn posto" onclick="qrvSetStatus('${id}','posto')"><i class="fas fa-gas-pump"></i> POSTO</button>`:''}
+    ${!reg.statusOutros?`<button class="qrv-modal-btn outros" onclick="qrvSetStatus('${id}','outros')"><i class="fas fa-exclamation-triangle"></i> OUTROS</button>`:''}
+    ${!reg.chegada?`<button class="qrv-modal-btn chegada" onclick="qrvSetChegada('${id}')"><i class="fas fa-flag-checkered"></i> CHEGADA</button>`:''}
     ${libBtns.join('')}
     ${(qrvVtsPrincipais.includes(reg.vt)||reg.secao==='principal')
-      ?`<button class="qrv-modal-btn mover" onclick="qrvMoverCard(${id},'demais');qrvFecharModal()"><i class="fas fa-arrow-down"></i> Mover p/ Demais</button>`
-      :`<button class="qrv-modal-btn mover" onclick="qrvMoverCard(${id},'principal');qrvFecharModal()"><i class="fas fa-arrow-up"></i> Mover p/ Rotas</button>`}
+      ?`<button class="qrv-modal-btn mover" onclick="qrvMoverCard('${id}','demais');qrvFecharModal()"><i class="fas fa-arrow-down"></i> Mover p/ Demais</button>`
+      :`<button class="qrv-modal-btn mover" onclick="qrvMoverCard('${id}','principal');qrvFecharModal()"><i class="fas fa-arrow-up"></i> Mover p/ Rotas</button>`}
     <button class="qrv-modal-btn cancelar" onclick="qrvFecharModal()" style="grid-column:1/-1;">Cancelar</button>
   `;
   modal.classList.add('open');
