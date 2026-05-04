@@ -857,6 +857,9 @@ function setDataInput(){
   const inp=document.getElementById('dataInput');
   inp.max=hoje; // bloquear datas futuras
   inp.value=isoData(G.data);
+  // Sincronizar campo de data da aba QRV
+  const qrvInp=document.getElementById('qrvDataInput');
+  if(qrvInp) qrvInp.value=isoData(G.data);
 }
 function onDataChange(){
   const v=document.getElementById('dataInput').value;
