@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>AMC · CEOPE · Relatório de Turno</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js" defer></script>
@@ -614,6 +617,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
+const APP_VERSION='2026-05-09-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -692,6 +696,14 @@ function criarVtInput(valorInicial){
 // BOOT / LOGIN
 // ══════════════════════════════════════════════
 function boot(){
+  // Forçar atualização quando APP_VERSION mudar
+  const savedVersion=localStorage.getItem('app_version');
+  if(savedVersion && savedVersion!==APP_VERSION){
+    localStorage.setItem('app_version',APP_VERSION);
+    location.reload(true); // força buscar do servidor, ignora cache
+    return false;
+  }
+  if(!savedVersion) localStorage.setItem('app_version',APP_VERSION);
   try{
     const sess=localStorage.getItem(LS.session);
     if(sess){const s=JSON.parse(sess);if(s.role&&s.name){G.role=s.role;G.name=s.name;return true;}}
@@ -782,8 +794,7 @@ function initApp(){
   // (feito após carregarRelatorio, dentro de preencherFormulario)
   // Mostrar botão salvar fixo para admin/supervisor
 
-  const btnL = document.getElementById('btnLimpar');
-  if (btnL) btnL.style.display = ['admin','supervisor'].includes(G.role) ? 'inline-flex' : 'none';
+  // btnLimpar é controlado em configurarModo() com verificação de dono do relatório
   // Mostrar aba QRV só para central e admin
   const tabs=document.getElementById('appTabs');
   if(tabs)tabs.style.display=['admin','central','supervisor','chefia'].includes(G.role)?'flex':'none';
@@ -814,6 +825,9 @@ function configurarModo(){
     bloqueadoPorOutro=true;
   }
   const editando=podeEditar&&(!G.bloqueado||G.desbloqueado)&&!bloqueadoPorOutro;
+  // Limpar só disponível se pode editar E é o dono (ou admin desbloqueou)
+  const btnL=document.getElementById('btnLimpar');
+  if(btnL) btnL.style.display=editando&&['admin','supervisor'].includes(G.role)?'inline-flex':'none';
   document.getElementById('modoEditar').style.display=editando?'block':'none';
   document.getElementById('modoVer').style.display=editando?'none':'block';
   document.getElementById('botoesEdicao').style.display=editando?'flex':'none';
@@ -983,6 +997,11 @@ async function salvarNaNuvemSilencioso(){
 // CARREGAR DIA ANTERIOR
 // ══════════════════════════════════════════════
 async function limparTudo(){
+  // Barreira de segurança: verificar se supervisor é o dono do relatório
+  if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim()){
+    toast('Você não pode limpar o relatório de outro supervisor.','err');
+    return;
+  }
   conf('Limpar Formulário','Todos os dados serão apagados e o relatório vazio será salvo na nuvem. Esta ação não pode ser desfeita. Confirma?',async()=>{
     // Limpar campos
     ['supervisor','central','ciops','sevim','sevimOperadores','cccf','coer','videomonitoramento','observacoes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
