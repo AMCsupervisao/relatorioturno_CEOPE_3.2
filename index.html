@@ -2,10 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>AMC · CEOPE · Relatório de Turno</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js" defer></script>
@@ -152,6 +152,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .suggestions li:hover,.suggestions li.selected{background:var(--surface3);color:var(--verde3);}
 
 /* ── VISUALIZAÇÃO ── */
+#appTabs button:hover{color:rgba(255,255,255,0.85)!important;}
 .view-header{background:linear-gradient(135deg,var(--verde) 0%,var(--verde2) 100%);border-radius:10px;padding:16px 20px;margin-bottom:16px;}
 .view-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;text-transform:uppercase;color:#fff;text-align:center;}
 .view-meta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:8px;}
@@ -241,6 +242,56 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .qrv-hist-item .hi-hora{color:#fff;font-weight:700;min-width:42px;}
 .qrv-hist-item .hi-tipo{font-weight:700;}
 .hi-qar{color:var(--gold);}.hi-posto{color:#a78bfa;}.hi-outros{color:#f87171;}.hi-chegada{color:#94a3b8;}.hi-liberar{color:#10b981;}.hi-saida{color:#60a5fa;}
+.hi-user{color:var(--accent2);font-size:10px;margin-left:auto;opacity:0.8;}
+.evt-bib-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border2);transition:background .15s;}
+.bib-painel{display:none;position:fixed;inset:0;z-index:950;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;padding:0;}
+.bib-painel.open{display:flex;}
+.bib-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px 14px 0 0;width:100%;max-width:600px;max-height:90vh;display:flex;flex-direction:column;}
+.bib-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border2);}
+.bib-titulo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:1.5px;text-transform:uppercase;color:#f59e0b;}
+.bib-fechar{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:4px 8px;}
+.bib-body{flex:1;overflow-y:auto;padding:10px 12px;}
+.bib-form{background:var(--navy2);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px;}
+.bib-form-titulo{font-size:11px;font-weight:700;color:#f59e0b;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;}
+.bib-item-card{background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.bib-item-nome{flex:1;font-size:13px;font-weight:700;color:#f59e0b;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.bib-item-info{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;}
+.bib-item-btns{display:flex;gap:6px;}
+.bib-btn-edit{background:rgba(96,165,250,0.15);border:1px solid rgba(96,165,250,0.3);border-radius:6px;color:#60a5fa;font-size:11px;padding:4px 8px;cursor:pointer;}
+.bib-btn-del{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#f87171;font-size:11px;padding:4px 8px;cursor:pointer;}
+.bib-empty{text-align:center;color:var(--text3);font-size:12px;padding:20px;font-style:italic;}
+.bib-import-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.8);align-items:center;justify-content:center;padding:16px;}
+.bib-import-modal.open{display:flex;}
+.bib-import-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:500px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden;}
+.bib-import-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border2);}
+.bib-import-titulo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:#f59e0b;}
+.bib-import-body{flex:1;overflow-y:auto;padding:14px 16px;}
+.bib-import-textarea{width:100%;height:160px;padding:10px 12px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:12px;font-family:'IBM Plex Mono',monospace;resize:vertical;outline:none;line-height:1.5;}
+.bib-import-textarea:focus{border-color:#f59e0b;}
+.bib-import-preview{margin-top:12px;display:none;}
+.bib-import-preview-titulo{font-size:11px;font-weight:700;color:#10b981;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;}
+.bib-import-item{background:var(--navy2);border:1px solid var(--border2);border-radius:6px;padding:8px 10px;margin-bottom:4px;font-size:12px;color:#fff;display:flex;align-items:center;gap:8px;}
+.bib-import-item input[type=checkbox]{accent-color:#f59e0b;width:16px;height:16px;flex-shrink:0;}
+.evt-bib-item:hover{background:rgba(245,158,11,0.12);}
+.evt-bib-nome{font-size:13px;font-weight:700;color:#f59e0b;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.evt-bib-info{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+/* Indicador de sync */
+.qrv-sync{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:11px;transition:all .3s;flex-shrink:0;}
+.qrv-sync.syncing{color:#60a5fa;animation:qrvSpin .7s linear infinite;}
+.qrv-sync.ok{color:#10b981;animation:qrvFadeOut 1.2s forwards;}
+.qrv-sync.err{color:#f87171;}
+@keyframes qrvSpin{to{transform:rotate(360deg);}}
+@keyframes qrvFadeOut{0%{opacity:1;}70%{opacity:1;}100%{opacity:0;}}
+#qrvDetalheModal{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;padding:20px;}
+#qrvDetalheModal.open{display:flex;}
+.qrv-detalhe-box{background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:22px 18px;width:100%;max-width:360px;box-shadow:0 24px 60px rgba(0,0,0,0.6);}
+.qrv-detalhe-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.qrv-detalhe-sub{font-size:11px;color:var(--text3);margin-bottom:14px;font-family:'IBM Plex Mono',monospace;}
+.qrv-detalhe-input{width:100%;padding:12px 13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:15px;font-family:'IBM Plex Sans',sans-serif;outline:none;resize:none;line-height:1.5;transition:border-color .2s;}
+.qrv-detalhe-input:focus{border-color:var(--accent2);}
+.qrv-detalhe-btns{display:flex;gap:8px;margin-top:12px;}
+.qrv-detalhe-ok{flex:1;padding:12px;background:linear-gradient(135deg,var(--verde2),var(--verde));border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.qrv-detalhe-skip{flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .qrv-rel-tag{font-size:9px;color:var(--text3);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
 #qrvStatusModal{position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.7);display:none;align-items:flex-end;justify-content:center;}
 #qrvStatusModal.open{display:flex;}
@@ -257,8 +308,31 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .qrv-modal-btn.mover{background:rgba(245,158,11,0.15);color:var(--gold);}
 .qrv-modal-btn.cancelar{background:var(--surface3);color:var(--text2);}
 
+/* ── EVENTO ── */
+.evt-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.evt-card-header{background:rgba(245,158,11,0.12);border-bottom:1px solid rgba(245,158,11,0.2);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.evt-nome{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;color:var(--gold);flex:1;}
+.evt-hora{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);font-weight:700;}
+.evt-autor{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace;}
+.evt-posto{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:10px;}
+.evt-posto:last-child{border-bottom:none;}
+.evt-posto-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--gold);min-width:20px;margin-top:2px;}
+.evt-posto-info{flex:1;}
+.evt-posto-local{font-size:12px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;margin-bottom:2px;}
+.evt-posto-agentes{font-size:13px;color:#fff;font-weight:500;}
+.evt-posto-vt{display:inline-block;background:var(--accent);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;border-radius:4px;padding:1px 7px;margin-left:6px;}
+.evt-apoio{padding:8px 14px;background:rgba(245,158,11,0.05);font-size:12px;color:#94a3b8;}
+.evt-apoio strong{color:var(--gold);}
+.evt-btn-edit{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:4px 6px;}
+.evt-btn-edit:hover{color:var(--gold);}
+.evt-btn-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:4px 6px;}
+.evt-btn-del:hover{color:var(--red2);}
+.evt-posto-form{background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:6px;}
+
 </style>
 </head>
+
+
 <body>
 
 <!-- LOGIN -->
@@ -294,8 +368,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
   </div>
   <!-- ABAS DE NAVEGAÇÃO -->
   <div id="appTabs" style="display:none;border-bottom:1px solid var(--border);padding:0 10px;">
-    <button id="tabRel" onclick="trocarAba('rel')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid var(--accent2);color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Relatório</button>
-    <button id="tabQrv" onclick="trocarAba('qrv')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">QRV</button>
+    <button id="tabRel" onclick="trocarAba('rel')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid var(--accent2);color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Relatório</button>
+    <button id="tabEvt" onclick="trocarAba('evt')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Evento</button>
+    <button id="tabQrv" onclick="trocarAba('qrv')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV</button>
   </div>
 </div>
 
@@ -397,7 +472,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 
     <!-- 08-10 com local -->
     <div class="fsec"><div class="fsec-title">08. Apoio CTAFOR</div><div id="apoioCtaforContainer"></div><button class="btnadd green" onclick="addComLocal('apoioCtaforContainer')"><i class="fas fa-plus"></i> Adicionar</button></div>
-    <div class="fsec"><div class="fsec-title">09. Rendição do Via Livre</div><div id="rendicaoVlContainer"></div><button class="btnadd green" onclick="addComLocal('rendicaoVlContainer')"><i class="fas fa-plus"></i> Adicionar</button></div>
+    <div class="fsec"><div class="fsec-title">09. Rendições</div><div id="rendicaoVlContainer"></div><button class="btnadd green" onclick="addComLocal('rendicaoVlContainer')"><i class="fas fa-plus"></i> Adicionar</button></div>
     <div class="fsec"><div class="fsec-title">10. Aferição</div><div id="afericaoContainer"></div><button class="btnadd green" onclick="addComLocalChefe('afericaoContainer')"><i class="fas fa-plus"></i> Adicionar</button></div>
 
     <!-- 11-14 simples -->
@@ -424,6 +499,159 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     <div id="viewContent"></div>
   </div>
   </div><!-- fim appConteudo -->
+
+<!-- ══════════════════════════════════════ -->
+<!-- TELA EVENTO                           -->
+<!-- ══════════════════════════════════════ -->
+<div id="telaEvento" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
+  <div class="toolbar">
+    <div class="toolbar-row1">
+      <button class="bnav" onclick="evtNavData(-1)">‹</button>
+      <input type="date" class="date-sel" id="evtDataInput" onchange="evtOnDataChange()">
+      <button class="bnav" onclick="evtNavData(1)">›</button>
+      <button class="bnav btoday" onclick="evtGoHoje()">Hoje</button>
+    </div>
+    <div class="toolbar-row2">
+      <select class="turno-sel" id="evtTurnoInput" onchange="evtOnTurnoChange()">
+        <option value="MADRUGADA">🌑 Madrugada</option>
+        <option value="MANHÃ">☀️ Manhã</option>
+        <option value="TARDE">🌤 Tarde</option>
+        <option value="NOITE">🌙 Noite</option>
+      </select>
+      <button class="bref" id="evtBRef" onclick="evtCarregar()">↻</button>
+      <span class="refresh-info" id="evtRefreshInfo"></span>
+      <button class="bpdf" onclick="evtGerarPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+    </div>
+  </div>
+
+  <!-- Aviso dia anterior somente leitura -->
+  <div id="evtBloqueadoInfo" style="display:none;align-items:center;gap:8px;padding:8px 14px;background:rgba(251,191,36,0.08);border-bottom:1px solid rgba(251,191,36,0.2);font-size:12px;color:#fbbf24;font-family:'IBM Plex Mono',monospace;">
+    🔒 Dia anterior — somente leitura
+  </div>
+
+  <!-- Botão gerenciar biblioteca: só admin -->
+  <div style="padding:8px 10px 0;" id="evtBtnBibliotecaWrap">
+    <button onclick="bibAbrirPainel()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;color:#f59e0b;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
+      <i class="fas fa-book"></i> Gerenciar Biblioteca de Eventos
+    </button>
+  </div>
+
+  <!-- Painel Biblioteca -->
+  <div class="bib-painel" id="bibPainel">
+    <div class="bib-box">
+      <div class="bib-header">
+        <span class="bib-titulo"><i class="fas fa-book"></i> Biblioteca de Eventos</span>
+        <button class="bib-fechar" onclick="bibFecharPainel()">✕</button>
+      </div>
+      <div class="bib-body">
+        <!-- Formulário de novo/editar -->
+        <div class="bib-form" id="bibForm">
+          <div class="bib-form-titulo" id="bibFormTitulo">+ Novo Evento na Biblioteca</div>
+          <div style="margin-bottom:8px;">
+            <span class="flabel" style="font-size:10px;">Nome do Evento</span>
+            <input type="text" class="finput" id="bibNomeInp" placeholder="Ex: CORRIDA DAS FLORES" style="text-transform:uppercase;width:100%;" autocomplete="off">
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <span class="flabel" style="font-size:10px;">Postos / Locais</span>
+              <div style="display:flex;gap:6px;">
+                <button onclick="bibAbrirImport()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:6px;color:#10b981;font-size:11px;font-weight:700;padding:3px 8px;cursor:pointer;font-family:'Rajdhani',sans-serif;"><i class="fas fa-magic"></i> IA</button>
+                <button onclick="bibAdicionarPosto()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:6px;color:#f59e0b;font-size:11px;font-weight:700;padding:3px 8px;cursor:pointer;font-family:'Rajdhani',sans-serif;">+ POSTO</button>
+              </div>
+            </div>
+            <div id="bibPostosContainer"></div>
+          </div>
+
+  <!-- Modal importar plano operacional -->
+  <div class="bib-import-modal" id="bibImportModal">
+    <div class="bib-import-box">
+      <div class="bib-import-header">
+        <span class="bib-import-titulo"><i class="fas fa-magic"></i> Importar Plano Operacional</span>
+        <button class="bib-fechar" onclick="bibFecharImport()">✕</button>
+      </div>
+      <div class="bib-import-body">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Cole o texto do plano operacional abaixo. A IA vai extrair automaticamente o nome do evento e os postos/locais.</div>
+        <textarea class="bib-import-textarea" id="bibImportTexto" placeholder="Cole aqui o texto do plano operacional..."></textarea>
+        <button onclick="bibExtrairIA()" id="bibBtnExtrair" style="width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#10b981,#065f46);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
+          <i class="fas fa-magic"></i> Extrair com IA
+        </button>
+        <!-- Preview dos resultados -->
+        <div class="bib-import-preview" id="bibImportPreview">
+          <div class="bib-import-preview-titulo">✓ Postos identificados — selecione os que deseja importar:</div>
+          <div id="bibImportLista"></div>
+          <div style="margin-top:8px;font-size:11px;color:var(--text3);" id="bibNomeExtraido"></div>
+          <button onclick="bibConfirmarImport()" style="width:100%;margin-top:10px;padding:12px;background:linear-gradient(135deg,#f59e0b,#b45309);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
+            <i class="fas fa-check"></i> Importar Selecionados
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="bibSalvarItem()" style="flex:1;padding:10px;background:linear-gradient(135deg,#f59e0b,#b45309);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-save"></i> Salvar</button>
+            <button onclick="bibCancelarEdicao()" id="bibBtnCancelar" style="display:none;padding:10px 16px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Cancelar</button>
+          </div>
+        </div>
+        <!-- Lista da biblioteca -->
+        <div id="bibLista"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botão novo evento -->
+  <div style="padding:8px 10px 0;" id="evtBtnNovoWrap">
+    <button onclick="evtToggleForm()" id="evtBtnNovo" style="display:flex;align-items:center;gap:8px;width:100%;padding:12px 16px;background:linear-gradient(135deg,#f59e0b,#b45309);border:none;border-radius:10px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
+      <i class="fas fa-plus-circle"></i> <span id="evtBtnTxt">Novo Evento</span>
+    </button>
+  </div>
+
+  <!-- Formulário de evento -->
+  <div id="evtFormWrap" style="display:none;padding:6px 10px 0;">
+    <div class="fsec">
+      <div class="frow" style="margin-bottom:8px;">
+        <div style="flex:2;">
+          <span class="flabel">Nome do Evento</span>
+          <div style="position:relative;">
+            <input type="text" class="finput" id="evtNome" placeholder="Ex: Corrida Aço Cearense" style="text-transform:uppercase;width:100%;" oninput="evtBibliotecaBuscar(this.value)" autocomplete="off">
+            <div id="evtBibliotecaDrop" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;background:var(--surface2);border:1px solid var(--border2);border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
+          </div>
+        </div>
+        <div>
+          <span class="flabel">Horário</span>
+          <input type="time" class="finput" id="evtHora" style="text-transform:none;">
+        </div>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="flabel">Apoio Geral</span>
+        <div class="input-wrap"><input type="text" class="finput finput-agentes" id="evtApoio" placeholder="Agentes de apoio geral..." autocomplete="off"></div>
+      </div>
+      <!-- Postos -->
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span class="flabel">Postos / Locais</span>
+          <button onclick="evtAdicionarPosto()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:6px;color:var(--gold);font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ POSTO</button>
+        </div>
+        <div id="evtPostosContainer"></div>
+      </div>
+      <!-- Supervisão -->
+      <div style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span class="flabel" style="color:#a78bfa;">Supervisão</span>
+          <button onclick="evtAdicionarSupervisao()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
+        </div>
+        <div id="evtSupervisaoContainer"></div>
+      </div>
+      <button onclick="evtSalvar()" id="evtBtnSalvar" style="width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#b45309);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-save"></i> Salvar Evento</button>
+    </div>
+  </div>
+
+  <!-- Lista de eventos do dia -->
+  <div style="padding:8px 10px 20px;" id="evtListaWrap">
+    <div id="evtLista">
+      <div class="empty"><span class="eico">📅</span><div class="etxt">Nenhum evento cadastrado</div></div>
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <!-- TELA QRV                              -->
@@ -487,6 +715,30 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
           <button type="button" onclick="qrvSelecionarSecao('principal')" id="qrvSecBtnPrincipal" class="qrv-sec-btn active">⭐ Rotas</button>
           <button type="button" onclick="qrvSelecionarSecao('supervisao')" id="qrvSecBtnSupervisao" class="qrv-sec-btn">👮 Supervisão</button>
           <button type="button" onclick="qrvSelecionarSecao('demais')" id="qrvSecBtnDemais" class="qrv-sec-btn">📋 Demais</button>
+          <button type="button" onclick="qrvSelecionarSecao('evento')" id="qrvSecBtnEvento" class="qrv-sec-btn">📅 Evento</button>
+        </div>
+        <!-- Select de agrupamento: só aparece ao escolher Demais -->
+        <div id="qrvGrupoWrap" style="display:none;margin-top:8px;">
+          <span class="flabel" style="font-size:10px;">Agrupamento <span style="color:var(--text3);font-weight:400;text-transform:none;">(opcional)</span></span>
+          <select class="finput" id="qrvGrupoSel" style="width:100%;margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">
+            <option value="">— sem agrupamento —</option>
+            <option value="08. Apoio CTAFOR">Apoio CTAFOR</option>
+            <option value="09. Rendições">Rendições</option>
+            <option value="10. Aferição">Aferição</option>
+            <option value="11. Apoio ETUFOR">Apoio ETUFOR</option>
+            <option value="12. Zona Azul">Zona Azul</option>
+            <option value="13. Apoio Aeroporto">Apoio Aeroporto</option>
+            <option value="14. Fiscalização Volante">Fiscalização Volante</option>
+            <option value="15. Comando">Comando</option>
+            <option value="16. Missão">Missão</option>
+          </select>
+        </div>
+        <!-- Select de evento: só aparece ao escolher Evento -->
+        <div id="qrvEventoWrap" style="display:none;margin-top:8px;">
+          <span class="flabel" style="font-size:10px;">Evento <span style="color:var(--text3);font-weight:400;text-transform:none;">(opcional)</span></span>
+          <select class="finput" id="qrvEventoSel" style="width:100%;margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;">
+            <option value="">— sem vínculo —</option>
+          </select>
         </div>
         <input type="hidden" id="qrvSecaoSelecionada" value="principal">
       </div>
@@ -494,7 +746,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
         <span class="flabel">OBS <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(opcional)</span></span>
         <textarea class="ftextarea" id="qrvObs" rows="2" placeholder="Observação..." style="text-transform:uppercase;min-height:50px;resize:none;"></textarea>
       </div>
-      <button onclick="qrvRegistrar()" style="width:100%;padding:14px;background:linear-gradient(135deg,#10b981,#065f46);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-satellite-dish"></i> Registrar</button>
+      <button id="qrvBtnRegistrar" onclick="qrvRegistrar()" style="width:100%;padding:14px;background:linear-gradient(135deg,#10b981,#065f46);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-satellite-dish"></i> Registrar</button>
     </div>
   </div><!-- fim qrvFormWrap -->
 
@@ -508,7 +760,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div class="qrv-secao-wrap" id="qrvWrapPrincipal" data-secao="principal">
         <div class="qrv-secao-header" draggable="true" ondragstart="qrvSecaoDragStart(event,'principal')" ondragover="event.preventDefault()" ondrop="qrvSecaoDrop(event,'principal')">
           <span class="qrv-secao-drag">⠿</span>
-          <span class="qrv-secao-titulo" style="color:var(--gold);">⭐ Rotas do Turno</span>
+          <span class="qrv-secao-titulo" style="color:var(--gold);">ROTAS DO TURNO</span>
           <span class="qrv-secao-cont" id="qrvContPrincipal"></span>
         </div>
         <div id="qrvListaPrincipal" class="qrv-secao-lista" ondragover="qrvRowDragOver(event)" ondrop="qrvRowDrop(event,'principal')">
@@ -518,7 +770,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div class="qrv-secao-wrap" id="qrvWrapSupervisao" data-secao="supervisao">
         <div class="qrv-secao-header" draggable="true" ondragstart="qrvSecaoDragStart(event,'supervisao')" ondragover="event.preventDefault()" ondrop="qrvSecaoDrop(event,'supervisao')">
           <span class="qrv-secao-drag">⠿</span>
-          <span class="qrv-secao-titulo" style="color:#a78bfa;">👮 Supervisão</span>
+          <span class="qrv-secao-titulo" style="color:#a78bfa;">SUPERVISAO</span>
           <span class="qrv-secao-cont" id="qrvContSupervisao"></span>
         </div>
         <div id="qrvListaSupervisao" class="qrv-secao-lista" ondragover="qrvRowDragOver(event)" ondrop="qrvRowDrop(event,'supervisao')">
@@ -528,7 +780,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div class="qrv-secao-wrap" id="qrvWrapDemais" data-secao="demais">
         <div class="qrv-secao-header" draggable="true" ondragstart="qrvSecaoDragStart(event,'demais')" ondragover="event.preventDefault()" ondrop="qrvSecaoDrop(event,'demais')">
           <span class="qrv-secao-drag">⠿</span>
-          <span class="qrv-secao-titulo" style="color:var(--gold);">📋 Demais Registros</span>
+          <span class="qrv-secao-titulo" style="color:var(--gold);">DEMAIS REGISTROS</span>
           <span class="qrv-secao-cont" id="qrvContDemais"></span>
         </div>
         <div id="qrvListaDemais" class="qrv-secao-lista" ondragover="qrvRowDragOver(event)" ondrop="qrvRowDrop(event,'demais')">
@@ -545,6 +797,19 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     <div class="qrv-modal-title" id="qrvModalTitle">Status da Viatura</div>
     <div class="qrv-modal-sub" id="qrvModalSub"></div>
     <div class="qrv-modal-btns" id="qrvModalBtns"></div>
+  </div>
+</div>
+
+<!-- Mini-Modal Detalhe QAR/OUTROS -->
+<div id="qrvDetalheModal">
+  <div class="qrv-detalhe-box">
+    <div class="qrv-detalhe-title" id="qrvDetalheTitulo">Informar Local</div>
+    <div class="qrv-detalhe-sub" id="qrvDetalheSub">Opcional — deixe em branco para registrar sem informar</div>
+    <textarea class="qrv-detalhe-input" id="qrvDetalheInput" rows="2" placeholder="Digite aqui..." maxlength="120" oninput="this.value=this.value.toUpperCase()"></textarea>
+    <div class="qrv-detalhe-btns">
+      <button class="qrv-detalhe-ok" onclick="qrvDetalheConfirmar()"><i class="fas fa-check"></i> Confirmar</button>
+      <button class="qrv-detalhe-skip" onclick="qrvDetalheFechar()"><i class="fas fa-times"></i> Fechar</button>
+    </div>
   </div>
 </div>
 
@@ -565,6 +830,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
         <button type="button" onclick="qrvEditSelecionarSecao('principal')" id="qrvEditSecPrincipal" class="qrv-sec-btn">⭐ Rotas</button>
         <button type="button" onclick="qrvEditSelecionarSecao('supervisao')" id="qrvEditSecSupervisao" class="qrv-sec-btn">👮 Supervisão</button>
         <button type="button" onclick="qrvEditSelecionarSecao('demais')" id="qrvEditSecDemais" class="qrv-sec-btn">📋 Demais</button>
+        <button type="button" onclick="qrvEditSelecionarSecao('evento')" id="qrvEditSecEvento" class="qrv-sec-btn" style="border-color:#f59e0b;color:#f59e0b;">📅 Evento</button>
       </div>
       <input type="hidden" id="qrvEditSecao" value="demais">
     </div>
@@ -617,7 +883,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-09-v1'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-14-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -696,13 +962,19 @@ function criarVtInput(valorInicial){
 // BOOT / LOGIN
 // ══════════════════════════════════════════════
 function boot(){
-  // Forçar atualização quando APP_VERSION mudar
+  // Forçar atualização quando APP_VERSION mudar (com proteção anti-loop)
   const savedVersion=localStorage.getItem('app_version');
-  if(savedVersion && savedVersion!==APP_VERSION){
+  if(savedVersion&&savedVersion!==APP_VERSION){
     localStorage.setItem('app_version',APP_VERSION);
-    location.reload(true); // força buscar do servidor, ignora cache
-    return false;
+    // Só recarrega se não estamos já num reload (evita loop)
+    const reloading=sessionStorage.getItem('reloading');
+    if(!reloading){
+      sessionStorage.setItem('reloading','1');
+      location.reload(true);
+      return false;
+    }
   }
+  sessionStorage.removeItem('reloading');
   if(!savedVersion) localStorage.setItem('app_version',APP_VERSION);
   try{
     const sess=localStorage.getItem(LS.session);
@@ -711,26 +983,839 @@ function boot(){
   return false;
 }
 
-document.addEventListener('DOMContentLoaded',function(){
+
+// ══════════════════════════════════════════════
+// BIBLIOTECA DE EVENTOS
+// ══════════════════════════════════════════════
+let evtBiblioteca=[];
+
+async function evtBibliotecaCarregar(){
+  try{
+    const r=await api('getBiblioteca',{});
+    evtBiblioteca=r.data||[];
+  }catch(e){evtBiblioteca=[];}
+}
+
+function evtNorm(s){
+  return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+}
+
+function evtBibliotecaBuscar(q){
+  const drop=document.getElementById('evtBibliotecaDrop');
+  const termo=evtNorm(q);
+  if(termo.length<2){drop.style.display='none';return;}
+  const hits=evtBiblioteca.filter(b=>evtNorm(b.nome).includes(termo));
+  if(!hits.length){drop.style.display='none';return;}
+  drop.innerHTML=hits.map((b,i)=>{
+    const nPostos=(b.postos||[]).length;
+    const locais=(b.postos||[]).map(p=>p.local).filter(Boolean).slice(0,2).join(' · ');
+    const info=`${nPostos} posto${nPostos!==1?'s':''}${locais?' — '+locais:''}`;
+    return `<div class="evt-bib-item" onclick="evtBibliotecaAplicar(${i})">
+      <div class="evt-bib-nome">${b.nome}</div>
+      <div class="evt-bib-info">${info}</div>
+    </div>`;
+  }).join('');
+  drop._hits=hits;
+  drop.style.display='block';
+}
+
+function evtBibliotecaAplicar(idx){
+  const drop=document.getElementById('evtBibliotecaDrop');
+  const b=drop._hits[idx];
+  if(!b)return;
+  // Preencher nome
+  document.getElementById('evtNome').value=b.nome;
+  drop.style.display='none';
+  // Limpar postos e supervisão existentes
+  document.getElementById('evtPostosContainer').innerHTML='';
+  const sc=document.getElementById('evtSupervisaoContainer');
+  if(sc) sc.innerHTML='';
+  // Preencher apenas os postos/locais — agentes e supervisão sempre mudam
+  (b.postos||[]).forEach(p=>{
+    evtAdicionarPosto();
+    const c=document.getElementById('evtPostosContainer');
+    const div=c.lastElementChild;
+    const localInp=div.querySelector('[data-campo="local"]');
+    if(localInp) localInp.value=p.local||'';
+    // VT e agentes em branco para o supervisor preencher
+  });
+  toast('Postos carregados da biblioteca ✓ — preencha agentes e supervisão','ok');
+}
+
+// Painel biblioteca: NÃO fecha ao clicar fora (evitar perda de dados)
+// Só fecha pelo botão ✕
+
+// Fechar dropdown ao clicar fora
+document.addEventListener('click',e=>{
+  const drop=document.getElementById('evtBibliotecaDrop');
+  if(drop&&!drop.contains(e.target)&&e.target.id!=='evtNome'){
+    drop.style.display='none';
+  }
+});
+
+// BIBLIOTECA — GERENCIAMENTO ADMIN
+// ══════════════════════════════════════════════
+let _bibEditChave=null;
+
+let _bibImportResultado={nome:'',postos:[]};
+
+function bibAbrirImport(){
+  document.getElementById('bibImportModal').classList.add('open');
+  document.getElementById('bibImportTexto').value='';
+  document.getElementById('bibImportPreview').style.display='none';
+  document.getElementById('bibImportLista').innerHTML='';
+  document.getElementById('bibNomeExtraido').textContent='';
+  setTimeout(()=>document.getElementById('bibImportTexto').focus(),100);
+}
+
+function bibFecharImport(){
+  document.getElementById('bibImportModal').classList.remove('open');
+}
+
+async function bibExtrairIA(){
+  const texto=(document.getElementById('bibImportTexto').value||'').trim();
+  if(!texto){toast('Cole o texto do plano operacional.','err');return;}
+  const btn=document.getElementById('bibBtnExtrair');
+  btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Analisando...';
+  const _restore=()=>{btn.disabled=false;btn.innerHTML='<i class="fas fa-magic"></i> Extrair com IA';};
+
+  await new Promise(r=>setTimeout(r,300));
+  try{
+    // ── Extrair nome ──────────────────────────────────────────────────────────
+    let nomeEvt='';
+    const padrNome=[
+      /evento[:\s]+([^\n\r:]{5,100}?)(?:\s*turno|\s*data|\s*\d{2}\s*h|$)/i,
+      /plano operacional\s*[\-:]\s*([^\n\r:]{5,100}?)(?:\s*turno|\s*data|\s*\d{2}\s*h|$)/i,
+      /opera[çc][aã]o[:\s]+([^\n\r,]{5,80})/i,
+      /miss[aã]o[\/\s]+evento[:\s]+([^\n\r,]{5,80})/i,
+    ];
+    for(const p of padrNome){
+      const m=texto.match(p);
+      if(m){nomeEvt=m[1].replace(/plano operacional/i,'').replace(/[:]/g,'').trim().toUpperCase();break;}
+    }
+
+    // ── Separar texto em linhas por postos numerados ──────────────────────────
+    // Funciona mesmo quando o texto é uma linha só
+    const palavrasLocal='AV\\b|AVENIDA\\b|RUA\\b|R\\.\\s|FAIXA\\b|TRAVESSA\\b|ALAMEDA\\b|PRA[ÇC]A\\b|LARGO\\b|ESTRADA\\b|RODOVIA\\b';
+    // Inserir marcador antes de cada "número + palavra de local"
+    const textoSep=texto.replace(
+      new RegExp('\\s+(\\d{1,2})\\s+('+palavrasLocal+')','gi'),
+      '\n$1 $2'
+    );
+    const linhas=textoSep.split('\n').map(l=>l.trim()).filter(Boolean);
+
+    const postos=[];
+    const padrNum=/^(\d{1,2})\s+(.+)/;
+    const limpezas=[
+      /VT\s*AMC[\s\w\.\/,]*/gi,
+      /VT-?\d+|MT-?\d+/gi,
+      /\d+\s*VL\b/gi,
+      /\d{2}\s*[Hh]\b/gi,
+      /\([^)]*\)/g,
+      /(RENDIC[ÃA]O|COIBI[CÇ][ÃA]O.*|CONTROLE DE TR[ÁA]F.*|COIBIR.*|INCLUSIVE.*|PARA CONVERS[ÃA]O.*|CONTROLE DE FLUXO.*|PRESERVAR.*)/gi,
+      /[A-Z]\.\s*[A-Z][A-Z]+(?:\s*[\/,]\s*[A-Z][A-Z]+)*/g, // nomes de agentes como J.PEIXOTO/FREIRE
+    ];
+
+    linhas.forEach(linha=>{
+      const m=padrNum.exec(linha);
+      if(!m) return;
+      let local=m[2];
+      limpezas.forEach(rx=>{ local=local.replace(rx,''); });
+      local=local.replace(/\s+/g,' ').trim().replace(/[.,\s]+$/,'');
+      if(local.length>8) postos.push(local.toUpperCase());
+    });
+
+    // Fallback: busca por endereços sem numeração
+    if(!postos.length){
+      const rxLocal=new RegExp('((?:AV(?:ENIDA)?|RUA|FAIXA|TRAVESSA)[^\\.\\d]{10,120})','gi');
+      let m;
+      while((m=rxLocal.exec(texto))!==null){
+        let local=m[1];
+        limpezas.forEach(rx=>{local=local.replace(rx,'');});
+        local=local.replace(/\s+/g,' ').trim().replace(/[.,\s]+$/,'');
+        if(local.length>8&&!postos.includes(local.toUpperCase()))
+          postos.push(local.toUpperCase());
+      }
+    }
+
+    if(!postos.length){_restore();toast('Não foi possível identificar postos. Verifique o texto.','err');return;}
+
+    _bibImportResultado={nome:nomeEvt,postos};
+    const lista=document.getElementById('bibImportLista');
+    lista.innerHTML=postos.map((p,i)=>`
+      <div class="bib-import-item">
+        <input type="checkbox" id="bibChk${i}" checked>
+        <label for="bibChk${i}" style="flex:1;cursor:pointer;font-size:11px;">${p}</label>
+      </div>`).join('');
+    const nomeEl=document.getElementById('bibNomeExtraido');
+    nomeEl.innerHTML=nomeEvt
+      ?`<strong style="color:#f59e0b;">Nome identificado:</strong> ${nomeEvt}`
+      :'<span style="color:#94a3b8;">Nome não identificado — preencha manualmente.</span>';
+    document.getElementById('bibImportPreview').style.display='block';
+    _restore();
+    toast(postos.length+' posto(s) identificado(s)','ok');
+  }catch(ex){_restore();toast('Erro: '+ex.message,'err');}
+}
+
+function bibConfirmarImport(){
+  const postosSel=(_bibImportResultado.postos||[]).filter((_,i)=>{
+    const chk=document.getElementById('bibChk'+i);
+    return chk&&chk.checked;
+  });
+  if(!postosSel.length){toast('Selecione ao menos um posto.','err');return;}
+  // Preencher nome se estiver vazio
+  const nomeInp=document.getElementById('bibNomeInp');
+  if(nomeInp&&(!nomeInp.value||!nomeInp.value.trim())&&_bibImportResultado.nome)
+    nomeInp.value=_bibImportResultado.nome.toUpperCase();
+  // Limpar postos existentes e adicionar os selecionados
+  document.getElementById('bibPostosContainer').innerHTML='';
+  postosSel.forEach(local=>{
+    bibAdicionarPosto();
+    const c=document.getElementById('bibPostosContainer');
+    const inp=c.lastElementChild.querySelector('[data-bib-local]');
+    if(inp) inp.value=local.toUpperCase();
+  });
+  bibFecharImport();
+  toast(postosSel.length+' posto(s) importado(s) ✓','ok');
+}
+
+function bibAbrirPainel(){
+  document.getElementById('bibPainel').classList.add('open');
+  bibRenderLista();
+  bibLimparForm();
+}
+
+function bibFecharPainel(){
+  const nome=(document.getElementById('bibNomeInp')?.value||'').trim();
+  const temPostos=Array.from(document.querySelectorAll('#bibPostosContainer [data-bib-local]')).some(el=>el.value.trim());
+  if(nome||temPostos){
+    if(!confirm('Há dados não salvos. Deseja fechar mesmo assim?')) return;
+  }
+  document.getElementById('bibPainel').classList.remove('open');
+  bibLimparForm();
+}
+
+function bibAdicionarPosto(){
+  const c=document.getElementById('bibPostosContainer');
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
+  div.innerHTML=`<input type="text" class="finput" data-bib-local placeholder="Ex: AV. BEIRA MAR X R. DOS TABAJARAS" style="flex:1;text-transform:uppercase;font-size:12px;padding:8px 10px;">
+    <button onclick="if(confirm('Remover posto?'))this.parentElement.remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:6px;color:#f87171;padding:6px 10px;cursor:pointer;font-size:11px;"><i class="fas fa-trash"></i></button>`;
+  c.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function bibLimparForm(){
+  _bibEditChave=null;
+  document.getElementById('bibNomeInp').value='';
+  document.getElementById('bibPostosContainer').innerHTML='';
+  document.getElementById('bibFormTitulo').textContent='+ Novo Evento na Biblioteca';
+  document.getElementById('bibBtnCancelar').style.display='none';
+  bibAdicionarPosto();
+}
+
+function bibCancelarEdicao(){
+  bibLimparForm();
+}
+
+function bibEditarItem(chave){
+  const item=evtBiblioteca.find(b=>evtNorm(b.nome)===chave);
+  if(!item) return;
+  _bibEditChave=chave;
+  document.getElementById('bibNomeInp').value=item.nome;
+  document.getElementById('bibPostosContainer').innerHTML='';
+  (item.postos||[]).forEach(p=>{
+    bibAdicionarPosto();
+    const c=document.getElementById('bibPostosContainer');
+    const inp=c.lastElementChild.querySelector('[data-bib-local]');
+    if(inp) inp.value=p.local||'';
+  });
+  document.getElementById('bibFormTitulo').textContent='✏️ Editando: '+item.nome;
+  document.getElementById('bibBtnCancelar').style.display='block';
+  document.getElementById('bibNomeInp').focus();
+}
+
+async function bibSalvarItem(){
+  const nome=(document.getElementById('bibNomeInp').value||'').trim().toUpperCase();
+  if(!nome){toast('Informe o nome do evento.','err');return;}
+  const postos=Array.from(document.querySelectorAll('#bibPostosContainer [data-bib-local]'))
+    .map(el=>({local:(el.value||'').trim().toUpperCase()}))
+    .filter(p=>p.local);
+  // Feedback visual no botão
+  const btnSalvar=document.querySelector('#bibForm button[onclick="bibSalvarItem()"]');
+  if(btnSalvar){btnSalvar.disabled=true;btnSalvar.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';}
+  const _restore=()=>{if(btnSalvar){btnSalvar.disabled=false;btnSalvar.innerHTML='<i class="fas fa-save"></i> Salvar';}};
+  try{
+    await api('saveBiblioteca',{entrada:{nome,postos,criadoPor:G.name}});
+    await evtBibliotecaCarregar();
+    bibRenderLista();
+    bibLimparForm();
+    _restore();
+    toast('Evento salvo na biblioteca ✓','ok');
+  }catch(ex){_restore();toast('Erro: '+ex.message,'err');}
+}
+
+async function bibExcluirItem(chave){
+  if(!confirm('Excluir este evento da biblioteca?')) return;
+  try{
+    await api('deleteBiblioteca',{chave});
+    evtBiblioteca=evtBiblioteca.filter(b=>evtNorm(b.nome)!==chave);
+    bibRenderLista();
+    toast('Evento excluído da biblioteca.','ok');
+  }catch(ex){toast('Erro: '+ex.message,'err');}
+}
+
+function bibRenderLista(){
+  const el=document.getElementById('bibLista');
+  if(!evtBiblioteca.length){
+    el.innerHTML='<div class="bib-empty">Nenhum evento na biblioteca ainda.</div>';
+    return;
+  }
+  el.innerHTML=evtBiblioteca.map(b=>{
+    const chave=evtNorm(b.nome);
+    const nPostos=(b.postos||[]).length;
+    const locais=(b.postos||[]).map(p=>p.local).filter(Boolean).slice(0,2).join(' · ');
+    return`<div class="bib-item-card">
+      <div style="flex:1;">
+        <div class="bib-item-nome">${b.nome}</div>
+        <div class="bib-item-info">${nPostos} posto${nPostos!==1?'s':''}${locais?' — '+locais:''}</div>
+      </div>
+      <div class="bib-item-btns">
+        <button class="bib-btn-edit" onclick="bibEditarItem('${chave}')"><i class="fas fa-edit"></i></button>
+        <button class="bib-btn-del" onclick="bibExcluirItem('${chave}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// EVENTO — ESCALAS ESPECIAIS
+// ══════════════════════════════════════════════
+let evtLista=[];
+let evtAutoTimer=null;
+let evtEditId=null;
+let evtFormAberto=false;
+let evtTurno='MANHÃ';
+
+// ── Variáveis QRV (declaradas aqui para evitar uso antes de inicialização)
+let qrvRegistros=[];
+let qrvAutoTimer=null;
+let qrvVtsPrincipais=[];
+let qrvVtsSupervisao=[];
+let qrvIdsExcluidos=new Set();
+let qrvFormAberto=false;
+let qrvEditId=null;
+let qrvEditRegCache=null;
+let _secaoDragId=null;
+let _rowDragId=null;
+
+function evtNavData(d){
+  G.data=new Date(G.data.getFullYear(),G.data.getMonth(),G.data.getDate()+d);
+  evtSincData();evtCarregar();
+}
+function evtGoHoje(){
+  G.data=new Date();evtSincData();evtCarregar();
+}
+function evtToggleForm(){
+  evtFormAberto=!evtFormAberto;
+  document.getElementById('evtFormWrap').style.display=evtFormAberto?'block':'none';
+  document.getElementById('evtBtnTxt').textContent=evtFormAberto?'Fechar':'Novo Evento';
+  if(evtFormAberto&&!evtEditId){evtLimparForm();evtAdicionarPosto();}
+}
+function evtSincData(){
+  const inp=document.getElementById('evtDataInput');
+  if(inp) inp.value=isoData(G.data);
+  const ts=document.getElementById('evtTurnoInput');
+  if(ts) ts.value=evtTurno;
+}
+function evtOnDataChange(){
+  const v=document.getElementById('evtDataInput').value;
+  if(!v)return;
+  G.data=localDate(v);
+  document.getElementById('dataInput').value=v;
+  evtCarregar();
+}
+function evtOnTurnoChange(){
+  evtTurno=document.getElementById('evtTurnoInput').value;
+  evtCarregar();
+}
+
+async function evtCarregar(silent=false){
+  if(!silent){const b=document.getElementById('evtBRef');if(b)b.classList.add('spin');}
+  try{
+    const r=await api('getEventos',{data:isoData(G.data),turno:evtTurno});
+    const todos=r.data||[];
+    const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+    // Lista completa por turno — usada pelo QRV (todos os supervisores)
+    const filtrados=todos.filter(e=>!e.turno||norm(e.turno)===norm(evtTurno));
+    const idsApi=new Set(filtrados.map(e=>e.id));
+    const locaisNovos=evtLista.filter(e=>!idsApi.has(e.id)&&(!e.turno||norm(e.turno)===norm(evtTurno))&&e.data===isoData(G.data));
+    evtLista=[...filtrados,...locaisNovos];
+    evtRenderLista(); // mostra só os do usuário logado (filtro dentro da função)
+    evtInjetarQrv(); // injeta todos no QRV
+    // Bloquear edição se dia anterior ou futuro
+    const evtHoje=isoData(new Date());
+    const evtDataSel=isoData(G.data);
+    const evtDiaAnt=evtDataSel<evtHoje;
+    const evtDiaFut=evtDataSel>evtHoje;
+    const evtBloq=document.getElementById('evtBloqueadoInfo');
+    if(evtBloq){
+      // Só supervisor recebe aviso — admin edita qualquer dia, central/chefia sempre leitura
+      const mostraAviso=G.role==='supervisor';
+      if(mostraAviso&&evtDiaAnt){
+        evtBloq.style.display='flex';
+        evtBloq.textContent='🔒 Dia anterior — somente leitura';
+      } else if(mostraAviso&&evtDiaFut){
+        evtBloq.style.display='flex';
+        evtBloq.textContent='⛔ Data futura — não é possível criar eventos';
+      } else {
+        evtBloq.style.display='none';
+      }
+    }
+    const evtBtnW=document.getElementById('evtBtnNovoWrap');
+    if(evtBtnW) evtBtnW.style.display=(G.role==='admin'||(!evtDiaAnt&&!evtDiaFut&&G.role==='supervisor'))?'block':'none';
+    const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const ri=document.getElementById('evtRefreshInfo');if(ri)ri.textContent='Atualizado às '+now;
+  }catch(ex){if(!silent)toast('Erro ao carregar eventos: '+ex.message,'err');}
+  if(!silent){const b=document.getElementById('evtBRef');if(b)b.classList.remove('spin');}
+}
+
+function evtAdicionarPosto(){
+  const c=document.getElementById('evtPostosContainer');
+  const n=c.children.length+1;
+  const div=document.createElement('div');div.className='evt-posto-form';
+  div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <span style="font-size:11px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace;">POSTO ${n}</span>
+    <button onclick="if(confirm('Remover este posto?'))this.closest('.evt-posto-form').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;cursor:pointer;font-size:11px;padding:4px 8px;"><i class='fas fa-trash'></i></button>
+  </div>
+  <div style="margin-bottom:6px;">
+    <span class="flabel" style="font-size:10px;">Local</span>
+    <input type="text" class="finput" data-campo="local" placeholder="Ex: Av. Beira Mar x R. dos Tabajaras" style="text-transform:uppercase;width:100%;font-size:13px;padding:10px 12px;">
+  </div>
+  <div class="frow">
+    <div style="max-width:120px;">
+      <span class="flabel" style="font-size:10px;">VT/MT</span>
+      <div class="vt-wrap" data-vtwrap></div>
+    </div>
+    <div>
+      <span class="flabel" style="font-size:10px;">Agentes</span>
+      <div class="input-wrap"><input type="text" class="finput finput-agentes" data-campo="agentes" placeholder="Agentes do posto" autocomplete="off"></div>
+    </div>
+  </div>`;
+  // Criar VT input no wrap
+  const vtWrap=div.querySelector('[data-vtwrap]');
+  const vtEl=criarVtInput('');
+  const vtInp=vtEl.querySelector('input');
+  vtInp.style.cssText='width:100%;padding:10px 8px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:13px;outline:none;text-transform:uppercase;';
+  vtWrap.appendChild(vtEl);
+  // Validação VT duplicada ao sair do campo
+  vtInp.addEventListener('blur',()=>evtValidarVtPosto(vtInp));
+  // Autocomplete agentes
+  const agEl=div.querySelector('.finput-agentes');
+  if(agEl) addEventosAgentes(agEl);
+  c.appendChild(div);
+}
+
+function evtValidarVtPosto(inp){
+  const val=(inp.value||'').trim().toUpperCase();
+  if(!val) return;
+  // Bloquear: mesma VT em dois postos/supervisão do mesmo evento
+  const todosVts=Array.from(document.querySelectorAll('#evtPostosContainer .vt-input, #evtSupervisaoContainer .vt-input'));
+  const duplicado=todosVts.some(el=>el!==inp&&(el.value||'').trim().toUpperCase()===val);
+  if(duplicado){
+    toast('⚠️ '+val+' já está em outro posto deste evento!','err');
+    inp.value='';
+    inp.style.borderColor='#f87171';
+    setTimeout(()=>{inp.style.borderColor='';},2000);
+    return;
+  }
+  // Avisar (não bloquear): VT já em outro evento do turno
+  const outroEvt=evtLista.find(e=>{
+    const sups=e.supervisao?(Array.isArray(e.supervisao)?e.supervisao:[e.supervisao]):[];
+    return [...(e.postos||[]),...sups].some(p=>(p.vt||'').trim().toUpperCase()===val);
+  });
+  if(outroEvt){
+    inp.style.borderColor='#fbbf24';
+    setTimeout(()=>{inp.style.borderColor='';},3000);
+    toast('ℹ️ '+val+' já está no evento "'+outroEvt.nome+'" — verifique','ok');
+  }
+}
+
+function evtColetarPostos(){
+  return Array.from(document.getElementById('evtPostosContainer').children).map(div=>{
+    const local=(div.querySelector('[data-campo="local"]')?.value||'').trim().toUpperCase();
+    const vt=(div.querySelector('.vt-input')?.value||'').trim().toUpperCase();
+    const agentes=(div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase();
+    return{local,vt,agentes};
+  }).filter(p=>p.local||p.agentes||p.vt);
+}
+
+
+function evtAdicionarSupervisao(){
+  const c=document.getElementById('evtSupervisaoContainer');
+  // múltiplas supervisões permitidas
+  const div=document.createElement('div');div.className='evt-posto-form';
+  div.style.cssText='border:1px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px;margin-bottom:6px;background:rgba(167,139,250,0.05);';
+  div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <span style="font-size:11px;font-weight:700;color:#a78bfa;font-family:'IBM Plex Mono',monospace;">SUPERVISÃO</span>
+    <button onclick="if(confirm('Remover supervisão?'))this.closest('.evt-posto-form').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;cursor:pointer;font-size:11px;padding:4px 8px;"><i class='fas fa-trash'></i></button>
+  </div>
+  <div class="frow">
+    <div style="max-width:120px;">
+      <span class="flabel" style="font-size:10px;color:#a78bfa;">VT/MT</span>
+      <div class="vt-wrap" data-supvtwrap></div>
+    </div>
+    <div>
+      <span class="flabel" style="font-size:10px;color:#a78bfa;">Agentes</span>
+      <div class="input-wrap"><input type="text" class="finput finput-agentes" data-campo="agentes" placeholder="Supervisor(es)" autocomplete="off"></div>
+    </div>
+  </div>`;
+  const vtWrap=div.querySelector('[data-supvtwrap]');
+  const vtEl=criarVtInput('');
+  const vtInp=vtEl.querySelector('input');
+  vtInp.style.cssText='width:100%;padding:10px 8px;background:var(--navy2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#fff;font-size:13px;outline:none;text-transform:uppercase;';
+  vtWrap.appendChild(vtEl);
+  const agEl=div.querySelector('.finput-agentes');
+  if(agEl) addEventosAgentes(agEl);
+  c.appendChild(div);
+}
+
+function evtColetarSupervisao(){
+  const c=document.getElementById('evtSupervisaoContainer');
+  if(!c||!c.children.length) return [];
+  return Array.from(c.children).map(div=>{
+    const vt=(div.querySelector('.vt-input')?.value||'').trim().toUpperCase();
+    const agentes=(div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase();
+    return(vt||agentes)?{vt,agentes}:null;
+  }).filter(Boolean);
+}
+
+function evtLimparForm(){
+  document.getElementById('evtNome').value='';
+  document.getElementById('evtHora').value='';
+  document.getElementById('evtApoio').value=G.name||'';
+  document.getElementById('evtPostosContainer').innerHTML='';
+  const sc=document.getElementById('evtSupervisaoContainer');
+  if(sc) sc.innerHTML='';
+  evtEditId=null;
+  document.getElementById('evtBtnSalvar').textContent='Salvar Evento';
+}
+
+async function evtSalvar(){
+  const hoje=isoData(new Date());
+  if(G.role!=='admin'&&isoData(G.data)>hoje){toast('Não é possível criar eventos para datas futuras.','err');return;}
+  if(G.role!=='admin'&&isoData(G.data)<hoje&&G.role!=='admin'){toast('Não é possível criar eventos para dias anteriores.','err');return;}
+  const nome=(document.getElementById('evtNome').value||'').trim().toUpperCase();
+  if(!nome){toast('Informe o nome do evento.','err');return;}
+  const postos=evtColetarPostos();
+  const btn=document.getElementById('evtBtnSalvar');
+  btn.disabled=true;btn.textContent='Salvando...';
+  const supervisao=evtColetarSupervisao();
+  const evento={
+    id:evtEditId||('evt_'+Date.now()),
+    nome,
+    hora:document.getElementById('evtHora').value||'',
+    data:isoData(G.data),
+    turno:evtTurno,
+    apoio:(document.getElementById('evtApoio').value||'').trim().toUpperCase(),
+    postos,
+    supervisao:supervisao.length?supervisao:null,
+    // Preservar criadoPor original se admin editando evento de outro supervisor
+    criadoPor:(evtEditId&&G.role==='admin')?(()=>{const orig=evtLista.find(e=>e.id===evtEditId);return(orig&&orig.criadoPor)?orig.criadoPor:G.name;})():G.name,
+    alteradoPor:(evtEditId&&G.role==='admin')?(()=>{const orig=evtLista.find(e=>e.id===evtEditId);return(orig&&orig.criadoPor&&orig.criadoPor!==G.name)?G.name:undefined;})():undefined,
+    alteradoEm:(evtEditId&&G.role==='admin')?(()=>{const orig=evtLista.find(e=>e.id===evtEditId);return(orig&&orig.criadoPor&&orig.criadoPor!==G.name)?new Date().toISOString():undefined;})():undefined,
+    criadoEm:(()=>{const orig=evtLista.find(e=>e.id===evtEditId);return(orig&&orig.criadoEm)?orig.criadoEm:new Date().toISOString();})(),
+  };
+  try{
+    await api('saveEvento',{evento});
+    // Atualizar biblioteca: só nome e postos/locais (sem agentes nem supervisão)
+    const postosParaBib=(evento.postos||[]).map(p=>({local:p.local||''}));
+    api('saveBiblioteca',{entrada:{nome:evento.nome,postos:postosParaBib,criadoPor:evento.criadoPor}}).catch(()=>{});
+    evtBibliotecaCarregar(); // recarregar biblioteca local
+    // Atualizar lista local — garantir que o evento salvo fica na lista
+    const idx=evtLista.findIndex(e=>e.id===evento.id);
+    if(idx>=0) evtLista[idx]=evento; else evtLista.unshift(evento);
+    evtLimparForm();
+    evtFormAberto=true; // evitar que toggle chame limparForm novamente
+    evtToggleForm();    // fecha o formulário
+    evtRenderLista();
+    evtInjetarQrv();
+    toast('Evento salvo! ✓','ok');
+  }catch(ex){toast('Erro ao salvar: '+ex.message,'err');}
+  btn.disabled=false;btn.textContent='Salvar Evento';
+}
+
+function evtEditar(id){
+  const evt=evtLista.find(e=>e.id===id);
+  if(!evt)return;
+  // Verificar permissão
+  if(!['admin'].includes(G.role)&&evt.criadoPor!==G.name){
+    toast('Você só pode editar eventos que criou.','err');return;
+  }
+  evtEditId=id;
+  document.getElementById('evtNome').value=evt.nome||'';
+  document.getElementById('evtHora').value=evt.hora||'';
+  document.getElementById('evtApoio').value=evt.apoio||'';
+  document.getElementById('evtPostosContainer').innerHTML='';
+  const sc2=document.getElementById('evtSupervisaoContainer');
+  if(sc2) sc2.innerHTML='';
+  (evt.postos||[]).forEach(p=>{
+    evtAdicionarPosto();
+    const c=document.getElementById('evtPostosContainer');
+    const div=c.lastElementChild;
+    const localInp=div.querySelector('[data-campo="local"]');
+    if(localInp) localInp.value=p.local||'';
+    const vtInp=div.querySelector('.vt-input');
+    if(vtInp) vtInp.value=p.vt||'';
+    const agInp=div.querySelector('[data-campo="agentes"]');
+    if(agInp) agInp.value=p.agentes||'';
+  });
+  const supList=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[];
+  supList.forEach(s=>{
+    evtAdicionarSupervisao();
+    const sc3=document.getElementById('evtSupervisaoContainer');
+    const sdiv=sc3.lastElementChild;
+    const svtInp=sdiv.querySelector('.vt-input');
+    if(svtInp) svtInp.value=s.vt||'';
+    const sagInp=sdiv.querySelector('[data-campo="agentes"]');
+    if(sagInp) sagInp.value=s.agentes||'';
+  });
+  document.getElementById('evtBtnSalvar').textContent='Atualizar Evento';
+  if(!evtFormAberto) evtToggleForm();
+  document.getElementById('evtFormWrap').scrollIntoView({behavior:'smooth'});
+}
+
+async function evtExcluir(id){
+  const evt=evtLista.find(e=>e.id===id);
+  if(!evt)return;
+  if(!['admin'].includes(G.role)&&evt.criadoPor!==G.name){
+    toast('Você só pode excluir eventos que criou.','err');return;
+  }
+  conf('Excluir evento','Confirma exclusão deste evento?',async()=>{
+    try{
+      await api('deleteEvento',{id});
+      evtLista=evtLista.filter(e=>e.id!==id);
+      evtRenderLista();
+      evtInjetarQrv();
+      toast('Evento excluído.','ok');
+    }catch(ex){toast('Erro: '+ex.message,'err');}
+  });
+}
+
+function evtRenderLista(){
+  const el=document.getElementById('evtLista');
+  const podeEditar=['admin','supervisor'].includes(G.role);
+  const minhaLista=['admin','central','chefia'].includes(G.role)?evtLista:evtLista.filter(e=>e.criadoPor===G.name);
+  // Card de cabeçalho para central e chefia (sempre leitura)
+  const cabecalho=['central','chefia'].includes(G.role)?`
+    <div class="view-header" style="margin:0 0 12px;">
+      <div class="view-title">Relatório de Eventos</div>
+      <div class="view-meta">
+        <span><strong>${fmtData(isoData(G.data))}</strong></span>
+        <span>Turno: <strong>${evtTurno}</strong></span>
+        <span>Eventos: <strong>${minhaLista.length}</strong></span>
+      </div>
+    </div>`:'';
+  if(!minhaLista.length){
+    const msgVazia=['admin','central','chefia'].includes(G.role)?'Nenhum evento cadastrado neste turno':'Nenhum evento cadastrado por você neste turno';
+    el.innerHTML=cabecalho+`<div class="empty"><span class="eico">📅</span><div class="etxt">${msgVazia}</div></div>`;
+    return;
+  }
+  el.innerHTML=cabecalho+minhaLista.map(evt=>{
+    const evtHojeRend=isoData(new Date());
+    const evtDataSelRend=isoData(G.data);
+    const evtSoLeitura=G.role!=='admin'&&evtDataSelRend!==evtHojeRend;
+    const podeEd=!evtSoLeitura&&((G.role==='admin')||(G.role==='supervisor'&&evt.criadoPor===G.name));
+    const postoHtml=(evt.postos||[]).length?`
+      <div style="font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:1.5px;padding:6px 0 3px;font-family:'IBM Plex Mono',monospace;">POSTOS</div>
+      ${(evt.postos||[]).map((p,i)=>`
+      <div class="evt-posto">
+        <span class="evt-posto-num">${i+1}</span>
+        <div class="evt-posto-info">
+          ${p.local?`<div class="evt-posto-local">${p.local}</div>`:''}
+          <div class="evt-posto-agentes">${p.vt?`<span class="evt-posto-vt">${p.vt}</span> `:''}<span style="color:var(--text);">${p.agentes||'—'}</span></div>
+        </div>
+      </div>`).join('')}`:'';
+    const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[]; 
+    const supHtml=supArr.length?`
+      <div style="font-size:10px;font-weight:700;color:#a78bfa;letter-spacing:1.5px;padding:6px 0 3px;font-family:'IBM Plex Mono',monospace;">SUPERVISÃO</div>
+      ${supArr.map((s,i)=>`
+      <div class="evt-posto" style="background:rgba(167,139,250,0.07);border-left:3px solid #a78bfa;">
+        <span class="evt-posto-num" style="color:#a78bfa;">${supArr.length>1?i+1:'SUP'}</span>
+        <div class="evt-posto-info">
+          <div class="evt-posto-agentes">${s.vt?`<span class="evt-posto-vt" style="background:rgba(167,139,250,0.3);color:#a78bfa;border:1px solid rgba(167,139,250,0.5);">${s.vt}</span> `:''}<span style="color:#a78bfa;">${s.agentes||'—'}</span></div>
+        </div>
+      </div>`).join('')}`:'';
+    return`<div class="evt-card">
+      <div class="evt-card-header">
+        <div class="evt-nome">${evt.nome}</div>
+        ${evt.hora?`<span class="evt-hora">🕐 ${evt.hora}</span>`:''}
+        <span class="evt-autor">${evt.criadoPor}</span>
+        ${podeEd?`<button class="evt-btn-edit" onclick="evtEditar('${evt.id}')"><i class="fas fa-edit"></i></button>`:''}
+        ${podeEd?`<button class="evt-btn-del" onclick="evtExcluir('${evt.id}')"><i class="fas fa-trash"></i></button>`:''}
+      </div>
+      ${postoHtml}
+      ${supHtml}
+      ${evt.apoio?`<div class="evt-apoio"><strong>APOIO:</strong> ${evt.apoio}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// Injetar eventos na aba QRV como seção extra
+function evtInjetarQrv(){
+  if(!evtLista.length) return;
+  let secEvt=document.getElementById('qrvWrapEvento');
+  if(!secEvt){
+    secEvt=document.createElement('div');
+    secEvt.className='qrv-secao-wrap';
+    secEvt.id='qrvWrapEvento';
+    secEvt.setAttribute('data-secao','evento');
+    secEvt.innerHTML=`<div class="qrv-secao-header">
+      <span class="qrv-secao-drag">⠿</span>
+      <span class="qrv-secao-titulo" style="color:#f59e0b;">📅 Eventos</span>
+      <span class="qrv-secao-cont" id="qrvContEvento"></span>
+    </div>
+    <div id="qrvListaEvento" class="qrv-secao-lista"></div>`;
+    const container=document.getElementById('qrvSecoesContainer');
+    if(container) container.appendChild(secEvt);
+  }
+
+  // IDs estáveis e determinísticos: evtQRV_{evtId}_{p0/s0/...}
+  // Se já existe no qrvRegistros (editado pela central), preserva — não sobrescreve
+  evtLista.forEach(evt=>{
+    const injetar=(vt,agentes,rota,subIdx)=>{
+      const vtU=(vt||'').toUpperCase();
+      if(!vtU) return;
+      const stableId='evtQRV_'+evt.id+'_'+subIdx;
+      // Se já existe (veio da planilha QRV ou foi injetado antes), não duplica
+      if(qrvRegistros.some(r=>r.id===stableId)) return;
+      qrvRegistros.push({
+        id:stableId, vt:vtU,
+        motorista:agentes||'', chefe:'', passag:'',
+        rota:(rota||'').toUpperCase(), secao:'evento',
+        saida:'', chegada:'',
+        statusQar:false, horaQar:'',
+        statusPosto:false, horaPosto:'',
+        statusOutros:true, obs:'',
+        historico:[{hora:'--:--',tipo:'outros',label:'OUTROS — EVENTO: '+(evt.nome||'').toUpperCase(),obs:'',user:'REL.'}],
+        deSupervisor:true,
+        registradoPor:'[Evento: '+evt.nome+']',
+      });
+    };
+    (evt.postos||[]).forEach((p,i)=>injetar(p.vt,p.agentes,p.local,'p'+i));
+    const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[];
+    supArr.forEach((s,i)=>injetar(s.vt,s.agentes,'SUPERVISÃO','s'+i));
+  });
+
+  const total=evtLista.reduce((s,e)=>{
+    const sup=e.supervisao?(Array.isArray(e.supervisao)?e.supervisao:[e.supervisao]):[];
+    return s+(e.postos||[]).length+sup.length;
+  },0);
+  const cont=document.getElementById('qrvContEvento');
+  if(cont) cont.textContent=total?`(${total} postos)`:'';
+}
+
+
+async function evtGerarPDF(){
+  const listaPDF=['admin','central','chefia'].includes(G.role)
+    ?evtLista
+    :evtLista.filter(e=>e.criadoPor===G.name);
+  if(!listaPDF.length){toast('Nenhum evento para gerar PDF.','err');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const mL=10,lMax=190,hPag=297,hRod=18;
+  const urlCab='https://i.imgur.com/ugHshEu.jpeg',urlRod='https://i.imgur.com/9QqgR97.jpg';
+  const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.crossOrigin='Anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+  const t='RELATÓRIO DE EVENTOS - AMC';
+  const addCab=async()=>{
+    try{const img=await loadImg(urlCab);doc.addImage(img,'PNG',mL,2,lMax,13);}catch(e){}
+    doc.setFillColor(46,94,86);doc.rect(mL,16,lMax,8,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(255,255,255);
+    doc.text(t,(210-doc.getTextWidth(t))/2,21.5);
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(0,0,0);
+  };
+  const addRod=async()=>{try{const img=await loadImg(urlRod);doc.addImage(img,'PNG',mL,hPag-hRod,lMax,hRod);}catch(e){}};
+  await addCab();
+  doc.text(`Data: ${fmtData(isoData(G.data))}   Turno: ${evtTurno}`,mL,30);
+  let y=35;
+  const checkPage=async(need=20)=>{
+    if(y+need>hPag-hRod-8){
+      await addRod();
+      doc.addPage();
+      await addCab();
+      y=30;
+    }
+  };
+  // PDF Eventos: 3 colunas apenas (VT/MT | Agentes | Local / Função)
+  const colStylesEvt={0:{cellWidth:22},1:{cellWidth:75},2:{cellWidth:'auto'}};
+  const tableStylesEvt={fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'};
+  const headEvt=[['VT/MT','Agentes','Local / Função']];
+  for(const evt of listaPDF){
+    const nomeEvt=(evt.nome+(evt.hora?' · '+evt.hora:'')).toUpperCase();
+    const rows=[];
+    (evt.postos||[]).forEach(p=>{
+      rows.push([p.vt||'—', p.agentes||'—', p.local||'—']);
+    });
+    const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[];
+    supArr.forEach(s=>{rows.push([s.vt||'—', s.agentes||'—', 'SUPERVISÃO']);});
+    if(evt.apoio) rows.push(['—', evt.apoio, 'APOIO GERAL']);
+    if(!rows.length) rows.push(['—','—','—']);
+    const secY=doc.lastAutoTable?doc.lastAutoTable.finalY+5:y;
+    if(secY>hPag-hRod-30){await addRod();doc.addPage();await addCab();}
+    const secY2=doc.lastAutoTable?doc.lastAutoTable.finalY+5:y;
+    doc.setFillColor(46,94,86);doc.rect(mL,secY2,lMax,6,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(255,255,255);
+    doc.text(nomeEvt,mL+3,secY2+4.2);
+    doc.setFontSize(7);doc.text('Por: '+evt.criadoPor,mL+lMax-doc.getTextWidth('Por: '+evt.criadoPor),secY2+4.2);
+    doc.setTextColor(0,0,0);
+    doc.autoTable({
+      startY:secY2+6,
+      head:headEvt,
+      body:rows,
+      theme:'grid',
+      headStyles:{fillColor:[70,110,100],textColor:[255,255,255],fontStyle:'bold',fontSize:8,cellPadding:2},
+      styles:tableStylesEvt,
+      columnStyles:colStylesEvt,
+      margin:{left:mL,right:10},
+    });
+  }
+  await addRod();
+  const geradoPor=G.name;
+  const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(120);
+  doc.text(`Gerado por ${geradoPor} · ${geradoEm}`,mL,hPag-hRod-2);
+  doc.save(`RELATORIO_EVENTOS_${fmtDataArquivo(isoData(G.data))}_${evtTurno}.pdf`);
+  toast('PDF gerado! ✓','ok');
+}
+
+
 // Bloquear pull-to-refresh no mobile
 let _touchStartY=0;
 document.addEventListener('touchstart',e=>{_touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchmove',e=>{
   const dy=e.touches[0].clientY-_touchStartY;
-  // Bloquear apenas quando no topo da página e puxando para baixo
   if(dy>0&&(window.scrollY||document.documentElement.scrollTop)===0){
     e.preventDefault();
   }
 },{passive:false});
 
 document.getElementById('loginRole').addEventListener('change',function(){
-  // Mostrar campo de nome para todos os perfis
   document.getElementById('lnameGroup').style.display=this.value?'block':'none';
 });
+
+// Campo supervisor: preenche com nome do logado no primeiro foco (se vazio)
+(function(){
+  const supEl=document.getElementById('supervisor');
+  if(supEl){
+    supEl.addEventListener('focus',function(){
+      if(G.role==='supervisor'&&(!this.value||this.value.trim()===''))
+        this.value=G.name;
+    });
+  }
+})();
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 // Boot
 if(boot()){initApp();}else{document.getElementById('loginScreen').style.display='flex';}
-});
+
 
 async function doLogin(){
   const role=document.getElementById('loginRole').value;
@@ -739,9 +1824,7 @@ async function doLogin(){
   const err=document.getElementById('loginErr');
   const btn=document.getElementById('btnLogin');
   if(!role){err.textContent='Selecione um perfil.';err.style.display='block';return;}
-  // Todos os perfis precisam informar nome de guerra
   if(!name){err.textContent='Informe seu nome de guerra.';err.style.display='block';return;}
-  // Rejeitar matrículas (somente números)
   if(/^\d+$/.test(name)){err.textContent='Use seu nome de guerra, não sua matrícula.';err.style.display='block';return;}
   btn.textContent='Verificando...';btn.disabled=true;
   try{const r=await api('getPasswords',{});if(r.data)G.pw={...DPW,...r.data};}catch(e){}
@@ -778,12 +1861,11 @@ function initApp(){
   document.getElementById('hRole').className='urole '+RC[G.role];
   G.data=new Date();
   setDataInput();
-  // Turno automático pelo horário atual
   const _h=new Date(),_hr=_h.getHours(),_mn=_h.getMinutes(),_tot=_hr*60+_mn;
-  if(_tot>=1&&_tot<=270) G.turno='MADRUGADA';       // 00:01 - 04:30
-  else if(_tot>=271&&_tot<=690) G.turno='MANHÃ';    // 04:31 - 11:30
-  else if(_tot>=691&&_tot<=1050) G.turno='TARDE';   // 11:31 - 17:30
-  else G.turno='NOITE';                              // 17:31 - 23:59
+  if(_tot>=1&&_tot<=270) G.turno='MADRUGADA';
+  else if(_tot>=271&&_tot<=690) G.turno='MANHÃ';
+  else if(_tot>=691&&_tot<=1050) G.turno='TARDE';
+  else G.turno='NOITE';
   document.getElementById('turnoInput').value=G.turno;
   configurarModo();
   carregarRelatorio();
@@ -794,16 +1876,28 @@ function initApp(){
   // (feito após carregarRelatorio, dentro de preencherFormulario)
   // Mostrar botão salvar fixo para admin/supervisor
 
-  // btnLimpar é controlado em configurarModo() com verificação de dono do relatório
+  // Limpar: visibilidade controlada em configurarModo() com verificação de dono
   // Mostrar aba QRV só para central e admin
   const tabs=document.getElementById('appTabs');
   if(tabs)tabs.style.display=['admin','central','supervisor','chefia'].includes(G.role)?'flex':'none';
+  trocarAba('rel'); // sempre iniciar na aba relatório ao logar
+  // Aba Evento: visível para supervisor, admin, central, chefia
+  // Botão Novo Evento: só para supervisores e admin
+  const btnNovoEvt=document.getElementById('evtBtnNovoWrap');
+  if(btnNovoEvt) btnNovoEvt.style.display=['admin','supervisor'].includes(G.role)?'block':'none';
+  const btnBib=document.getElementById('evtBtnBibliotecaWrap');
+  if(btnBib) btnBib.style.display=G.role==='admin'?'block':'none';
   // Inicializar campo VT do QRV
   const podeEditarQrv=['admin','central'].includes(G.role);
   const btnNovoReg=document.getElementById('qrvBtnNovoReg');
   if(btnNovoReg) btnNovoReg.style.display=podeEditarQrv?'flex':'none';
   qrvIniciarInput();
   qrvSincData();
+  evtTurno=G.turno;
+  evtSincData(); // já atualiza o select evtTurnoInput
+  evtBibliotecaCarregar();
+  // Carregar eventos para injetar na aba QRV
+  evtCarregar(true);
   if(G.autoTimer)clearInterval(G.autoTimer);
   G.autoTimer=setInterval(()=>carregarRelatorio(false,true),30000);
   // Configurar autocomplete nos campos internos
@@ -818,16 +1912,14 @@ function configurarModo(){
   const hoje=isoData(new Date());
   const dataSel=isoData(G.data);
   G.bloqueado=dataSel<hoje;
-  G.desbloqueado=false;
+  // Só resetar desbloqueado se data mudou (não resetar durante sync do mesmo dia)
+  if(!G._dataDesbloqueada||G._dataDesbloqueada!==dataSel) G.desbloqueado=false;
   // Supervisor só edita se foi ele quem salvou ou se o relatório ainda não foi salvo por ninguém
   let bloqueadoPorOutro=false;
   if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim()){
     bloqueadoPorOutro=true;
   }
   const editando=podeEditar&&(!G.bloqueado||G.desbloqueado)&&!bloqueadoPorOutro;
-  // Limpar só disponível se pode editar E é o dono (ou admin desbloqueou)
-  const btnL=document.getElementById('btnLimpar');
-  if(btnL) btnL.style.display=editando&&['admin','supervisor'].includes(G.role)?'inline-flex':'none';
   document.getElementById('modoEditar').style.display=editando?'block':'none';
   document.getElementById('modoVer').style.display=editando?'none':'block';
   document.getElementById('botoesEdicao').style.display=editando?'flex':'none';
@@ -838,10 +1930,14 @@ function configurarModo(){
     document.getElementById('bloqueadoInfo').textContent='🔒 Dia anterior — somente leitura';
   }
   document.getElementById('btnDesbloquear').style.display=(G.role==='admin'&&(G.bloqueado||bloqueadoPorOutro)&&!G.desbloqueado)?'block':'none';
+  // Limpar só disponível se pode editar E é o dono (ou admin)
+  const btnL=document.getElementById('btnLimpar');
+  if(btnL) btnL.style.display=editando&&['admin','supervisor'].includes(G.role)?'inline-flex':'none';
 }
 
 function desbloquear(){
   G.desbloqueado=true;
+  G._dataDesbloqueada=isoData(G.data); // preservar desbloqueio durante sync
   document.getElementById('modoEditar').style.display='block';
   document.getElementById('modoVer').style.display='none';
   document.getElementById('botoesEdicao').style.display='flex';
@@ -854,6 +1950,7 @@ function desbloquear(){
 // NAVEGAÇÃO DE DATA/TURNO
 // ══════════════════════════════════════════════
 function navData(d){
+  G._dataDesbloqueada=null;
   const novaData=new Date(G.data);
   novaData.setDate(novaData.getDate()+d);
   const hoje=isoData(new Date());
@@ -865,15 +1962,17 @@ function navData(d){
   setDataInput();
   onDataChange();
 }
-function goHoje(){G.data=new Date();setDataInput();onDataChange();}
+function goHoje(){
+  G._dataDesbloqueada=null;G.data=new Date();setDataInput();onDataChange();}
 function setDataInput(){
   const hoje=isoData(new Date());
   const inp=document.getElementById('dataInput');
-  inp.max=hoje; // bloquear datas futuras
+  inp.max=hoje;
   inp.value=isoData(G.data);
-  // Sincronizar campo de data da aba QRV
   const qrvInp=document.getElementById('qrvDataInput');
   if(qrvInp) qrvInp.value=isoData(G.data);
+  const evtInp=document.getElementById('evtDataInput');
+  if(evtInp) evtInp.value=isoData(G.data);
 }
 function onDataChange(){
   const v=document.getElementById('dataInput').value;
@@ -893,6 +1992,7 @@ function onDataChange(){
   carregarRelatorio(true);
 }
 function onTurnoChange(){
+  G._dataDesbloqueada=null; // nova data/turno: resetar desbloqueio
   G.turno=document.getElementById('turnoInput').value;
   G.temAlteracaoLocal=false; // forçar recarregamento ao mudar turno
   carregarRelatorio(true);
@@ -966,6 +2066,8 @@ async function salvarNaNuvem(){
 // Auto-save silencioso a cada alteração
 function agendarAutoSave(){
   if(G.preenchendo)return; // nunca disparar durante preenchimento do formulário
+  // Supervisor só auto-salva o próprio relatório
+  if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim())return;
   G.temAlteracaoLocal=true; // marcar que há dados não salvos
   if(G.savingTimer)clearTimeout(G.savingTimer);
   G.savingTimer=setTimeout(()=>{
@@ -980,6 +2082,8 @@ function agendarAutoSave(){
 async function salvarNaNuvemSilencioso(){
   const hoje=isoData(new Date());
   if(isoData(G.data)>hoje)return; // nunca salvar data futura
+  // Barreira: supervisor só salva o próprio relatório
+  if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim())return;
   const dados=coletarDados();
   if(!dados.supervisor)return;
   try{
@@ -997,7 +2101,7 @@ async function salvarNaNuvemSilencioso(){
 // CARREGAR DIA ANTERIOR
 // ══════════════════════════════════════════════
 async function limparTudo(){
-  // Barreira de segurança: verificar se supervisor é o dono do relatório
+  // Barreira: supervisor só pode limpar o próprio relatório
   if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim()){
     toast('Você não pode limpar o relatório de outro supervisor.','err');
     return;
@@ -1062,7 +2166,8 @@ function coletarDados(){
     missao:coletarMissao(),
     supervisao:coletarContainer('supervisaoContainer','sup'),
     savedAt:new Date().toISOString(),
-    savedBy:G.name,
+    // Admin preserva savedBy original; só sobrescreve se for o próprio supervisor ou relatório vazio
+    savedBy:(G.role==='admin'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!=='')?G.relatorio.savedBy:G.name,
   };
 }
 
@@ -1141,7 +2246,7 @@ function preencherFormulario(d){
     // Se supervisor e relatório não tem supervisor salvo, preenche com nome do login
     if(G.role==='supervisor'){
       const supEl=document.getElementById('supervisor');
-      if(supEl&&(!d.supervisor||d.supervisor.trim()===''))supEl.value=G.name;
+      // Não preencher automaticamente — supervisor preenche ao clicar no campo
     }
     // Limpar e recriar containers
     const containers=['rotasContainer','apoioCtaforContainer','rendicaoVlContainer','afericaoContainer','apoioEtuforContainer','zonaAzulContainer','apoioAeroportoContainer','fiscalizacaoContainer','comandoContainer','missaoContainer','supervisaoContainer'];
@@ -1167,7 +2272,7 @@ function preencherFormulario(d){
 function limparFormulario(){
   ['supervisor','central','ciops','sevim','sevimOperadores','cccf','coer','videomonitoramento','observacoes','totalAgentes','internos','externos'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   // Se supervisor e relatório vazio, preenche nome dele
-  if(G.role==='supervisor'){const supEl=document.getElementById('supervisor');if(supEl)supEl.value=G.name;}
+  // Campo supervisor fica vazio — preenchido ao focar (ver listener abaixo)
   ['rotasContainer','apoioCtaforContainer','rendicaoVlContainer','afericaoContainer','apoioEtuforContainer','zonaAzulContainer','apoioAeroportoContainer','fiscalizacaoContainer','comandoContainer','missaoContainer','supervisaoContainer'].forEach(id=>document.getElementById(id).innerHTML='');
   document.getElementById('saveInfo').textContent='';
   renderVisualizacao(null);
@@ -1504,7 +2609,14 @@ function salvarAgentes(){
 function renderVisualizacao(d){
   const el=document.getElementById('viewContent');
   if(!d||!d.supervisor){
-    el.innerHTML=`<div class="empty"><span class="eico">📋</span><div class="etxt">Nenhum relatório encontrado para ${fmtData(G.data)} — ${G.turno}</div></div>`;
+    el.innerHTML=`<div class="view-header" style="margin-bottom:12px;">
+      <div class="view-title">Relatório Operacional de Turno</div>
+      <div class="view-meta">
+        <span><strong>${fmtData(G.data)}</strong></span>
+        <span>Turno: <strong>${G.turno}</strong></span>
+      </div>
+    </div>
+    <div class="empty"><span class="eico">📋</span><div class="etxt">Nenhum relatório encontrado para ${fmtData(G.data)} — ${G.turno}</div></div>`;
     return;
   }
   const fmtArr=(arr,campos)=>{
@@ -1541,7 +2653,7 @@ function renderVisualizacao(d){
     ${sec('06. SEFE',campo('Agentes',d.videomonitoramento)||'<span class="view-empty">Nenhum dado informado</span>')}
     ${sec('07. Rotas',tabela(d.rotas,['#','Rota','Veículo','Agentes']))}
     ${sec('08. Apoio CTAFOR',fmtArr(d.apoioCtafor,[{label:'Local',key:'local'}]))}
-    ${sec('09. Rendição do Via Livre',fmtArr(d.rendicaoVl,[{label:'Local',key:'local'}]))}
+    ${sec('09. Rendições',fmtArr(d.rendicaoVl,[{label:'Local',key:'local'}]))}
     ${sec('10. Aferição',fmtArr(d.afericao,[{label:'Local',key:'local'},{label:'Chefe',key:'chefe'}]))}
     ${sec('11. Apoio ETUFOR',tabela(d.apoioEtufor,['#','Veículo','Agentes']))}
     ${sec('12. Zona Azul / Acessibilidade',tabela(d.zonaAzul,['#','Rota','Veículo (Tipo)','Agentes']))}
@@ -1587,7 +2699,7 @@ async function gerarPDF(){
     const estimH=10+(data.length*8)+10;
     await checkPage(estimH);
     startY=y;
-    doc.autoTable({startY,head:[cols],body:data,theme:'grid',headStyles:{fillColor:[46,94,86],textColor:[255,255,255],fontStyle:'bold',fontSize:10,cellPadding:3},alternateRowStyles:{fillColor:[245,250,245]},styles:{fontSize:9.5,cellPadding:3,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'},columnStyles:{0:{cellWidth:8}},margin:{left:mL,right:10}});y=doc.lastAutoTable.finalY+5;}
+    doc.autoTable({startY,head:[cols],body:data,theme:'grid',headStyles:{fillColor:[46,94,86],textColor:[255,255,255],fontStyle:'bold',fontSize:10,cellPadding:3},alternateRowStyles:{fillColor:[245,250,245]},styles:{fontSize:9.5,cellPadding:3,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'},columnStyles:{0:{cellWidth:14,halign:'center',minCellWidth:14}},margin:{left:mL,right:10}});y=doc.lastAutoTable.finalY+5;}
   async function addCard(campos){const pad=5,xT=mL+3+pad,lC=lMax;doc.setFont('helvetica','normal');doc.setFontSize(10);let alt=pad;const fs=campos.map(({rotulo,valor})=>{const lw=doc.getTextWidth(rotulo+' ');const valUp=(valor||'—').toUpperCase();const ls=doc.splitTextToSize(valUp,lC-lw-8-pad);const h=Math.max(ls.length*(10*0.3528),10*0.3528)+2;alt+=h+3;return{rotulo,valor:valUp,ls,lw,h};});alt+=pad+2;await checkPage(alt+10);doc.setFillColor(245,247,245);doc.setDrawColor(46,94,86);doc.setLineWidth(0.1);doc.roundedRect(mL,y,lC,alt,2,2,'FD');doc.setFillColor(46,94,86);doc.rect(mL,y,3,alt,'F');let yT=y+pad+3;for(const{rotulo,valor,ls,lw,h}of fs){doc.setFont('helvetica','bold');doc.setTextColor(46,94,86);doc.text(rotulo,xT,yT);doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);doc.text(ls,xT+lw,yT);yT+=h+3;}y+=alt+4;}
   async function addBadge(n,spaceNeeded=60){await checkPage(spaceNeeded);y+=6;const s=6,xB=mL;doc.setFillColor(46,94,86);doc.roundedRect(xB,y-4.5,s,s,1,1,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);const ns=String(n),xN=xB+(s-doc.getTextWidth(ns))/2;doc.text(ns,xN,y-0.5);doc.setTextColor(0,0,0);}
   function addSubViaturas(){doc.setFont('helvetica','bolditalic');doc.setFontSize(9.5);doc.setTextColor(80,80,80);doc.text('Viaturas/Motos:',mL,y);doc.setLineWidth(0.2);doc.setDrawColor(180,200,180);doc.line(mL+doc.getTextWidth('Viaturas/Motos:')+2,y-1,mL+lMax,y-1);y+=4;}
@@ -1647,7 +2759,7 @@ async function gerarPDF(){
   }
   await procTabela(dados.rotas,'07. Rotas',true);
   await procComLocal(dados.apoioCtafor,'08. Apoio CTAFOR');
-  await procComLocal(dados.rendicaoVl,'09. Rendição do Via Livre');
+  await procComLocal(dados.rendicaoVl,'09. Rendições');
   await procComLocalChefe(dados.afericao,'10. Aferição');
   await procTabela(dados.apoioEtufor,'11. Apoio ETUFOR',false,['#','Veículo','Agentes']);
   await procTabela(dados.zonaAzul,'12. Zona Azul/Acessibilidade',true,['#','Rota','Veículo (Tipo)','Agentes']);
@@ -1711,12 +2823,6 @@ async function salvarSenha(){
 // ══════════════════════════════════════════════
 // QRV — REGISTRO DE SAÍDA/CHEGADA
 // ══════════════════════════════════════════════
-let qrvRegistros=[];
-let qrvAutoTimer=null;
-let qrvVtsPrincipais=[];
-let qrvVtsSupervisao=[];
-let qrvIdsExcluidos=new Set();
-let qrvFormAberto=false;
 
 function qrvToggleForm(){
   qrvFormAberto=!qrvFormAberto;
@@ -1730,21 +2836,24 @@ function qrvToggleForm(){
 }
 
 function trocarAba(aba){
-  const isQrv=aba==='qrv';
-  document.getElementById('appConteudo').style.display=isQrv?'none':'block';
+  const isQrv=aba==='qrv', isEvt=aba==='evt';
+  document.getElementById('appConteudo').style.display=(!isQrv&&!isEvt)?'block':'none';
   document.getElementById('telaQrv').style.display=isQrv?'flex':'none';
-  document.getElementById('tabRel').style.borderBottomColor=isQrv?'transparent':'var(--accent2)';
-  document.getElementById('tabRel').style.color=isQrv?'var(--text3)':'var(--accent2)';
-  document.getElementById('tabQrv').style.borderBottomColor=isQrv?'var(--accent2)':'transparent';
-  document.getElementById('tabQrv').style.color=isQrv?'var(--accent2)':'var(--text3)';
+  document.getElementById('telaEvento').style.display=isEvt?'flex':'none';
+  ['rel','evt','qrv'].forEach(t=>{
+    const btn=document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(btn){btn.style.borderBottomColor=aba===t?'var(--accent2)':'transparent';btn.style.color=aba===t?'var(--accent2)':'rgba(255,255,255,0.55)';}
+  });
   if(isQrv){
-    qrvSincData();
-    qrvCarregar();
+    qrvSincData();qrvCarregar();
     if(qrvAutoTimer)clearInterval(qrvAutoTimer);
     qrvAutoTimer=setInterval(()=>qrvCarregar(true),30000);
-  }else{
-    if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}
-  }
+  }else{if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}}
+  if(isEvt){
+    evtSincData();evtCarregar();
+    if(evtAutoTimer)clearInterval(evtAutoTimer);
+    evtAutoTimer=setInterval(()=>evtCarregar(true),30000);
+  }else{if(evtAutoTimer){clearInterval(evtAutoTimer);evtAutoTimer=null;}}
 }
 
 function qrvSincData(){
@@ -1846,6 +2955,8 @@ async function qrvCarregar(silent=false){
     qrvIdsExcluidos=new Set([...qrvIdsExcluidos,...excluidos]);
     // Pré-popular com viaturas do relatório que ainda não têm registro QRV
     if(relDados) qrvPrePopular(relDados);
+    // Re-injetar registros de evento (são só memória, somem ao recarregar)
+    evtInjetarQrv();
     qrvRenderCards();
     const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     document.getElementById('qrvRefreshInfo').textContent='Atualizado às '+now;
@@ -1856,25 +2967,42 @@ async function qrvCarregar(silent=false){
 // ── Seleção de seção no formulário ────────────────────────────
 function qrvSelecionarSecao(secao){
   document.getElementById('qrvSecaoSelecionada').value=secao;
-  ['principal','supervisao','demais'].forEach(s=>{
-    const btn=document.getElementById('qrvSecBtn'+s.charAt(0).toUpperCase()+s.slice(1));
+  ['principal','supervisao','demais','evento'].forEach(s=>{
+    const key=s==='evento'?'Evento':s.charAt(0).toUpperCase()+s.slice(1);
+    const btn=document.getElementById('qrvSecBtn'+key);
     if(btn) btn.classList.toggle('active',s===secao);
   });
+  // Mostrar select de agrupamento só para seção Demais
+  const grupoWrap=document.getElementById('qrvGrupoWrap');
+  if(grupoWrap) grupoWrap.style.display=secao==='demais'?'block':'none';
+  if(secao!=='demais'){const gs=document.getElementById('qrvGrupoSel');if(gs)gs.value='';}
+  // Mostrar select de evento só para seção Evento, popular com evtLista atual
+  const evtWrap=document.getElementById('qrvEventoWrap');
+  if(evtWrap){
+    evtWrap.style.display=secao==='evento'?'block':'none';
+    if(secao==='evento'){
+      const sel=document.getElementById('qrvEventoSel');
+      if(sel){
+        sel.innerHTML='<option value="">— sem vínculo —</option>'+
+          evtLista.map(e=>`<option value="${e.nome}">${e.nome}${e.hora?' · '+e.hora:''}</option>`).join('');
+      }
+    } else {
+      const es=document.getElementById('qrvEventoSel');if(es)es.value='';
+    }
+  }
 }
 function qrvEditSelecionarSecao(secao){
   document.getElementById('qrvEditSecao').value=secao;
-  ['principal','supervisao','demais'].forEach(s=>{
-    const id='qrvEditSec'+s.charAt(0).toUpperCase()+s.slice(1);
-    const btn=document.getElementById(id);
+  ['principal','supervisao','demais','evento'].forEach(s=>{
+    const key=s==='evento'?'Evento':s.charAt(0).toUpperCase()+s.slice(1);
+    const btn=document.getElementById('qrvEditSec'+key);
     if(btn) btn.classList.toggle('active',s===secao);
   });
 }
 
 // ── Modal Editar ───────────────────────────────────────────────
-let qrvEditId=null;
-let qrvEditRegCache=null; // cópia do registro no momento em que o modal abriu
-
 function qrvAbrirEditModal(id){
+
   const reg=qrvRegistros.find(r=>r.id==id);
   if(!reg)return;
   qrvEditId=id;
@@ -1957,7 +3085,6 @@ async function qrvSalvarEdicao(){
 }
 
 // ── Drag de seções inteiras ────────────────────────────────────
-let _secaoDragId=null;
 function qrvSecaoDragStart(e,secao){
   _secaoDragId=secao;
   e.dataTransfer.effectAllowed='move';
@@ -1973,7 +3100,6 @@ function qrvSecaoDrop(e,targetSecao){
 }
 
 // ── Drag de rows entre seções ─────────────────────────────────
-let _rowDragId=null;
 function qrvRowDragOver(e){e.preventDefault();}
 function qrvRowDrop(e,secao){
   e.preventDefault();
@@ -2003,7 +3129,7 @@ function qrvPrePopular(d){
   const idsSalvos=new Set(qrvRegistros.map(r=>String(r.id)));
   const novas=[];
 
-  const addVt=(vt,agentes,rota,secao)=>{
+  const addVt=(vt,agentes,rota,secao,origem)=>{
     vt=(vt||'').trim().toUpperCase();
     agentes=(agentes||'').trim().toUpperCase();
     if(vt&&vtsSalvas.has(vt))return;
@@ -2028,7 +3154,7 @@ function qrvPrePopular(d){
       statusOutros:eOcupado,
       obs:'',
       historico:eOcupado?[{hora:'--:--',tipo:'outros',label:'OCUPADO (auto)',obs:'Pré-carregado do relatório'}]:[],
-      registradoPor:'[Relatório Supervisor]',
+      registradoPor:origem||'[Relatório Supervisor]',
       registradoEm:new Date().toISOString(),
       deSupervisor:true,
     };
@@ -2039,30 +3165,37 @@ function qrvPrePopular(d){
     }
   };
 
-  (d.rotas||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'principal'));
-  [...(d.apoioCtafor||[]),...(d.rendicaoVl||[])].forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
+  // Sequência idêntica ao relatório do supervisor, com origem para sub-cabeçalho
+  (d.rotas||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'principal','07. Rotas'));
+  (d.apoioCtafor||[]).forEach(item=>{
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','08. Apoio CTAFOR'));
+  });
+  (d.rendicaoVl||[]).forEach(item=>{
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','09. Rendições'));
   });
   (d.afericao||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','10. Aferição'));
   });
-  (d.apoioEtufor||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais'));
-  (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais'));
-  (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais'));
-  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais'));
+  (d.apoioEtufor||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','11. Apoio ETUFOR'));
+  (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','12. Zona Azul'));
+  (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais','13. Apoio Aeroporto'));
+  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','14. Fiscalização Volante'));
   (d.comando||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','15. Comando'));
   });
   (d.missao||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','16. Missão'));
   });
-  (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao'));
+  (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão'));
 
   if(novas.length>0) qrvRegistros=[...qrvRegistros,...novas];
 }
 
 
 async function qrvRegistrar(){
+  const btnReg=document.getElementById('qrvBtnRegistrar');
+  if(btnReg){btnReg.disabled=true;btnReg.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';}
+  const _restoreBtnReg=()=>{if(btnReg){btnReg.disabled=false;btnReg.innerHTML='<i class="fas fa-plus-circle"></i> Registrar';}}
   const vtInp=document.getElementById('qrvVtWrap').querySelector('.vt-input')||document.getElementById('qrvVtWrap').querySelector('input');
   const vt=(vtInp?.value||'').trim().toUpperCase();
   const agentes=(document.getElementById('qrvAgentes').value||'').trim().toUpperCase();
@@ -2072,17 +3205,22 @@ async function qrvRegistrar(){
   }
   const saida=document.getElementById('qrvSaida').value||'';
   const secaoSel=document.getElementById('qrvSecaoSelecionada')?.value||'principal';
+  const grupoSel=(document.getElementById('qrvGrupoSel')?.value||'').trim();
+  const eventoSel=(document.getElementById('qrvEventoSel')?.value||'').trim();
+  // registradoPor: demais+grupo → grupo; evento+evento → "[Evento: NOME]" (mesmo formato do injetor); senão → nome do operador
+  const regPor=secaoSel==='demais'&&grupoSel?grupoSel:secaoSel==='evento'&&eventoSel?'[Evento: '+eventoSel+']':G.name;
   const reg={
     id:Date.now(),vt,
-    motorista:agentes, // campo unificado salvo em motorista para compatibilidade
+    motorista:agentes,
     chefe:'',passag:'',
     rota:(document.getElementById('qrvRota').value||'').trim().toUpperCase(),
     saida,chegada:'',secao:secaoSel,
     statusQar:false,horaQar:'',
     statusPosto:false,horaPosto:'',
-    statusOutros:false,obsOutros:'',
+    statusOutros:secaoSel==='evento',  // eventos já nascem como OUTROS
     obs:(document.getElementById('qrvObs').value||'').trim().toUpperCase(),
-    registradoPor:G.name,
+    historico:secaoSel==='evento'?[{hora:'--:--',tipo:'outros',label:'OUTROS — '+regPor.replace(/^\[Evento: /,'').replace(/\]$/,''),obs:'',user:G.name}]:[],
+    registradoPor:regPor,
     registradoEm:new Date().toISOString(),
   };
   try{
@@ -2091,10 +3229,13 @@ async function qrvRegistrar(){
     qrvRenderCards();
     if(vtInp)vtInp.value='';
     ['qrvAgentes','qrvRota','qrvObs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    const gs=document.getElementById('qrvGrupoSel');if(gs)gs.value='';
+    const es=document.getElementById('qrvEventoSel');if(es)es.value='';
     qrvAtualizarHoraSaida();
+    _restoreBtnReg();
     toast('QRV registrado! ✓','ok');
     if(vtInp)vtInp.focus();
-  }catch(ex){toast('Erro ao registrar: '+ex.message,'err');}
+  }catch(ex){_restoreBtnReg();toast('Erro ao registrar: '+ex.message,'err');}
 }
 
 // ── Modal de Status ────────────────────────────────────────────
@@ -2134,14 +3275,83 @@ document.addEventListener('click',e=>{
   if(modal&&modal.classList.contains('open')&&e.target===modal)qrvFecharModal();
 });
 
+// ── Mini-modal de detalhe (QAR local / OUTROS motivo) ─────────
+let _qrvDetalheId=null,_qrvDetalheTipo=null;
+
+function qrvAbrirDetalhe(id,tipo){
+  _qrvDetalheId=id;
+  _qrvDetalheTipo=tipo;
+  const titulo=tipo==='qar'?'☕ Informar Local do QAR':'⚠️ Informar motivo de OUTROS';
+  const sub=tipo==='qar'?'Ex: PADARIA MM MESSEJANA':'Ex: SINISTRO, FISCALIZAÇÃO, SEMÁFORO';
+  document.getElementById('qrvDetalheTitulo').textContent=titulo;
+  document.getElementById('qrvDetalheSub').textContent='Opcional — feche sem preencher para registrar sem informar';
+  const inp=document.getElementById('qrvDetalheInput');
+  inp.placeholder=sub;
+  inp.value='';
+  document.getElementById('qrvDetalheModal').classList.add('open');
+  setTimeout(()=>inp.focus(),100);
+}
+
+function qrvDetalheFechar(){
+  // Fechar sem confirmar — registra sem detalhe
+  if(_qrvDetalheId&&_qrvDetalheTipo){
+    _qrvConfirmarStatus(_qrvDetalheId,_qrvDetalheTipo,'não informado');
+  }
+  document.getElementById('qrvDetalheModal').classList.remove('open');
+  _qrvDetalheId=null;_qrvDetalheTipo=null;
+}
+
+function qrvDetalheConfirmar(){
+  const val=(document.getElementById('qrvDetalheInput').value||'').trim()||'não informado';
+  if(_qrvDetalheId&&_qrvDetalheTipo){
+    _qrvConfirmarStatus(_qrvDetalheId,_qrvDetalheTipo,val);
+  }
+  document.getElementById('qrvDetalheModal').classList.remove('open');
+  _qrvDetalheId=null;_qrvDetalheTipo=null;
+}
+
 async function qrvSetStatus(id,tipo){
+  qrvFecharModal();
+  if(tipo==='qar'||tipo==='outros'){
+    qrvAbrirDetalhe(id,tipo);
+    return;
+  }
+  await _qrvConfirmarStatus(id,tipo,'');
+}
+
+// ── Indicador de sincronização no card ────────────────────────
+function qrvSyncStatus(id, estado){
+  // tenta pegar o elemento já no DOM; se o card acabou de ser re-renderizado, o elemento existe
+  const el=document.getElementById('qrvSync_'+id);
+  if(!el) return;
+  el.className='qrv-sync';
+  if(estado==='syncing'){
+    el.classList.add('syncing');
+    el.textContent='↻';
+    el.title='Salvando...';
+  } else if(estado==='ok'){
+    el.classList.add('ok');
+    el.textContent='✓';
+    el.title='Salvo';
+    setTimeout(()=>{ el.textContent=''; el.className='qrv-sync'; },1400);
+  } else if(estado==='err'){
+    el.classList.add('err');
+    el.textContent='⚠';
+    el.title='Erro ao salvar — tente novamente';
+  }
+}
+
+async function _qrvConfirmarStatus(id,tipo,detalhe){
   const reg=qrvRegistros.find(r=>r.id==id);
   if(!reg)return;
-  const hora=qrvAddHistorico(reg,tipo,tipo==='qar'?'QAR':tipo==='posto'?'POSTO':'OUTROS');
+  const label=(tipo==='qar'?'QAR':tipo==='posto'?'POSTO':'OUTROS')+(detalhe&&detalhe!=='não informado'?' — '+detalhe.toUpperCase():detalhe==='não informado'?' — NÃO INFORMADO':'');
+  const hora=qrvAddHistorico(reg,tipo,label,detalhe);
   if(tipo==='qar'){reg.statusQar=true;reg.horaQar=hora;}
   else if(tipo==='posto'){reg.statusPosto=true;reg.horaPosto=hora;}
   else if(tipo==='outros'){reg.statusOutros=true;}
-  qrvFecharModal();
+  // Atualiza card imediatamente (optimistic)
+  qrvRenderCards();
+  qrvSyncStatus(id,'syncing');
   try{
     if(reg.deSupervisor){
       reg.deSupervisor=false;
@@ -2152,8 +3362,10 @@ async function qrvSetStatus(id,tipo){
       if(tipo==='posto') await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'horaPosto',valor:hora});
       await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'historico',valor:reg.historico});
     }
-  }catch(ex){}
-  qrvRenderCards();
+    qrvSyncStatus(id,'ok');
+  }catch(ex){
+    qrvSyncStatus(id,'err');
+  }
   toast((tipo==='qar'?'QAR':tipo==='posto'?'POSTO':'OUTROS')+' registrado às '+hora,'ok');
 }
 
@@ -2163,6 +3375,8 @@ async function qrvSetChegada(id){
   const hora=qrvAddHistorico(reg,'chegada','CHEGADA');
   reg.chegada=hora;
   qrvFecharModal();
+  qrvRenderCards();
+  qrvSyncStatus(id,'syncing');
   try{
     if(reg.deSupervisor){
       reg.deSupervisor=false;
@@ -2171,8 +3385,10 @@ async function qrvSetChegada(id){
       await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'chegada',valor:hora});
       await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'historico',valor:reg.historico});
     }
-  }catch(ex){}
-  qrvRenderCards();
+    qrvSyncStatus(id,'ok');
+  }catch(ex){
+    qrvSyncStatus(id,'err');
+  }
   toast('Chegada registrada às '+hora,'ok');
 }
 
@@ -2185,15 +3401,22 @@ async function qrvLiberar(id,tipo){
   else if(tipo==='posto'){reg.statusPosto=false;reg.horaPosto='';}
   else if(tipo==='outros'){reg.statusOutros=false;}
   qrvFecharModal();
-  try{
-    await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:tipo==='qar'?'statusQar':tipo==='posto'?'statusPosto':'statusOutros',valor:false});
-    await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'historico',valor:reg.historico});
-  }catch(ex){}
   qrvRenderCards();
+  qrvSyncStatus(id,'syncing');
+  try{
+    {
+      await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:tipo==='qar'?'statusQar':tipo==='posto'?'statusPosto':'statusOutros',valor:false});
+      await api('updateQrv',{data:isoData(G.data),turno:G.turno,id,campo:'historico',valor:reg.historico});
+    }
+    qrvSyncStatus(id,'ok');
+  }catch(ex){
+    qrvSyncStatus(id,'err');
+  }
   toast('Viatura liberada.','ok');
 }
 
 async function qrvExcluir(id){
+
   conf('Excluir registro','Confirma exclusão deste registro QRV?',async()=>{
     try{
       const reg=qrvRegistros.find(r=>r.id==id);
@@ -2225,10 +3448,11 @@ function qrvGetStatusPills(r){
 
 function qrvRenderRow(r,podeEditar){
   const secao=r.secao||(qrvVtsPrincipais.includes(r.vt)?'principal':qrvVtsSupervisao.includes(r.vt)?'supervisao':'demais');
-  const badgeClass=secao==='principal'?'principal':secao==='supervisao'?'supervisao':'';
+  const isSup=secao==='supervisao'||(secao==='evento'&&r.rota==='SUPERVISÃO');
+  const badgeClass=secao==='principal'?'principal':isSup?'supervisao':'';
   const nomes=[r.motorista,r.chefe,r.passag].filter(Boolean).join(', ');
   const hist=r.historico||[];
-  const histHtml=hist.length?hist.map(h=>`<div class="qrv-hist-item"><span class="hi-hora">${h.hora}</span><span class="hi-tipo hi-${h.tipo}">${h.label}</span>${h.obs?`<span style="color:var(--text3);font-size:10px;"> — ${h.obs}</span>`:''}</div>`).join(''):'<div style="font-size:11px;color:var(--text3);font-style:italic;">Nenhum evento ainda</div>';
+  const histHtml=hist.length?hist.map(h=>`<div class="qrv-hist-item"><span class="hi-hora">${h.hora}</span><span class="hi-tipo hi-${h.tipo}">${h.label}</span><span class="hi-user">${h.user?'('+h.user+')':''}</span></div>`).join(''):'<div style="font-size:11px;color:var(--text3);font-style:italic;">Nenhum evento ainda</div>';
 
   // Layout simplificado para somente leitura (supervisor/chefia)
   if(!podeEditar){
@@ -2263,6 +3487,7 @@ function qrvRenderRow(r,podeEditar){
       ${supTag}
       <button class="qrv-btn-status" onclick="event.stopPropagation();qrvAbrirModal('${r.id}')">⚡</button>
       <button class="qrv-btn-status" style="background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.4);color:#94a3b8;" onclick="event.stopPropagation();qrvAbrirEditModal('${r.id}')">✏️</button>
+      <span class="qrv-sync" id="qrvSync_${r.id}" title=""></span>
       <button class="qrv-btn-expand" id="qrvExpandBtn_${r.id}" onclick="event.stopPropagation();qrvToggleExpand(this,'${r.id}')">▾</button>
       <button class="qrv-btn-del" onclick="event.stopPropagation();qrvExcluir('${r.id}')"><i class="fas fa-trash"></i></button>
     </div>
@@ -2313,7 +3538,8 @@ function qrvRenderCards(){
 
   const principal=qrvRegistros.filter(r=>(r.secao==='principal')||(!r.secao&&qrvVtsPrincipais.includes(r.vt))).sort(porHora);
   const supervisao=qrvRegistros.filter(r=>(r.secao==='supervisao')||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&qrvVtsSupervisao.includes(r.vt))).sort(porHora);
-  const demais=qrvRegistros.filter(r=>r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt))).sort(porHora);
+  const eventoSec=qrvRegistros.filter(r=>r.secao==='evento').sort(porHora);
+  const demais=qrvRegistros.filter(r=>(r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt)))&&r.secao!=='evento').sort(porHora);
 
   const cont=(n)=>n?`(${n})`:'';
   document.getElementById('qrvContPrincipal').textContent=cont(principal.length);
@@ -2338,7 +3564,72 @@ function qrvRenderCards(){
 
   render(principal,'qrvListaPrincipal','Nenhuma viatura do item 7 registrada ainda');
   render(supervisao,'qrvListaSupervisao','Nenhum registro de supervisão');
-  render(demais,'qrvListaDemais','Nenhum registro adicional');
+
+  // Demais: agrupar por origem (item do relatório) com sub-cabeçalho
+  const listaDemais=document.getElementById('qrvListaDemais');
+  if(listaDemais){
+    if(!demais.length){
+      listaDemais.innerHTML='<div class="qrv-empty">Nenhum registro adicional</div>';
+    } else {
+      // Sequência fixa dos itens do relatório (ordem sempre preservada)
+      const ORDEM_ITENS=['08. Apoio CTAFOR','09. Rendições','10. Aferição','11. Apoio ETUFOR','12. Zona Azul','13. Apoio Aeroporto','14. Fiscalização Volante','15. Comando','16. Missão'];
+      const mapaGrupo={};
+      const gruposExtra=[];
+      demais.forEach(r=>{
+        const origem=r.registradoPor||'';
+        const chave=(!origem||origem.startsWith('['))?'__outros__':origem;
+        if(!mapaGrupo[chave]) mapaGrupo[chave]={chave,registros:[]};
+        mapaGrupo[chave].registros.push(r);
+      });
+      // Ordenar hora dentro de cada grupo; grupos seguem sequência do relatório
+      Object.values(mapaGrupo).forEach(g=>g.registros.sort((a,b)=>(a.saida||'99:99').localeCompare(b.saida||'99:99')));
+      // Renderizar na ordem fixa; itens sem grupo definido vão ao final
+      const gruposOrdenados=[
+        ...ORDEM_ITENS.filter(k=>mapaGrupo[k]).map(k=>mapaGrupo[k]),
+        ...(mapaGrupo['__outros__']?[mapaGrupo['__outros__']]:[]),
+      ];
+      const multiGrupo=gruposOrdenados.filter(g=>g.chave!=='__outros__').length>0;
+      listaDemais.innerHTML=gruposOrdenados.map(g=>{
+        // Remover número do item do sub-cabeçalho: "12. Zona Azul" → "Zona Azul"
+        const label=g.chave==='__outros__'?'':g.chave.replace(/^\d+\.\s*/,'');
+        const subCab=(multiGrupo&&label)?`<div style="display:flex;align-items:center;gap:8px;padding:4px 12px;background:rgba(100,116,139,0.15);border-left:3px solid #64748b;margin-bottom:2px;margin-top:4px;">
+          <span style="font-size:10px;font-weight:700;color:#94a3b8;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;">${label}</span>
+        </div>`:'';
+        return subCab+g.registros.map(r=>qrvRenderRow(r,podeEditar)).join('');
+      }).join('');
+    }
+  }
+  // Seção evento — registros com secao==='evento'
+  const listaEvt=document.getElementById('qrvListaEvento');
+  if(listaEvt){
+    if(!eventoSec.length){
+      listaEvt.innerHTML='';
+    } else {
+      // Agrupar por evento (registradoPor) mantendo ordem dos eventos
+      // e ordenar viaturas por hora de saída dentro de cada grupo
+      const grupos=[];
+      const mapaGrupo={};
+      eventoSec.forEach(r=>{
+        const chave=r.registradoPor||'Sem evento';
+        if(!mapaGrupo[chave]){
+          mapaGrupo[chave]={chave,registros:[]};
+          grupos.push(mapaGrupo[chave]);
+        }
+        mapaGrupo[chave].registros.push(r);
+      });
+      // Dentro de cada grupo, ordenar por hora de saída
+      grupos.forEach(g=>g.registros.sort((a,b)=>(a.saida||'99:99').localeCompare(b.saida||'99:99')));
+      // Renderizar com sub-cabeçalho por evento
+      listaEvt.innerHTML=grupos.map(g=>{
+        // Extrair nome limpo do evento (remove "[Evento: " e "]") ou mostrar "Sem vínculo"
+        const nomeEvt=g.chave.startsWith('[Evento: ')?g.chave.replace(/^\[Evento: /,'').replace(/\]$/,''):(g.chave==='Sem evento'?'Sem vínculo':g.chave);
+        const subCab=`<div style="display:flex;align-items:center;gap:8px;padding:5px 12px;background:rgba(245,158,11,0.08);border-left:3px solid #f59e0b;margin-bottom:2px;">
+          <span style="font-size:11px;font-weight:700;color:#f59e0b;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;flex:1;">${nomeEvt}</span>
+        </div>`;
+        return subCab+g.registros.map(r=>qrvRenderRow(r,podeEditar)).join('');
+      }).join('');
+    }
+  }
 
   // Reaplicar busca
   const busca=document.getElementById('qrvBusca');
@@ -2363,6 +3654,7 @@ async function qrvSalvarCampo(id,campo,valor){
   const reg=qrvRegistros.find(r=>r.id==id);
   if(!reg)return;
   reg[campo]=valor;
+
   try{
     if(reg.deSupervisor){
       // Primeiro save do registro que veio do relatório — não re-renderizar para não perder foco
@@ -2380,7 +3672,7 @@ function qrvAddHistorico(reg,tipo,label,obs){
   if(!reg.historico) reg.historico=[];
   const agora=new Date();
   const hora=`${String(agora.getHours()).padStart(2,'0')}:${String(agora.getMinutes()).padStart(2,'0')}`;
-  reg.historico.push({hora,tipo,label,obs:obs||''});
+  reg.historico.push({hora,tipo,label,obs:obs||'',user:G.name||''});
   return hora;
 }
 
@@ -2405,67 +3697,138 @@ function qrvCardClick(e,id){
 }
 
 async function qrvGerarPDF(){
-  if(!qrvRegistros.length){toast('Nenhum registro para gerar PDF.','err');return;}
+  if(!qrvRegistros.length&&!evtLista.length){toast('Nenhum registro para gerar PDF.','err');return;}
   const {jsPDF}=window.jspdf;
+  // A4 landscape: 297 x 210mm
   const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-  const mL=10,lMax=277,hPag=210;
-  try{
-    const img=await new Promise((res,rej)=>{const i=new Image();i.crossOrigin='Anonymous';i.onload=()=>res(i);i.onerror=rej;i.src='https://i.imgur.com/ugHshEu.jpeg';});
-    doc.addImage(img,'PNG',mL,2,lMax,13);
-  }catch(e){}
-  doc.setFillColor(46,94,86);doc.rect(mL,16,lMax,8,'F');
+  const mL=10,mR=10,lMax=277,hPag=210,hCab=16,hRod=16;
+  const urlCab='https://i.imgur.com/ugHshEu.jpeg',urlRod='https://i.imgur.com/9QqgR97.jpg';
+  const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.crossOrigin='Anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=src;});
+
+  // Cabeçalho proporcional: imagem original é ~900x120px → razão ~7.5:1
+  // Em 277mm de largura → altura = 277/7.5 ≈ 37mm mas limitamos a 16mm para caber
+  // Usamos addImage com width=lMax e height proporcional calculada
+  const addCabRod=async(pg)=>{
+    doc.setPage(pg);
+    try{
+      const cab=await loadImg(urlCab);
+      const ratio=cab.naturalWidth/cab.naturalHeight;
+      const cabH=Math.round(lMax/ratio);
+      doc.addImage(cab,'PNG',mL,2,lMax,cabH>20?20:cabH);
+    }catch(e){}
+    try{
+      const rod=await loadImg(urlRod);
+      const ratio=rod.naturalWidth/rod.naturalHeight;
+      const rodH=Math.round(lMax/ratio);
+      doc.addImage(rod,'PNG',mL,hPag-(rodH>18?18:rodH),lMax,rodH>18?18:rodH);
+    }catch(e){}
+  };
+
+  // Título
+  doc.setFillColor(46,94,86);doc.rect(mL,20,lMax,8,'F');
   doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(255,255,255);
   const t='REGISTRO DE SAÍDA DE VT\'S & MT\'S';
-  doc.text(t,(297-doc.getTextWidth(t))/2,21.5);
+  doc.text(t,(297-doc.getTextWidth(t))/2,25.5);
   doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(0,0,0);
-  doc.text(`Data: ${fmtData(isoData(G.data))}   Turno: ${G.turno}`,mL,30);
+  doc.text(`Data: ${fmtData(isoData(G.data))}   Turno: ${G.turno}`,mL,33);
 
   const U=s=>(s||'').toUpperCase();
   const status=r=>{const s=[];if(r.statusQar)s.push('QAR'+(r.horaQar?' '+r.horaQar:''));if(r.statusPosto)s.push('POSTO'+(r.horaPosto?' '+r.horaPosto:''));return s.join(' | ');};
   const agentes=r=>[U(r.motorista),U(r.chefe),U(r.passag)].filter(Boolean).join(', ');
   const porHora=(a,b)=>{const ha=a.saida||'99:99';const hb=b.saida||'99:99';return ha.localeCompare(hb);};
 
-  // Separar por seção e ordenar cronologicamente
   const principal=qrvRegistros.filter(r=>(r.secao==='principal')||(!r.secao&&qrvVtsPrincipais.includes(r.vt))).sort(porHora);
   const supervisao=qrvRegistros.filter(r=>(r.secao==='supervisao')||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&qrvVtsSupervisao.includes(r.vt))).sort(porHora);
   const demais=qrvRegistros.filter(r=>r.secao==='demais'||(!r.secao&&!qrvVtsPrincipais.includes(r.vt)&&!qrvVtsSupervisao.includes(r.vt))).sort(porHora);
 
-  const colStyles={0:{cellWidth:22},1:{cellWidth:70},2:{cellWidth:45},3:{cellWidth:16},4:{cellWidth:28},5:{cellWidth:'auto'}};
-  const tableStyles={fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'};
-  const head=[['VT/MT','Agentes','Rota','Saída','QAR/POSTO','Observação']];
-  const toRow=r=>[U(r.vt),agentes(r),U(r.rota),r.saida||'',status(r),U(r.obs)];
+  // Colunas unificadas para todas as seções
+  const TOPO=28;   // Y onde conteúdo começa (após cabeçalho+título)
+  const BASE=hPag-20; // Y onde conteúdo termina (antes do rodapé)
 
-  let startY=33;
+  const colStyles={0:{cellWidth:22},1:{cellWidth:68},2:{cellWidth:50},3:{cellWidth:16},4:{cellWidth:30},5:{cellWidth:'auto'}};
+  const tableStyles={fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'};
+  const head=[['VT/MT','Agentes','Rota / Local','Saída','QAR/POSTO','Observação']];
+  const toRow=r=>[U(r.vt),agentes(r)||U(r.motorista)||'',U(r.rota),r.saida||'',status(r),U(r.obs)];
+
+  let startY=36;
+
+  // Opções comuns de tabela com margem inferior para não sobrepor rodapé
+  const tOpts=(extra={})=>({
+    theme:'grid',
+    headStyles:{fillColor:[70,110,100],textColor:[255,255,255],fontStyle:'bold',fontSize:8,cellPadding:2},
+    styles:tableStyles,
+    columnStyles:colStyles,
+    margin:{left:mL,right:mR,bottom:22}, // 22mm protege o rodapé
+    ...extra,
+  });
 
   const addSecao=(lista,titulo,corFundo,corTexto)=>{
     if(!lista.length)return;
-    // Cabeçalho da seção
-    const y=doc.lastAutoTable?doc.lastAutoTable.finalY+6:startY;
+    const y=doc.lastAutoTable?doc.lastAutoTable.finalY+8:startY;
     doc.setFillColor(...corFundo);
     doc.rect(mL,y,lMax,6,'F');
     doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...corTexto);
     doc.text(titulo,mL+3,y+4.2);
     doc.setTextColor(0,0,0);
-    doc.autoTable({
-      startY:y+6,
-      head,
-      body:lista.map(toRow),
-      theme:'grid',
-      headStyles:{fillColor:[70,110,100],textColor:[255,255,255],fontStyle:'bold',fontSize:8,cellPadding:2},
-      styles:tableStyles,
-      columnStyles:colStyles,
-      margin:{left:mL,right:10},
-    });
+    doc.autoTable({startY:y+6,head,body:lista.map(toRow),...tOpts()});
   };
 
   addSecao(principal,'ROTAS DO TURNO',[46,94,86],[255,255,255]);
-  addSecao(supervisao,'SUPERVISAO',[80,60,130],[255,255,255]);
+  addSecao(supervisao,'SUPERVISÃO',[80,60,130],[255,255,255]);
   addSecao(demais,'DEMAIS REGISTROS',[60,80,90],[255,255,255]);
 
+  // ── SEÇÃO EVENTOS — separada com espaço e cabeçalho próprio ──
+  if(evtLista.length){
+    const yEvt=doc.lastAutoTable?doc.lastAutoTable.finalY+8:startY;
+    doc.setFillColor(46,94,86);doc.rect(mL,yEvt,lMax,6,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(255,255,255);
+    doc.text('EVENTOS DO TURNO',mL+3,yEvt+4.2);
+    doc.setTextColor(0,0,0);
+
+    const headEvt=[['VT/MT','Agentes','Local / Função','Saída','QAR/POSTO','Observação']];
+    const eventoSecPdf=qrvRegistros.filter(r=>r.secao==='evento').sort((a,b)=>(a.saida||'99:99').localeCompare(b.saida||'99:99'));
+
+    // Agrupar por evento (registradoPor) preservando ordem
+    const gruposEvtPdf=[];
+    const mapaEvtPdf={};
+    eventoSecPdf.forEach(r=>{
+      const chave=r.registradoPor||'Sem vínculo';
+      const nome=chave.replace(/^\[Evento: /,'').replace(/\]$/,'');
+      if(!mapaEvtPdf[chave]){mapaEvtPdf[chave]={nome,registros:[]};gruposEvtPdf.push(mapaEvtPdf[chave]);}
+      mapaEvtPdf[chave].registros.push(r);
+    });
+
+    let primeiraTabela=true;
+    let yProx=yEvt+6;
+
+    for(const grp of gruposEvtPdf){
+      const nomeEvt=grp.nome.toUpperCase();
+      const rows=grp.registros.map(r=>toRow(r));
+      if(!rows.length) continue;
+
+      const sy=primeiraTabela?yProx:(doc.lastAutoTable.finalY+4);
+      doc.setFillColor(70,110,100);doc.rect(mL,sy,lMax,5,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(255,255,255);
+      doc.text(nomeEvt,mL+2,sy+3.6);
+      doc.setTextColor(0,0,0);
+
+      doc.autoTable({startY:sy+5,head:primeiraTabela?headEvt:[],body:rows,...tOpts()});
+      primeiraTabela=false;
+    }
+  }
+
+  // Cabeçalho e rodapé em todas as páginas
+  const nPag=doc.getNumberOfPages();
+  for(let pg=1;pg<=nPag;pg++){
+    await addCabRod(pg);
+  }
+
+  // Texto gerado por (última página, acima do rodapé)
+  doc.setPage(nPag);
   const geradoPor=G.name;
   const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   doc.setFont('helvetica','italic');doc.setFontSize(7);doc.setTextColor(120);
-  doc.text(`Gerado por ${geradoPor} · ${geradoEm}`,mL,hPag-4);
+  doc.text(`Gerado por ${geradoPor} · ${geradoEm}`,mL,hPag-19);
   doc.save(`QRV_${fmtDataArquivo(isoData(G.data))}_${G.turno}.pdf`);
   toast('PDF gerado! ✓','ok');
 }
