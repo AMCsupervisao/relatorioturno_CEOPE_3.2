@@ -883,7 +883,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-14-v1'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-11-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -1803,6 +1803,7 @@ document.getElementById('loginRole').addEventListener('change',function(){
 });
 
 // Campo supervisor: preenche com nome do logado no primeiro foco (se vazio)
+// e bloqueia outros campos se supervisor ainda não foi preenchido
 (function(){
   const supEl=document.getElementById('supervisor');
   if(supEl){
@@ -1811,6 +1812,27 @@ document.getElementById('loginRole').addEventListener('change',function(){
         this.value=G.name;
     });
   }
+  // Interceptar tentativa de digitar em outros campos sem supervisor preenchido
+  document.addEventListener('focusin',function(e){
+    if(G.role!=='supervisor') return;
+    const supEl=document.getElementById('supervisor');
+    if(!supEl||supEl.value.trim()) return; // supervisor já preenchido
+    // Se foco foi para um campo do formulário de relatório (não o próprio supervisor)
+    const camposRel=['central','ciops','sevim','coer','cccf','videomonitoramento',
+      'observacoes','totalAgentes','internos','externos'];
+    const inputsRota=document.querySelectorAll('.finput-agentes,.veiculo-input,.rota-input');
+    const ehCampoRel=camposRel.includes(e.target.id)||
+      e.target.closest('.fsec')&&e.target!==supEl&&
+      (e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA');
+    if(ehCampoRel){
+      e.target.blur();
+      supEl.focus();
+      toast('⚠️ Preencha primeiro o campo Supervisor','err');
+      // Destacar campo supervisor brevemente
+      supEl.style.borderColor='#f59e0b';
+      setTimeout(()=>{supEl.style.borderColor='';},2000);
+    }
+  });
 })();
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 // Boot
@@ -2012,8 +2034,13 @@ async function api(action,payload){
 async function carregarRelatorio(manual,silent){
   if(!silent){const b=document.getElementById('bRef');b.classList.add('spin');}
   try{
-    // Não sobrescrever campos se o usuário tem alterações não salvas (exceto se manual)
+    // Não sobrescrever se há alterações locais (exceto manual)
     if(!manual&&G.temAlteracaoLocal){
+      if(!silent)document.getElementById('bRef').classList.remove('spin');
+      return;
+    }
+    // Não sobrescrever se usuário interagiu nos últimos 90s (proteção extra)
+    if(!manual&&G._ultimaInteracao&&(Date.now()-G._ultimaInteracao)<90000){
       if(!silent)document.getElementById('bRef').classList.remove('spin');
       return;
     }
@@ -2069,6 +2096,7 @@ function agendarAutoSave(){
   // Supervisor só auto-salva o próprio relatório
   if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim())return;
   G.temAlteracaoLocal=true; // marcar que há dados não salvos
+  G._ultimaInteracao=Date.now(); // registrar momento da última interação
   if(G.savingTimer)clearTimeout(G.savingTimer);
   G.savingTimer=setTimeout(()=>{
     if(['admin','supervisor'].includes(G.role)&&(!G.bloqueado||G.desbloqueado)){
@@ -3184,7 +3212,8 @@ function qrvPrePopular(d){
     (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','15. Comando'));
   });
   (d.missao||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','16. Missão'));
+    const rotaMissao=[item.evento,item.local].filter(Boolean).join(' — ');
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,rotaMissao,'demais','16. Missão'));
   });
   (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão'));
 
