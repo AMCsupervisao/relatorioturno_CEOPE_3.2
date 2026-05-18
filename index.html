@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v2'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-17-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -2228,7 +2228,7 @@ document.addEventListener('touchmove',e=>{
 window.addEventListener('offline',()=>{document.getElementById('offlineBar').style.display='block';});
 window.addEventListener('online',()=>{document.getElementById('offlineBar').style.display='none';});
 
-// Verificar nova versão ao logar
+// Verificar nova versão ao logar e ao voltar para a aba
 async function checkForUpdate(){
   try{
     const resp=await fetch(location.href+'?_v='+Date.now(),{cache:'no-store'});
@@ -2240,6 +2240,10 @@ async function checkForUpdate(){
     }
   }catch(e){}
 }
+// Verificar ao voltar para a aba (após ficar em segundo plano)
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&G.role) checkForUpdate();
+});
 
 document.getElementById('loginRole').addEventListener('change',function(){
   document.getElementById('lnameGroup').style.display=this.value?'block':'none';
