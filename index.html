@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v3'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v5'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -3391,7 +3391,24 @@ function qrvOnDataChange(){
   if(!v)return;
   G.data=localDate(v);
   document.getElementById('dataInput').value=v;
-  qrvCarregar();
+  // Limpar listas de evento/comando para recarregar com a nova data
+  qrvRegistros=qrvRegistros.filter(r=>r.secao!=='evento');
+  evtLista=[];cmdLista=[];
+  const contEvt=document.getElementById('qrvContEvento');
+  if(contEvt) contEvt.textContent='';
+  const listaEvt=document.getElementById('qrvListaEvento');
+  if(listaEvt) listaEvt.innerHTML='';
+  // Recarregar eventos e comandos da nova data antes de carregar QRV
+  Promise.all([
+    api('getEventos',{data:isoData(G.data),turno:G.turno}).then(r=>{
+      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+      evtLista=(r.data||[]).filter(e=>norm(e.turno||G.turno)===norm(G.turno));
+    }).catch(()=>{}),
+    api('getComandos',{data:isoData(G.data),turno:G.turno}).then(r=>{
+      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+      cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(G.turno));
+    }).catch(()=>{})
+  ]).then(()=>qrvCarregar());
 }
 function qrvOnTurnoChange(){
   G.turno=document.getElementById('qrvTurnoInput').value;
