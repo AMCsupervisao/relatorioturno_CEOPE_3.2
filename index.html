@@ -335,6 +335,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .evt-posto-form{background:var(--navy2);border:1px solid var(--border2);border-radius:8px;padding:10px;margin-bottom:6px;}
 
 #offlineBar{display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#ef4444;color:#fff;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;padding:6px;letter-spacing:1px;}
+#updateBar{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;padding:7px 16px;letter-spacing:1px;display:none;align-items:center;justify-content:center;gap:12px;}
+#updateBar button{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:4px 12px;cursor:pointer;text-transform:uppercase;}
+#updateBar button:hover{background:rgba(255,255,255,0.35);}
 </style>
 </head>
 
@@ -343,6 +346,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 
 <!-- LOGIN -->
 <div id="offlineBar">⚠ SEM CONEXÃO — verifique sua internet</div>
+<div id="updateBar">
+  <span>🔄 Nova versão disponível</span>
+  <button onclick="location.reload(true)">Atualizar Agora</button>
+</div>
 <div id="loginScreen">
   <div class="lbg"><div class="lgrid"></div></div>
   <div class="lcard">
@@ -951,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-17-v1'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v2'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -2221,6 +2228,19 @@ document.addEventListener('touchmove',e=>{
 window.addEventListener('offline',()=>{document.getElementById('offlineBar').style.display='block';});
 window.addEventListener('online',()=>{document.getElementById('offlineBar').style.display='none';});
 
+// Verificar nova versão ao logar
+async function checkForUpdate(){
+  try{
+    const resp=await fetch(location.href+'?_v='+Date.now(),{cache:'no-store'});
+    const txt=await resp.text();
+    const m=txt.match(/const APP_VERSION='([^']+)'/);
+    if(m&&m[1]&&m[1]!==APP_VERSION){
+      const bar=document.getElementById('updateBar');
+      if(bar) bar.style.display='flex';
+    }
+  }catch(e){}
+}
+
 document.getElementById('loginRole').addEventListener('change',function(){
   document.getElementById('lnameGroup').style.display=this.value?'block':'none';
 });
@@ -2305,6 +2325,7 @@ function doLogout(){
 // INIT APP
 // ══════════════════════════════════════════════
 function initApp(){
+  checkForUpdate(); // verificar nova versão ao logar
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('stickyHeader').style.display='block';
   document.getElementById('appConteudo').style.display='block';
