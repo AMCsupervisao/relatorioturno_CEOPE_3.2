@@ -736,10 +736,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
   <!-- Toolbar QRV -->
   <div class="toolbar">
     <div class="toolbar-row1">
-      <button class="bnav" onclick="navData(-1);qrvCarregar()">‹</button>
+      <button class="bnav" onclick="navData(-1);qrvOnDataChange()">‹</button>
       <input type="date" class="date-sel" id="qrvDataInput" onchange="qrvOnDataChange()">
-      <button class="bnav" onclick="navData(1);qrvCarregar()">›</button>
-      <button class="bnav btoday" onclick="goHoje();qrvCarregar()">Hoje</button>
+      <button class="bnav" onclick="navData(1);qrvOnDataChange()">›</button>
+      <button class="bnav btoday" onclick="goHoje();qrvOnDataChange()">Hoje</button>
     </div>
     <div class="toolbar-row2">
       <select class="turno-sel" id="qrvTurnoInput" onchange="qrvOnTurnoChange()">
@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v5'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v8'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -3387,10 +3387,12 @@ function qrvAtualizarHoraSaida(){
 }
 
 function qrvOnDataChange(){
-  const v=document.getElementById('qrvDataInput').value;
+  // Sincronizar qrvDataInput com G.data (pode ter sido atualizado pelas setas)
+  const v=document.getElementById('qrvDataInput').value||isoData(G.data);
   if(!v)return;
   G.data=localDate(v);
   document.getElementById('dataInput').value=v;
+  document.getElementById('qrvDataInput').value=isoData(G.data);
   // Limpar listas de evento/comando para recarregar com a nova data
   qrvRegistros=qrvRegistros.filter(r=>r.secao!=='evento');
   evtLista=[];cmdLista=[];
