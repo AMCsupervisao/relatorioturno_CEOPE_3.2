@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v9'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v10'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -1512,13 +1512,11 @@ function cmdLimparForm(){
 }
 
 async function cmdCarregar(silent=false,turnoParam){
-  const turnoUsar=turnoParam||evtTurno;
+  const turnoUsar=turnoParam||evtTurno||G.turno;
   if(!silent){const b=document.getElementById('evtBRef');if(b)b.classList.add('spin');}
   try{
     const r=await api('getComandos',{data:isoData(G.data),turno:turnoUsar});
-    const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
-    cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turnoUsar));
-    cmdRenderLista();
+    const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();    cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turnoUsar));    cmdRenderLista();
     cmdInjetarQrv();
     const _pdfCmdBtn=document.getElementById('evtBtnCmdPdf');
     if(_pdfCmdBtn) _pdfCmdBtn.style.display=cmdLista.length?'inline-flex':'none';
@@ -1626,8 +1624,7 @@ async function cmdExcluir(id){
   });
 }
 
-function cmdInjetarQrv(){
-  // Injetar viaturas de comando na seção eventos do QRV (sub-grupo COMANDO)
+function cmdInjetarQrv(){  // Injetar viaturas de comando na seção eventos do QRV (sub-grupo COMANDO)
   cmdLista.forEach(cmd=>{
     (cmd.viaturas||[]).forEach((v,i)=>{
       const stableId='cmdQRV_'+cmd.id+'_'+i;
@@ -3339,9 +3336,29 @@ function trocarAba(aba){
     if(btn){btn.style.borderBottomColor=aba===t?'var(--accent2)':'transparent';btn.style.color=aba===t?'var(--accent2)':'rgba(255,255,255,0.55)';}
   });
   if(isQrv){
-    qrvSincData();qrvCarregar();
+    qrvSincData();
+    // Carregar eventos e comandos antes do QRV para injeção correta
+    const _normQrv=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();    Promise.all([
+      api('getEventos',{data:isoData(G.data),turno:G.turno}).then(r=>{
+        evtLista=(r.data||[]).filter(e=>_normQrv(e.turno||G.turno)===_normQrv(G.turno));      }).catch(()=>{}),
+      api('getComandos',{data:isoData(G.data),turno:G.turno}).then(r=>{        cmdLista=(r.data||[]).filter(c=>_normQrv(c.turno)===_normQrv(G.turno));      }).catch(()=>{})
+    ]).then(()=>qrvCarregar());
     if(qrvAutoTimer)clearInterval(qrvAutoTimer);
-    qrvAutoTimer=setInterval(()=>qrvCarregar(true),30000);
+    qrvAutoTimer=setInterval(async()=>{
+      // Carregar eventos e comandos PRIMEIRO, depois QRV (que injeta as listas)
+      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+      const data=isoData(G.data);const turno=G.turno;
+      await Promise.all([
+        api('getEventos',{data,turno}).then(r=>{
+          evtLista=(r.data||[]).filter(e=>norm(e.turno||turno)===norm(turno));
+        }).catch(()=>{}),
+        api('getComandos',{data,turno}).then(r=>{
+          cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turno));
+        }).catch(()=>{})
+      ]);
+      // Só depois carregar QRV — que chamará evtInjetarQrv e cmdInjetarQrv com listas atualizadas
+      await qrvCarregar(false,true);
+    },30000);
   }else{if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}}
   if(isEvt){
     evtSincData();evtCarregar();
@@ -3421,8 +3438,8 @@ function qrvOnTurnoChange(){
 async function _qrvRecarregarComEventos(){
   const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
   const data=isoData(G.data);const turno=G.turno;
+  // Carregar eventos e comandos em paralelo primeiro
   await Promise.all([
-    qrvCarregar(false,true), // silent
     api('getEventos',{data,turno}).then(r=>{
       evtLista=(r.data||[]).filter(e=>norm(e.turno||turno)===norm(turno));
     }).catch(()=>{}),
@@ -3430,9 +3447,8 @@ async function _qrvRecarregarComEventos(){
       cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turno));
     }).catch(()=>{})
   ]);
-  evtInjetarQrv();
-  cmdInjetarQrv();
-  qrvRenderCards();
+  // Depois carregar QRV — injeta evtLista e cmdLista já atualizados
+  await qrvCarregar(false,true);
 }
 
 function qrvIniciarInput(){
