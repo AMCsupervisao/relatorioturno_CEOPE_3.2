@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v8'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v9'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -3387,54 +3387,52 @@ function qrvAtualizarHoraSaida(){
 }
 
 function qrvOnDataChange(){
-  // Sincronizar qrvDataInput com G.data (pode ter sido atualizado pelas setas)
   const v=document.getElementById('qrvDataInput').value||isoData(G.data);
   if(!v)return;
   G.data=localDate(v);
   document.getElementById('dataInput').value=v;
   document.getElementById('qrvDataInput').value=isoData(G.data);
-  // Limpar listas de evento/comando para recarregar com a nova data
+  // Limpar imediatamente visual
   qrvRegistros=qrvRegistros.filter(r=>r.secao!=='evento');
   evtLista=[];cmdLista=[];
   const contEvt=document.getElementById('qrvContEvento');
   if(contEvt) contEvt.textContent='';
   const listaEvt=document.getElementById('qrvListaEvento');
   if(listaEvt) listaEvt.innerHTML='';
-  // Recarregar eventos e comandos da nova data antes de carregar QRV
-  Promise.all([
-    api('getEventos',{data:isoData(G.data),turno:G.turno}).then(r=>{
-      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
-      evtLista=(r.data||[]).filter(e=>norm(e.turno||G.turno)===norm(G.turno));
-    }).catch(()=>{}),
-    api('getComandos',{data:isoData(G.data),turno:G.turno}).then(r=>{
-      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
-      cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(G.turno));
-    }).catch(()=>{})
-  ]).then(()=>qrvCarregar());
+  qrvRenderCards(); // render imediato com listas limpas
+  // Carregar tudo em paralelo
+  _qrvRecarregarComEventos();
 }
 function qrvOnTurnoChange(){
   G.turno=document.getElementById('qrvTurnoInput').value;
   document.getElementById('turnoInput').value=G.turno;
-  // Limpar listas de evento/comando para recarregar com o novo turno
-  qrvRegistros=qrvRegistros.filter(r=>r.secao!=='evento'); // remover injetados
-  evtLista=[];
-  cmdLista=[];
-  // Zerar contador e lista visual de eventos imediatamente
+  // Limpar imediatamente visual
+  qrvRegistros=qrvRegistros.filter(r=>r.secao!=='evento');
+  evtLista=[];cmdLista=[];
   const contEvt=document.getElementById('qrvContEvento');
   if(contEvt) contEvt.textContent='';
   const listaEvt=document.getElementById('qrvListaEvento');
   if(listaEvt) listaEvt.innerHTML='';
-  // Recarregar eventos e comandos do novo turno antes de carregar QRV
-  Promise.all([
-    api('getEventos',{data:isoData(G.data),turno:G.turno}).then(r=>{
-      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
-      evtLista=(r.data||[]).filter(e=>norm(e.turno||G.turno)===norm(G.turno));
+  qrvRenderCards();
+  _qrvRecarregarComEventos();
+}
+
+// Carrega QRV + eventos + comandos em paralelo
+async function _qrvRecarregarComEventos(){
+  const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  const data=isoData(G.data);const turno=G.turno;
+  await Promise.all([
+    qrvCarregar(false,true), // silent
+    api('getEventos',{data,turno}).then(r=>{
+      evtLista=(r.data||[]).filter(e=>norm(e.turno||turno)===norm(turno));
     }).catch(()=>{}),
-    api('getComandos',{data:isoData(G.data),turno:G.turno}).then(r=>{
-      const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
-      cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(G.turno));
+    api('getComandos',{data,turno}).then(r=>{
+      cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turno));
     }).catch(()=>{})
-  ]).then(()=>qrvCarregar());
+  ]);
+  evtInjetarQrv();
+  cmdInjetarQrv();
+  qrvRenderCards();
 }
 
 function qrvIniciarInput(){
