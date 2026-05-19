@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v10'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v12'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -3337,12 +3337,20 @@ function trocarAba(aba){
   });
   if(isQrv){
     qrvSincData();
-    // Carregar eventos e comandos antes do QRV para injeção correta
-    const _normQrv=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();    Promise.all([
-      api('getEventos',{data:isoData(G.data),turno:G.turno}).then(r=>{
-        evtLista=(r.data||[]).filter(e=>_normQrv(e.turno||G.turno)===_normQrv(G.turno));      }).catch(()=>{}),
-      api('getComandos',{data:isoData(G.data),turno:G.turno}).then(r=>{        cmdLista=(r.data||[]).filter(c=>_normQrv(c.turno)===_normQrv(G.turno));      }).catch(()=>{})
-    ]).then(()=>qrvCarregar());
+    // Carregar eventos e comandos ANTES do QRV para injeção correta
+    (async()=>{
+      const _n=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().trim();
+      const _d=isoData(G.data),_t=G.turno;
+      await Promise.all([
+        api('getEventos',{data:_d,turno:_t}).then(r=>{
+          evtLista=(r.data||[]).filter(e=>_n(e.turno||_t)===_n(_t));
+        }).catch(()=>{}),
+        api('getComandos',{data:_d,turno:_t}).then(r=>{
+          cmdLista=(r.data||[]).filter(c=>_n(c.turno)===_n(_t));
+        }).catch(()=>{})
+      ]);
+      await qrvCarregar();
+    })();
     if(qrvAutoTimer)clearInterval(qrvAutoTimer);
     qrvAutoTimer=setInterval(async()=>{
       // Carregar eventos e comandos PRIMEIRO, depois QRV (que injeta as listas)
