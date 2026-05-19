@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v12'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-18-v14'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -2034,7 +2034,7 @@ function evtRenderLista(){
     return;
   }
   if(!minhaLista.length){
-    el.innerHTML=cabecalho; // só cabeçalho, sem mensagem vazia — comandos aparecem abaixo
+    el.innerHTML=cabecalho; // sem eventos mas há comandos — só cabeçalho, comandos aparecem abaixo
     return;
   }
   el.innerHTML=cabecalho+minhaLista.map(evt=>{
@@ -2079,12 +2079,7 @@ function evtRenderLista(){
 
 // Injetar eventos na aba QRV como seção extra
 function evtInjetarQrv(render=false){
-  if(!evtLista.length){
-    // Zerar contador se não há eventos
-    const cont=document.getElementById('qrvContEvento');
-    if(cont) cont.textContent='';
-    return;
-  }
+  // Criar seção mesmo sem eventos — comandos também usam qrvWrapEvento
   let secEvt=document.getElementById('qrvWrapEvento');
   if(!secEvt){
     secEvt=document.createElement('div');
@@ -2129,12 +2124,14 @@ function evtInjetarQrv(render=false){
     supArr.forEach((s,i)=>injetar(s.vt,s.agentes,'SUPERVISÃO','s'+i));
   });
 
-  const total=evtLista.reduce((s,e)=>{
+  // Atualizar contador com total de postos (eventos + comandos)
+  const totalEvt=evtLista.reduce((s,e)=>{
     const sup=e.supervisao?(Array.isArray(e.supervisao)?e.supervisao:[e.supervisao]):[];
     return s+(e.postos||[]).length+sup.length;
   },0);
+  const totalCmd=cmdLista.reduce((s,c)=>(s+(c.viaturas||[]).length),0);
   const cont=document.getElementById('qrvContEvento');
-  if(cont) cont.textContent=total?`(${total} postos)`:'';
+  if(cont) cont.textContent=(totalEvt+totalCmd)?`(${totalEvt+totalCmd} postos)`:'';
   if(render) qrvRenderCards();
 }
 
