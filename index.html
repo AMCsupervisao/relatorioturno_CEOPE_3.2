@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-18-v14'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-19-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -1566,6 +1566,8 @@ function cmdRenderLista(){
   const soLeitura=isoData(G.data)!==hoje&&G.role!=='admin';
   const minha=G.role==='admin'?cmdLista:['central','chefia'].includes(G.role)?cmdLista:cmdLista.filter(c=>c.criadoPor===G.name);
   if(!minha.length){
+    // Só mostrar mensagem se não há nenhum no turno todo (nem de outros supervisores)
+    if(cmdLista.length>0) return; // há comandos de outros — não mostrar mensagem
     el.innerHTML='<div class="empty"><span class="eico">🛡️</span><div class="etxt">Nenhum comando cadastrado neste turno</div></div>';
     return;
   }
@@ -2029,7 +2031,11 @@ function evtRenderLista(){
       </div>
     </div>`:'';
   if(!minhaLista.length&&!cmdLista.length){
-    const msgVazia=['admin','central','chefia'].includes(G.role)?'Nenhum evento ou comando cadastrado neste turno':'Nenhum evento ou comando cadastrado por você neste turno';
+    // Verificar se há eventos de outros supervisores no turno
+    const temDeOutros=evtLista.length>0||cmdLista.length>0;
+    const msgVazia=temDeOutros
+      ?'Nenhum evento ou comando cadastrado por você neste turno'
+      :(['admin','central','chefia'].includes(G.role)?'Nenhum evento ou comando cadastrado neste turno':'Nenhum evento ou comando cadastrado por você neste turno');
     el.innerHTML=cabecalho+`<div class="empty"><span class="eico">📅</span><div class="etxt">${msgVazia}</div></div>`;
     return;
   }
