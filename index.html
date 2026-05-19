@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-19-v1'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-19-v2'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -3330,8 +3330,8 @@ function qrvToggleForm(){
 }
 
 function trocarAba(aba){
-  const isQrv=aba==='qrv', isEvt=aba==='evt';
-  document.getElementById('appConteudo').style.display=(!isQrv&&!isEvt)?'block':'none';
+  const isQrv=aba==='qrv', isEvt=aba==='evt', isRel=aba==='rel';
+  document.getElementById('appConteudo').style.display=isRel?'block':'none';
   document.getElementById('telaQrv').style.display=isQrv?'flex':'none';
   document.getElementById('telaEvento').style.display=isEvt?'flex':'none';
   ['rel','evt','qrv'].forEach(t=>{
@@ -3340,9 +3340,11 @@ function trocarAba(aba){
   });
   if(isQrv){
     qrvSincData();
+    // Mostrar seta imediatamente
+    const bRef=document.getElementById('qrvBRef');if(bRef)bRef.classList.add('spin');
     // Carregar eventos e comandos ANTES do QRV para injeção correta
     (async()=>{
-      const _n=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().trim();
+      const _n=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
       const _d=isoData(G.data),_t=G.turno;
       await Promise.all([
         api('getEventos',{data:_d,turno:_t}).then(r=>{
@@ -3353,10 +3355,10 @@ function trocarAba(aba){
         }).catch(()=>{})
       ]);
       await qrvCarregar();
+      if(bRef)bRef.classList.remove('spin');
     })();
     if(qrvAutoTimer)clearInterval(qrvAutoTimer);
     qrvAutoTimer=setInterval(async()=>{
-      // Carregar eventos e comandos PRIMEIRO, depois QRV (que injeta as listas)
       const norm=s=>(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
       const data=isoData(G.data);const turno=G.turno;
       await Promise.all([
@@ -3367,7 +3369,6 @@ function trocarAba(aba){
           cmdLista=(r.data||[]).filter(c=>norm(c.turno)===norm(turno));
         }).catch(()=>{})
       ]);
-      // Só depois carregar QRV — que chamará evtInjetarQrv e cmdInjetarQrv com listas atualizadas
       await qrvCarregar(false,true);
     },30000);
   }else{if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}}
@@ -3376,6 +3377,10 @@ function trocarAba(aba){
     if(evtAutoTimer)clearInterval(evtAutoTimer);
     evtAutoTimer=setInterval(()=>evtCarregar(true),30000);
   }else{if(evtAutoTimer){clearInterval(evtAutoTimer);evtAutoTimer=null;}}
+  if(isRel){
+    // Recarregar relatório ao voltar para a aba (mostra seta)
+    carregarRelatorio(false,false);
+  }
 }
 
 function qrvSincData(){
