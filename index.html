@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-19-v2'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-20-v1'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -2257,6 +2257,7 @@ document.getElementById('loginRole').addEventListener('change',function(){
     supEl.addEventListener('focus',function(){
       if(G.role==='supervisor'&&(!this.value||this.value.trim()===''))
         this.value=G.name;
+      G.supClicado=true; // marcar que supervisor clicou intencionalmente
     });
   }
   // Interceptar tentativa de digitar em outros campos sem supervisor preenchido
@@ -2313,7 +2314,7 @@ function doLogout(){
   if(G.temAlteracaoLocal&&G.role==='supervisor'){
     if(!confirm('Há alterações não salvas no relatório. Deseja sair mesmo assim?')) return;
   }
-  G.role=null;G.name='';
+  G.role=null;G.name='';G.supClicado=false;
   try{localStorage.removeItem(LS.session);}catch(e){}
   document.getElementById('stickyHeader').style.display='none';
   document.getElementById('appConteudo').style.display='none';
@@ -2558,7 +2559,9 @@ async function salvarNaNuvem(){
 
 // Auto-save silencioso a cada alteração
 function agendarAutoSave(){
-  if(G.preenchendo)return; // nunca disparar durante preenchimento do formulário
+  if(G.preenchendo)return;
+  // Supervisor só auto-salva se já clicou no campo supervisor intencionalmente
+  if(G.role==='supervisor'&&!G.supClicado)return;
   // Supervisor só auto-salva o próprio relatório
   if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim())return;
   G.temAlteracaoLocal=true; // marcar que há dados não salvos
@@ -2579,6 +2582,8 @@ async function salvarNaNuvemSilencioso(){
   // Barreira: supervisor só salva o próprio relatório
   if(G.role==='supervisor'&&G.relatorio&&G.relatorio.savedBy&&G.relatorio.savedBy.trim()!==''&&G.relatorio.savedBy.trim()!==G.name.trim())return;
   const dados=coletarDados();
+  // Se supervisor vazio mas savedBy preenchido, usar savedBy como fallback
+  if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
   if(!dados.supervisor)return;
   try{
     await api('saveRelatorio',dados);
@@ -2741,6 +2746,12 @@ function preencherFormulario(d){
     if(G.role==='supervisor'){
       const supEl=document.getElementById('supervisor');
       // Não preencher automaticamente — supervisor preenche ao clicar no campo
+      if(supEl&&d.supervisor&&d.supervisor.trim()!==''){
+        // Só marcar supClicado se for hoje e for o dono do relatório
+        const hoje=isoData(new Date());
+        const ehHoje=isoData(G.data)===hoje;
+        if(ehHoje&&(d.savedBy===G.name||d.supervisor===G.name)) G.supClicado=true;
+      }
     }
     // Limpar e recriar containers
     const containers=['rotasContainer','apoioCtaforContainer','rendicaoVlContainer','afericaoContainer','apoioEtuforContainer','zonaAzulContainer','apoioAeroportoContainer','fiscalizacaoContainer','comandoContainer','missaoContainer','supervisaoContainer'];
@@ -3172,6 +3183,7 @@ async function gerarPDF(){
     if(r.data&&r.data.supervisor){G.relatorio=r.data;}
   }catch(ex){toast('Aviso: não foi possível sincronizar. Usando dados locais.','err');}
   const dados=G.relatorio||coletarDados();
+  if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
   if(!dados.supervisor){toast('Preencha os dados antes de gerar o PDF.','err');return;}
   const geradoPor=G.name;
   const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
