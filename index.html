@@ -958,7 +958,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-05-20-v1'; // ← atualize esta string a cada deploy
+const APP_VERSION='2026-05-20-v2'; // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxONfbZ3_kO-FlK-yQZapPa1J5gxt5frzX_J7mmG22r755ANho2bwc3OgBJuTyJ0PxT/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026'};
@@ -2608,6 +2608,7 @@ async function limparTudo(){
   conf('Limpar Formulário','Todos os dados serão apagados e o relatório vazio será salvo na nuvem. Esta ação não pode ser desfeita. Confirma?',async()=>{
     // Limpar campos
     ['supervisor','central','ciops','sevim','sevimOperadores','cccf','coer','videomonitoramento','observacoes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    G.supClicado=false; // resetar flag — supervisor precisará clicar novamente;
     ['rotasContainer','apoioCtaforContainer','rendicaoVlContainer','afericaoContainer','apoioEtuforContainer','zonaAzulContainer','apoioAeroportoContainer','fiscalizacaoContainer','comandoContainer','missaoContainer','supervisaoContainer'].forEach(id=>{document.getElementById(id).innerHTML='';});
     atualizarContagem();
     G.temAlteracaoLocal=false;
@@ -2741,7 +2742,13 @@ function preencherFormulario(d){
   G.preenchendo=true; // bloquear auto-save durante o preenchimento
   try{
     const campos=['supervisor','central','ciops','sevim','sevimOperadores','cccf','coer','videomonitoramento','observacoes'];
-    campos.forEach(id=>{const el=document.getElementById(id);if(el)el.value=d[id]||'';});
+    campos.forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      // Não limpar campo supervisor se já está preenchido na tela (supervisor clicou)
+      if(id==='supervisor'&&G.role==='supervisor'&&el.value.trim()&&G.supClicado) return;
+      el.value=d[id]||'';
+    });
     // Se supervisor e relatório não tem supervisor salvo, preenche com nome do login
     if(G.role==='supervisor'){
       const supEl=document.getElementById('supervisor');
