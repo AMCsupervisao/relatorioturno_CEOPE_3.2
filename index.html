@@ -21,6 +21,40 @@
   --border:#1e3a5a;--border2:#243f5e;--card:#0c1e34;
   --verde:#1a3c34;--verde2:#2e7d52;--verde3:#4CAF50;
 }
+/* ── TEMA CLARO ── */
+body.light-mode{
+  --navy:#f0f4f8;--navy2:#ffffff;--accent:#2563eb;--accent2:#1d4ed8;
+  --gold:#b45309;--gold2:#92400e;--red2:#dc2626;--green2:#059669;
+  --orange2:#ea580c;--purple2:#7c3aed;
+  --text:#1e293b;--text2:#475569;--text3:#94a3b8;
+  --surface:#e2e8f0;--surface2:#ffffff;--surface3:#f1f5f9;
+  --border:#cbd5e1;--border2:#94a3b8;--card:#ffffff;
+  --verde:#dcfce7;--verde2:#16a34a;--verde3:#15803d;
+}
+body.light-mode{background:var(--navy);color:var(--text);}
+body.light-mode .finput,body.light-mode .fselect,body.light-mode .ftextarea{background:#ffffff;border-color:#cbd5e1;color:#1e293b;}
+body.light-mode .finput:focus,body.light-mode .fselect:focus{border-color:var(--verde3);}
+body.light-mode .finput:-webkit-autofill,body.light-mode .finput:-webkit-autofill:hover,body.light-mode .finput:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 1000px #fff inset!important;-webkit-text-fill-color:#1e293b!important;caret-color:#1e293b;}
+body.light-mode .fselect option,body.light-mode .turno-sel option{background:#ffffff;color:#1e293b;}
+body.light-mode .finput-ro{background:#f1f5f9;color:#1e293b;}
+body.light-mode .date-sel{background:#ffffff;color:#b45309;}
+body.light-mode .turno-sel{background:#ffffff;color:#1e293b;}
+body.light-mode .finput-agentes:focus{border-color:#b45309;}
+body.light-mode #loginScreen{background:#e2e8f0;}
+body.light-mode .qrv-row{background:#ffffff;border-color:#cbd5e1;}
+body.light-mode .qrv-row:hover{background:#f8fafc;}
+body.light-mode .qrv-vt-badge.principal{background:#b45309;color:#fff;}
+body.light-mode .qrv-row-nomes{color:#1e293b;}
+body.light-mode .qrv-row-rota{color:#475569;}
+body.light-mode input[type=date]{background:#ffffff;color:#b45309;}
+body.light-mode .s-ndinfo-label,body.light-mode .s-cinfo-label{color:#1d4ed8;}
+body.light-mode .s-ndinfo-value,body.light-mode .s-cinfo-value{color:#1e293b;}
+body.light-mode .fsec-title{color:#15803d;}
+body.light-mode .fsec-title::before{background:#15803d;}
+body.light-mode .item-row-badge{background:#c2410c;}
+/* Botão toggle tema */
+.btn-theme{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:6px 9px;color:var(--text2);font-size:16px;cursor:pointer;line-height:1;transition:all .2s;}
+.btn-theme:hover{border-color:var(--gold);color:var(--gold);}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;overscroll-behavior-y:contain;}
 
@@ -651,7 +685,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     <div class="hbrand"><div class="hbadge">AMC</div><div class="htitle">CEOPE<br>Rel. Turno</div></div>
     <div class="hright">
       <div class="uchip"><span class="uname" id="hName">—</span><span class="urole" id="hRole">—</span></div>
-      <button class="btnout" onclick="doLogout()">Sair</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button class="btn-theme" id="btnTheme" onclick="toggleTheme()" title="Alternar tema claro/escuro">🌙</button>
+        <button class="btnout" onclick="doLogout()">Sair</button>
+      </div>
     </div>
   </div>
   <!-- ABAS DE NAVEGAÇÃO -->
@@ -1652,9 +1689,19 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-02-v2'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
+// Limpar sessão ao detectar nova versão — força re-login em todos os usuários
+(function(){
+  try {
+    var savedVer = localStorage.getItem('amc_app_version');
+    if (savedVer !== APP_VERSION) {
+      localStorage.removeItem('amc_rel_session');
+      localStorage.setItem('amc_app_version', APP_VERSION);
+    }
+  } catch(e) {}
+})();
 const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026',operadorvl:'vl2026'};
 const RL={admin:'Administrador',supervisor:'Supervisor do Turno',central:'Central CEOPE',chefia:'Chefia',operadorvl:'Operador Via Livre'};
 const RC={admin:'ra',supervisor:'rs',central:'rc',chefia:'rc',operadorvl:'rvl'};
@@ -3270,6 +3317,7 @@ function entrarComPerfil(u, role) {
   G.cpf  = u.cpf;
   try { localStorage.setItem(LS.session, JSON.stringify({role:G.role, name:G.name, cpf:G.cpf})); } catch(e) {}
   initApp();
+  aplicarTemaSalvo();
 }
 
 // ── Troca de senha ───────────────────────────────────────────
@@ -3478,7 +3526,25 @@ async function adminToggleAtivo(cpf, ativoAtual) {
     } catch(ex) { toast('Erro: '+ex.message,'err'); }
   });
 }
-// ── fim Sistema Usuários ─────────────────────────────────────
+// ── Tema Claro / Escuro ──────────────────────────────────────
+function toggleTheme() {
+  var isLight = document.body.classList.toggle('light-mode');
+  var btn = document.getElementById('btnTheme');
+  if (btn) btn.textContent = isLight ? '☀️' : '🌙';
+  try { localStorage.setItem('amc_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function aplicarTemaSalvo() {
+  try {
+    var t = localStorage.getItem('amc_theme');
+    if (t === 'light') {
+      document.body.classList.add('light-mode');
+      var btn = document.getElementById('btnTheme');
+      if (btn) btn.textContent = '☀️';
+    }
+  } catch(e) {}
+}
+// ── fim Tema ──────────────────────────────────────────────────
 
 // ══════════════════════════════════════════════════════════════
 // ▶ IMPORTAÇÃO EM LOTE DE USUÁRIOS
