@@ -52,6 +52,15 @@ body.light-mode .s-ndinfo-value,body.light-mode .s-cinfo-value{color:#1e293b;}
 body.light-mode .fsec-title{color:#15803d;}
 body.light-mode .fsec-title::before{background:#15803d;}
 body.light-mode .item-row-badge{background:#c2410c;}
+/* Abas principais — corrigir cor hardcoded rgba(255,255,255,0.55) */
+body.light-mode #appTabs button{color:rgba(0,0,0,0.45)!important;}
+body.light-mode #appTabs button:hover{color:rgba(0,0,0,0.75)!important;}
+/* Sub-abas Serviços */
+body.light-mode .srv-subtab{color:rgba(0,0,0,0.45);}
+body.light-mode .srv-subtab.active{color:var(--gold);}
+/* Textos de estado vazio */
+body.light-mode .empty{color:var(--text2);}
+body.light-mode .etxt{color:var(--text2);}
 /* Botão toggle tema */
 .btn-theme{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:6px 9px;color:var(--text2);font-size:16px;cursor:pointer;line-height:1;transition:all .2s;}
 .btn-theme:hover{border-color:var(--gold);color:var(--gold);}
@@ -1689,7 +1698,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v3'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-02-v4'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -3532,6 +3541,14 @@ function toggleTheme() {
   var btn = document.getElementById('btnTheme');
   if (btn) btn.textContent = isLight ? '☀️' : '🌙';
   try { localStorage.setItem('amc_theme', isLight ? 'light' : 'dark'); } catch(e) {}
+  // Atualizar cor das abas inativas
+  var abaAtiva = document.querySelector('#appTabs button[style*="border-bottom-color: rgb"]');
+  if (abaAtiva) {
+    var inactiveColor = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)';
+    document.querySelectorAll('#appTabs button').forEach(function(b){
+      if (b.style.borderBottomColor === 'transparent') b.style.color = inactiveColor;
+    });
+  }
 }
 
 function aplicarTemaSalvo() {
@@ -5118,7 +5135,8 @@ function trocarAba(aba){
     const idMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos'};
     const btn=document.getElementById(idMap[t]);
     const cor=(t==='vl'||t==='qrvvl')?'#fb923c':t==='admin'?'#f59e0b':t==='servicos'?'#10b981':'var(--accent2)';
-    if(btn){btn.style.borderBottomColor=aba===t?cor:'transparent';btn.style.color=aba===t?cor:'rgba(255,255,255,0.55)';}});
+    const inactiveColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)';
+    if(btn){btn.style.borderBottomColor=aba===t?cor:'transparent';btn.style.color=aba===t?cor:inactiveColor;}});
   if(isQrv){
     qrvSincData();
     // Mostrar seta imediatamente
@@ -8702,7 +8720,7 @@ function srvOpenSup(id) {
       +'<div style="margin-bottom:14px;"><span class="flabel">Nome do Substituto</span><input type="text" class="finput" id="srvFSS" placeholder="Nome do agente substituto" autocomplete="off"></div>'
       +'<div style="display:flex;gap:8px;">'
       +'<button onclick="srvCm(\'srvMSup\')" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>'
-      +'<button onclick="srvSaveSubst()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Agendar</button>'
+      +'<button id="srvBtnAgendar" onclick="srvSaveSubst()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Agendar</button>'
       +'</div></div>';
     document.body.appendChild(modal);
   }
@@ -8720,12 +8738,17 @@ async function srvSaveSubst() {
     toast('Supervisor só pode agendar substituto no dia atual. Contate a Central para dias anteriores.','err');
     return;
   }
+  var btn = document.getElementById('srvBtnAgendar');
+  if (btn) { btn.disabled=true; btn.textContent='Agendando...'; btn.style.opacity='0.7'; }
   try {
     await apiSrv('updateRendition', {id:srvSupId, substituto:s, agendadoBy:G.name});
     await srvLoadRenditions();
     srvCm('srvMSup');
     toast('Substituto agendado! ✓','ok');
-  } catch(ex) { toast('Erro: '+ex.message,'err'); }
+  } catch(ex) {
+    toast('Erro: '+ex.message,'err');
+    if (btn) { btn.disabled=false; btn.textContent='Agendar'; btn.style.opacity='1'; }
+  }
 }
 
 async function srvConcluirRend(id) {
