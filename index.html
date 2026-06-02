@@ -1144,7 +1144,6 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
             <option value="13. Fiscalização NVA">Fiscalização NVA</option>
             <option value="14. Fiscalização AET">Fiscalização AET</option>
             <option value="12. Zona Azul">Zona Azul</option>
-            <option value="13. Apoio Aeroporto">Apoio Aeroporto</option>
             <option value="15. Fiscalização Volante">Fiscalização Volante</option>
             <option value="16. Comando">Comando</option>
             <option value="17. Missão">Missão</option>
@@ -1698,7 +1697,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v5'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-02-v7'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4914,7 +4913,7 @@ function renderVisualizacao(d){
     ${sec('13. Fiscalização NVA',tabela(d.fiscNva,['#','Veículo','Agentes']))}
     ${sec('14. Fiscalização AET',tabela(d.fiscAet,['#','Veículo','Agentes']))}
     ${sec('12. Zona Azul / Acessibilidade',tabela(d.zonaAzul,['#','Rota','Veículo (Tipo)','Agentes']))}
-    ${sec('13. Apoio Aeroporto',tabela(d.apoioAeroporto,['#','Veículo (Plataforma)','Agentes']))}
+    ${(d.apoioAeroporto&&d.apoioAeroporto.length)?sec('Apoio Aeroporto (hist.)',tabela(d.apoioAeroporto,['#','Veículo (Plataforma)','Agentes'])):''}
     ${sec('15. Fiscalização Volante',tabela(d.fiscalizacao,['#','Rota','Veículo','Agentes']))}
     ${sec('16. Comando',fmtArr(d.comando,[{label:'Local',key:'local'},{label:'Coordenador',key:'coordenador'}]))}
     ${sec('17. Outras Missões',fmtArr(d.missao,[{label:'Missão/Evento',key:'evento'},{label:'Local',key:'local'},{label:'Chefe da Missão',key:'chefe'}]))}
@@ -5620,13 +5619,13 @@ function qrvPrePopular(d){
   (d.fiscAet||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','14. Fiscalização AET'));
   (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','12. Zona Azul'));
   (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais','Apoio Aeroporto'));
-  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','14. Fiscalização Volante'));
+  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','15. Fiscalização Volante'));
   (d.comando||[]).forEach(item=>{
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','15. Comando'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','16. Comando'));
   });
   (d.missao||[]).forEach(item=>{
     const rotaMissao=[item.evento,item.local].filter(Boolean).join(' — ');
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,rotaMissao,'demais','16. Missão'));
+    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,rotaMissao,'demais','17. Missão'));
   });
   (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão'));
 
@@ -6163,7 +6162,7 @@ async function qrvMoverCard(id,secao,grupo){
       'Apoio CTAFOR':'08. Apoio CTAFOR','Rendições':'09. Rendições',
       'Aferição':'10. Aferição','Apoio ETUFOR':'11. Apoio ETUFOR',
       'Zona Azul':'12. Zona Azul','Fiscalização NVA':'13. Fiscalização NVA','Fiscalização AET':'14. Fiscalização AET',
-      'Fiscalização Volante':'15. Fiscalização Volante','Comando':'15. Comando','Missão':'16. Missão'
+      'Fiscalização Volante':'15. Fiscalização Volante','Comando':'16. Comando','Missão':'17. Missão'
     };
     const chave=mapGrupo[grupo]||grupo;
     reg.registradoPor=chave==='__outros__'?'[Movido]':chave;
