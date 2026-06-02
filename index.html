@@ -1242,11 +1242,29 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     <div style="margin-bottom:8px;"><span class="flabel">Rota</span><div class="input-wrap" id="qrvEditRotaWrap"><input type="text" class="finput" id="qrvEditRota" placeholder="Rota" autocomplete="off" style="text-transform:uppercase;width:100%;"></div></div>
     <div style="margin-bottom:8px;"><span class="flabel">Hora de Saída</span><input type="time" class="finput" id="qrvEditSaida" style="text-transform:none;"></div>
     <div style="margin-bottom:14px;"><span class="flabel">Seção</span>
-      <div style="display:flex;gap:6px;margin-top:6px;">
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
         <button type="button" onclick="qrvEditSelecionarSecao('principal')" id="qrvEditSecPrincipal" class="qrv-sec-btn">⭐ Rotas</button>
         <button type="button" onclick="qrvEditSelecionarSecao('supervisao')" id="qrvEditSecSupervisao" class="qrv-sec-btn">👮 Supervisão</button>
         <button type="button" onclick="qrvEditSelecionarSecao('demais')" id="qrvEditSecDemais" class="qrv-sec-btn">📋 Demais</button>
-        <button type="button" onclick="qrvEditSelecionarSecao('evento')" id="qrvEditSecEvento" class="qrv-sec-btn" style="border-color:#f59e0b;color:#f59e0b;">📅 Evento</button>
+        <button type="button" onclick="qrvEditSelecionarSecao('evento')" id="qrvEditSecEvento" class="qrv-sec-btn">📅 Evento</button>
+      </div>
+      <!-- Sub-grupo — aparece só quando Demais está selecionado -->
+      <div id="qrvEditSubGrupoWrap" style="display:none;margin-top:8px;">
+        <span class="flabel">Sub-grupo</span>
+        <select id="qrvEditSubGrupo" class="fselect" style="margin-top:4px;">
+          <option value="">— Selecione —</option>
+          <option value="08. Apoio CTAFOR">Apoio CTAFOR</option>
+          <option value="09. Rendições">Rendições</option>
+          <option value="10. Aferição">Aferição</option>
+          <option value="11. Apoio ETUFOR">Apoio ETUFOR</option>
+          <option value="12. Zona Azul">Zona Azul</option>
+          <option value="13. Fiscalização NVA">Fiscalização NVA</option>
+          <option value="14. Fiscalização AET">Fiscalização AET</option>
+          <option value="15. Fiscalização Volante">Fiscalização Volante</option>
+          <option value="16. Comando">Comando</option>
+          <option value="17. Missão">Outras Missões</option>
+          <option value="Outros">Outros</option>
+        </select>
       </div>
       <input type="hidden" id="qrvEditSecao" value="demais">
     </div>
@@ -1697,7 +1715,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v7'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-02-v9'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5410,6 +5428,9 @@ function qrvEditSelecionarSecao(secao){
     const btn=document.getElementById('qrvEditSec'+key);
     if(btn) btn.classList.toggle('active',s===secao);
   });
+  // Mostrar sub-grupo só quando Demais
+  const subWrap=document.getElementById('qrvEditSubGrupoWrap');
+  if(subWrap) subWrap.style.display=secao==='demais'?'block':'none';
 }
 
 // ── Modal Editar ───────────────────────────────────────────────
@@ -5440,6 +5461,14 @@ function qrvAbrirEditModal(id){
   // Seção atual
   const secaoAtual=reg.secao||(qrvVtsPrincipais.includes(reg.vt)?'principal':qrvVtsSupervisao.includes(reg.vt)?'supervisao':'demais');
   qrvEditSelecionarSecao(secaoAtual);
+  // Pré-selecionar sub-grupo se for Demais
+  if(secaoAtual==='demais'){
+    const sg=document.getElementById('qrvEditSubGrupo');
+    if(sg){
+      const origem=reg.registradoPor||'';
+      sg.value=origem||'';
+    }
+  }
   // Autocomplete
   const agEl=document.getElementById('qrvEditAgentes');
   if(agEl) addEventosAgentes(agEl);
@@ -5481,6 +5510,11 @@ async function qrvSalvarEdicao(){
   reg.saida=document.getElementById('qrvEditSaida').value||'';
   reg.secao=novaSecao;
   reg.deSupervisor=false;
+  // Aplicar sub-grupo se Demais
+  if(novaSecao==='demais'){
+    const sg=document.getElementById('qrvEditSubGrupo');
+    if(sg&&sg.value) reg.registradoPor=sg.value;
+  }
   if(novaSecao==='principal'&&novoVt&&!qrvVtsPrincipais.includes(novoVt)) qrvVtsPrincipais.push(novoVt);
   if(novaSecao==='supervisao'&&novoVt&&!qrvVtsSupervisao.includes(novoVt)) qrvVtsSupervisao.push(novoVt);
 
