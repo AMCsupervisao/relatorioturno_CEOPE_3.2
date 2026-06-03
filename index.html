@@ -1731,7 +1731,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v11'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-03-v13'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -8808,12 +8808,44 @@ async function srvConcluirRend(id) {
 }
 
 async function srvCancelRend(id) {
-  conf('Cancelar Rendição','Confirma cancelamento? Informe o motivo abaixo:', async function(){
-    var motivo = ((document.getElementById('confMotivo')||{}).value||'').trim().toUpperCase();
-    if (!motivo) { toast('Informe o motivo do cancelamento.','err'); return; }
-    try{ await apiSrv('updateRendition',{id:id,status:'cancelada',canceledBy:G.name,motivoCancelamento:motivo}); await srvLoadRenditions(); toast('Rendição cancelada.','ok'); }
-    catch(ex){ toast('Erro: '+ex.message,'err'); }
-  },'red',true);
+  // Criar modal dedicado com campo de motivo
+  var existingModal = document.getElementById('srvMCancelRend');
+  if (existingModal) existingModal.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'srvMCancelRend';
+  modal.className = 'cov';
+  modal.style.zIndex = '870';
+  modal.innerHTML = '<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:420px;">'
+    + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:6px;">Cancelar Rendição</div>'
+    + '<div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Confirma cancelamento? Informe o motivo abaixo:</div>'
+    + '<div style="margin-bottom:14px;">'
+    +   '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;">Motivo do Cancelamento</div>'
+    +   '<textarea id="srvCancelMotivoInp" class="finput" placeholder="Descreva o motivo..." rows="3" style="min-height:80px;resize:none;width:100%;"></textarea>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;">'
+    +   '<button onclick="document.getElementById(\'srvMCancelRend\').remove()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Não</button>'
+    +   '<button id="srvBtnConfCancel" onclick="srvConfirmarCancelamento(\''+id+'\')" style="flex:2;padding:12px;background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Sim, Cancelar</button>'
+    + '</div></div>';
+  document.body.appendChild(modal);
+  modal.classList.add('open');
+  setTimeout(function(){ var t=document.getElementById('srvCancelMotivoInp'); if(t)t.focus(); }, 100);
+}
+
+async function srvConfirmarCancelamento(id) {
+  var motivo = (document.getElementById('srvCancelMotivoInp').value||'').trim().toUpperCase();
+  if (!motivo) { toast('Informe o motivo do cancelamento.','err'); return; }
+  var btn = document.getElementById('srvBtnConfCancel');
+  if (btn) { btn.disabled=true; btn.textContent='Cancelando...'; }
+  try {
+    await apiSrv('updateRendition',{id:id,status:'cancelada',canceledBy:G.name,motivoCancelamento:motivo});
+    await srvLoadRenditions();
+    var m = document.getElementById('srvMCancelRend'); if(m) m.remove();
+    toast('Rendição cancelada.','ok');
+  } catch(ex) {
+    toast('Erro: '+ex.message,'err');
+    if (btn) { btn.disabled=false; btn.textContent='Sim, Cancelar'; }
+  }
 }
 
 async function srvReativarRend(id) {
@@ -8906,7 +8938,7 @@ function srvSelType(t, el) {
   document.querySelectorAll('#srvTgrid > div').forEach(function(d){ d.style.borderColor='var(--border2)'; d.style.background='var(--surface3)'; });
   if (el) { el.style.borderColor='#60a5fa'; el.style.background='rgba(37,99,235,0.15)'; }
   srvBuildDynF(t);
-  document.getElementById('srvDatesS').style.display = ['qru','fato'].includes(t)?'none':'block';
+  document.getElementById('srvDatesS').style.display = 'block';
 }
 
 function srvBuildDynF(t) {
@@ -8924,11 +8956,16 @@ function srvBuildDynF(t) {
 }
 
 function srvFillDynF(rec) {
-  var set = function(id,v){ var el=document.getElementById(id); if(el&&v)el.value=v; };
   srvBuildDynF(rec.type);
-  set('srvFL',rec.local); set('srvFA',rec.area); set('srvFEv',rec.evento||rec.descricao);
-  set('srvFPer',rec.periodo||rec.horario); set('srvFResp',rec.responsavel);
-  set('srvFVei',rec.veiculos); set('srvFObj',rec.objetivo); set('srvFObs',rec.obs);
+  var set = function(id,v){ var el=document.getElementById(id); if(el&&v) el.value=v; };
+  set('srvFL', rec.local);
+  set('srvFA', rec.area);
+  set('srvFEv', rec.evento || rec.descricao);
+  set('srvFPer', rec.periodo || rec.horario);
+  set('srvFResp', rec.responsavel);
+  set('srvFVei', rec.veiculos);
+  set('srvFObj', rec.objetivo);
+  set('srvFObs', rec.obs);
 }
 
 function srvGv(id) { var el=document.getElementById(id); return el?(el.value||'').trim().toUpperCase():''; }
@@ -8959,24 +8996,32 @@ function srvRenderDates() {
 
 async function srvSaveAuth() {
   if (!srvSelT) { toast('Selecione o tipo de registro.','err'); return; }
-  var reg = srvGv('srvFReg');
-  var payload = {
-    id: srvEA || ('a'+Date.now()),
-    type: srvSelT, reg: reg,
-    local: srvGv('srvFL'), area: srvGv('srvFA'),
-    evento: srvGv('srvFEv'), periodo: srvGv('srvFPer'),
-    responsavel: srvGv('srvFResp'), veiculos: srvGv('srvFVei'),
-    objetivo: srvGv('srvFObj'), obs: srvGv('srvFObs'),
-    dates: srvDates,
-  };
-  var btn=document.getElementById('srvBSA'); btn.disabled=true; btn.textContent='Salvando...';
+  if (!srvDates.length) { toast('Adicione ao menos uma data de vigência.','err'); return; }
+  var reg = (document.getElementById('srvFReg')?.value||'').trim().toUpperCase();
+  var gv = function(id){ var el=document.getElementById(id); return el?(el.value||'').trim().toUpperCase():''; };
+  var ex = {};
+  if (srvSelT === 'fato') {
+    ex = {descricao:gv('srvFEv'), local:gv('srvFL'), area:gv('srvFA'), periodo:gv('srvFPer'), responsavel:gv('srvFResp'), veiculos:gv('srvFVei'), objetivo:gv('srvFObj'), obs:gv('srvFObs')};
+  } else {
+    switch(srvSelT) {
+      case 'qru': case 'interdicao':
+        ex = {evento:gv('srvFEv'), local:gv('srvFL'), area:gv('srvFA'), periodo:gv('srvFPer'), responsavel:gv('srvFResp'), obs:gv('srvFObs')}; break;
+      case 'circulacao':
+        ex = {area:gv('srvFA'), veiculos:gv('srvFVei'), periodo:gv('srvFPer'), responsavel:gv('srvFResp'), obs:gv('srvFObs')}; break;
+      case 'estacionamento':
+        ex = {local:gv('srvFL'), area:gv('srvFA'), veiculos:gv('srvFVei'), objetivo:gv('srvFObj'), periodo:gv('srvFPer'), responsavel:gv('srvFResp'), obs:gv('srvFObs')}; break;
+    }
+  }
+  var payload = Object.assign({id: srvEA || ('a'+Date.now()), type: srvSelT, reg: reg, dates: srvDates, createdBy: G.name, createdAt: new Date().toISOString()}, ex);
+  var btn = document.getElementById('srvBSA');
+  if (btn) { btn.disabled=true; btn.textContent='Salvando...'; }
   try {
-    await apiSrv(srvEA?'updateRecord':'saveRecord', payload);
+    await apiSrv(srvEA?'updateRecord':'addRecord', payload);
     srvCm('srvMAuth');
     await srvLoadRecords();
     toast((srvEA?'Registro atualizado':'Registro salvo')+' ✓','ok');
-  } catch(ex) { toast('Erro: '+ex.message,'err'); }
-  btn.disabled=false; btn.textContent='Salvar';
+  } catch(ex2) { toast('Erro: '+ex2.message,'err'); }
+  if (btn) { btn.disabled=false; btn.textContent='Salvar'; }
 }
 
 function srvEditAuth(id) { srvOpenAuthModal(id); }
@@ -9011,27 +9056,35 @@ function srvOpenRendModal(id) {
 }
 
 async function srvSaveRend() {
-  var agente=document.getElementById('srvFRA').value.trim().toUpperCase();
-  var local=document.getElementById('srvFRL').value.trim().toUpperCase();
-  if (!agente) { toast('Informe o agente.','err'); return; }
+  var date    = document.getElementById('srvFRD').value;
+  var turno   = document.getElementById('srvFRT').value;
+  var agente  = document.getElementById('srvFRA').value.trim().toUpperCase();
+  if (!date || !turno || !agente) { toast('Preencha data, turno e agente.','err'); return; }
   var payload = {
-    id: srvER || ('r'+Date.now()),
-    reg: document.getElementById('srvFRReg').value.trim().toUpperCase(),
-    date: document.getElementById('srvFRD').value,
-    turno: document.getElementById('srvFRT').value,
-    local: local, agente: agente,
-    motivo: document.getElementById('srvFRM').value.trim().toUpperCase(),
+    id:         srvER || ('r'+Date.now()),
+    reg:        document.getElementById('srvFRReg').value.trim().toUpperCase(),
+    date:       date,
+    turno:      turno,
+    local:      document.getElementById('srvFRL').value.trim().toUpperCase(),
+    agente:     agente,
+    motivo:     document.getElementById('srvFRM').value.trim().toUpperCase(),
     substituto: document.getElementById('srvFRS').value.trim().toUpperCase(),
-    status: srvER ? undefined : 'pendente',
+    createdBy:  G.name,
+    createdAt:  new Date().toISOString(),
   };
-  var btn=document.getElementById('srvBSR'); btn.disabled=true; btn.textContent='Salvando...';
+  // Preservar status ao editar; pendente ao criar
+  payload.status = srvER
+    ? (srvRends.find(function(x){return x.id===srvER;})||{}).status || 'pendente'
+    : 'pendente';
+  var btn = document.getElementById('srvBSR');
+  if (btn) { btn.disabled=true; btn.textContent='Salvando...'; }
   try {
-    await apiSrv(srvER?'updateRendition':'saveRendition', payload);
+    await apiSrv(srvER?'updateRendition':'addRendition', payload);
     srvCm('srvMRend');
     await srvLoadRenditions();
-    toast((srvER?'Rendição atualizada':'Rendição salva')+' ✓','ok');
+    toast((srvER?'Rendição atualizada':'Rendição registrada')+' ✓','ok');
   } catch(ex) { toast('Erro: '+ex.message,'err'); }
-  btn.disabled=false; btn.textContent='Salvar';
+  if (btn) { btn.disabled=false; btn.textContent='Salvar'; }
 }
 
 function srvEditRend(id) { srvOpenRendModal(id); }
