@@ -44,6 +44,22 @@ body.light-mode #loginScreen{background:#e2e8f0;}
 body.light-mode .qrv-row{background:#ffffff;border-color:#cbd5e1;}
 body.light-mode .qrv-row:hover{background:#f8fafc;}
 body.light-mode .qrv-vt-badge.principal{background:#b45309;color:#fff;}
+/* vt-input — texto e placeholder visíveis no tema claro */
+body.light-mode .vt-input{color:#1e293b!important;background:#ffffff!important;}
+body.light-mode .vt-input::placeholder{color:#94a3b8!important;}
+/* Dropdown sugestão de viaturas — visível no tema claro */
+body.light-mode .vt-drop{background:#ffffff!important;border-color:#15803d!important;box-shadow:0 4px 16px rgba(0,0,0,0.15)!important;}
+body.light-mode .vt-drop div{color:#1e293b!important;border-bottom:1px solid #e2e8f0!important;}
+body.light-mode .vt-drop div:hover{background:#f0fdf4!important;color:#15803d!important;}
+/* QRV inline hora — tracinhos e texto visíveis no tema claro */
+body.light-mode .qrv-saida-input{background:#ffffff;border-color:#cbd5e1;color:#1e293b;}
+body.light-mode .qrv-saida-input:focus{border-color:var(--accent);}
+body.light-mode .qrv-saida-input::-webkit-datetime-edit{color:#1e293b;}
+body.light-mode .qrv-saida-input::-webkit-datetime-edit-fields-wrapper{color:#1e293b;}
+body.light-mode .qrv-saida-input::-webkit-datetime-edit-hour-field,
+body.light-mode .qrv-saida-input::-webkit-datetime-edit-minute-field,
+body.light-mode .qrv-saida-input::-webkit-datetime-edit-text{color:#1e293b;}
+body.light-mode .qrv-saida-input::-webkit-calendar-picker-indicator{filter:invert(1) brightness(0.3);}
 body.light-mode .qrv-row-nomes{color:#1e293b;}
 body.light-mode .qrv-row-rota{color:#475569;}
 body.light-mode input[type=date]{background:#ffffff;color:#b45309;}
@@ -1715,7 +1731,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-02-v9'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-02-v11'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
