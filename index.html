@@ -47,7 +47,10 @@ body.light-mode .qrv-vt-badge.principal{background:#b45309;color:#fff;}
 /* vt-input — texto e placeholder visíveis no tema claro */
 body.light-mode .vt-input{color:#1e293b!important;background:#ffffff!important;}
 body.light-mode .vt-input::placeholder{color:#94a3b8!important;}
-/* Dropdown sugestão de viaturas — visível no tema claro */
+/* Dropdowns de sugestão — agentes, viaturas, rotas */
+body.light-mode .suggestions{background:#ffffff!important;border-color:#15803d!important;box-shadow:0 4px 16px rgba(0,0,0,0.15)!important;}
+body.light-mode .suggestions div,body.light-mode .suggestions li{color:#1e293b!important;border-bottom:1px solid #e2e8f0!important;}
+body.light-mode .suggestions div:hover,body.light-mode .suggestions li:hover{background:#f0fdf4!important;color:#15803d!important;}
 body.light-mode .vt-drop{background:#ffffff!important;border-color:#15803d!important;box-shadow:0 4px 16px rgba(0,0,0,0.15)!important;}
 body.light-mode .vt-drop div{color:#1e293b!important;border-bottom:1px solid #e2e8f0!important;}
 body.light-mode .vt-drop div:hover{background:#f0fdf4!important;color:#15803d!important;}
@@ -223,7 +226,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .btn-ep-save{background:linear-gradient(135deg,var(--verde2),var(--verde));color:#fff;}
 
 /* ── AUTOCOMPLETE ── */
-.suggestions{position:absolute;z-index:9999;background:#0e1f36;border:1px solid #4CAF50;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);width:100%;left:0;top:100%;}
+.suggestions{position:absolute;z-index:9999;background:var(--surface2);border:1px solid #4CAF50;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);width:100%;left:0;top:100%;}
+.suggestions div{padding:10px 12px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);}
+.suggestions div:hover{background:var(--surface3);}
 .suggestions ul{list-style:none;padding:0;margin:0;}
 .suggestions li{padding:14px 16px;cursor:pointer;font-size:15px;color:#e2e8f0;border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;-webkit-user-select:none;}
 .suggestions li:hover,.suggestions li.selected{background:#132840;color:#4CAF50;}
@@ -231,7 +236,9 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .vt-wrap{position:relative;width:100%;}
 .vt-input{width:100%;padding:15px 14px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:#fff;font-size:16px;font-family:'IBM Plex Sans',sans-serif;outline:none;text-transform:uppercase;min-height:58px;box-sizing:border-box;}
 .vt-input:focus{border-color:var(--verde3);}
-.vt-drop{position:absolute;top:100%;left:0;width:100%;background:#0e1f36;border:1px solid #4CAF50;border-radius:0 0 8px 8px;max-height:250px;overflow-y:scroll;-webkit-overflow-scrolling:touch;z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.vt-drop{position:absolute;top:100%;left:0;width:100%;background:var(--surface2);border:1px solid #4CAF50;border-radius:0 0 8px 8px;max-height:250px;overflow-y:scroll;-webkit-overflow-scrolling:touch;z-index:9999;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);}
+.vt-drop div{padding:10px 12px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);}
+.vt-drop div:hover{background:var(--surface3);color:var(--verde3);}
 .vt-drop.open{display:block;}
 .vt-drop div{padding:14px 16px;cursor:pointer;font-size:15px;color:#e2e8f0;border-bottom:1px solid rgba(255,255,255,0.05);user-select:none;-webkit-user-select:none;}
 .vt-drop div:hover{background:#132840;color:#4CAF50;}
@@ -1731,7 +1738,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-03-v13'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-04-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4496,7 +4503,7 @@ function criarViaturaRendicao(dados, dlId) {
   rotaInp.style.textTransform='uppercase';
   // Dropdown customizado (datalist tem suporte ruim no Android)
   const rotaDrop = document.createElement('div');
-  rotaDrop.style.cssText='position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0e1f36;border:1px solid rgba(251,146,60,0.4);border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);';
+  rotaDrop.style.cssText='position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--surface2);border:1px solid rgba(251,146,60,0.4);border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);';
   const rotaWrapInner = document.createElement('div');
   rotaWrapInner.style.cssText='position:relative;';
   rotaWrapInner.appendChild(rotaInp);
@@ -4622,10 +4629,10 @@ function criarRotaAutoComplete(className, placeholder) {
   const inp = document.createElement('input'); inp.type='text'; inp.className='finput '+className;
   inp.placeholder=placeholder; inp.autocomplete='off'; inp.style.textTransform='uppercase'; inp.style.width='100%';
   const drop = document.createElement('div');
-  drop.style.cssText='position:absolute;top:100%;left:0;right:0;z-index:9999;background:#0e1f36;border:1px solid rgba(16,185,129,0.4);border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);';
+  drop.style.cssText='position:absolute;top:100%;left:0;right:0;z-index:9999;background:var(--surface2);border:1px solid rgba(16,185,129,0.4);border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);';
   wrap.appendChild(inp); wrap.appendChild(drop);
   function showDrop(list){
-    drop.innerHTML=list.slice(0,10).map(r=>'<div style="padding:9px 12px;font-size:13px;color:#fff;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.06);">'+r+'</div>').join('');
+    drop.innerHTML=list.slice(0,10).map(r=>'<div style="padding:9px 12px;font-size:13px;color:var(--text);cursor:pointer;border-bottom:1px solid var(--border);">'+r+'</div>').join('');
     drop.querySelectorAll('div').forEach(item=>{
       item.addEventListener('mousedown',e=>e.preventDefault());
       item.addEventListener('click',()=>{inp.value=item.textContent;drop.style.display='none';agendarAutoSave();});
