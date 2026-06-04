@@ -725,13 +725,13 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
   </div>
   <!-- ABAS DE NAVEGAÇÃO -->
   <div id="appTabs" style="display:none;border-bottom:1px solid var(--border);padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;">
-    <button id="tabRel"   onclick="trocarAba('rel')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid var(--accent2);color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Relatório AMC</button>
-    <button id="tabEvt"   onclick="trocarAba('evt')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Evento</button>
-    <button id="tabQrv"   onclick="trocarAba('qrv')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV</button>
-    <button id="tabVl"    onclick="trocarAba('vl')"    style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Via Livre</button>
-    <button id="tabQrvVl" onclick="trocarAba('qrvvl')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV VL</button>
-    <button id="tabAdmin" onclick="trocarAba('admin')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">⚙ Admin</button>
-    <button id="tabServicos" onclick="trocarAba('servicos')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.55);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Serviços</button>
+    <button id="tabEvt"   onclick="trocarAba('evt')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid var(--accent2);color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Evento</button>
+    <button id="tabRel"   onclick="trocarAba('rel')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Relatório AMC</button>
+    <button id="tabQrv"   onclick="trocarAba('qrv')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV</button>
+    <button id="tabVl"    onclick="trocarAba('vl')"    style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Via Livre</button>
+    <button id="tabQrvVl" onclick="trocarAba('qrvvl')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV VL</button>
+    <button id="tabAdmin" onclick="trocarAba('admin')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">⚙ Admin</button>
+    <button id="tabServicos" onclick="trocarAba('servicos')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Serviços</button>
   </div>
 </div>
 
@@ -1015,7 +1015,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel" style="color:#a78bfa;">Viaturas / Motos</span>
-          <button onclick="cmdAdicionarVt()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ VT/MT</button>
+          <button onclick="cmdAdicionarVt()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ VT/MT</button>
         </div>
         <div id="cmdVtContainer"></div>
       </div>
@@ -1062,7 +1062,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel">Postos / Locais</span>
-          <button onclick="evtAdicionarPosto()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:6px;color:var(--gold);font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ POSTO</button>
+          <button onclick="evtAdicionarPosto()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:var(--gold);font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ POSTO</button>
         </div>
         <div id="evtPostosContainer"></div>
       </div>
@@ -1070,7 +1070,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel" style="color:#a78bfa;">Supervisão</span>
-          <button onclick="evtAdicionarSupervisao()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:6px;color:#a78bfa;font-size:12px;font-weight:700;padding:4px 10px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
+          <button onclick="evtAdicionarSupervisao()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
         </div>
         <div id="evtSupervisaoContainer"></div>
       </div>
@@ -1738,7 +1738,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-04-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-04-v3'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -3584,7 +3584,7 @@ function toggleTheme() {
   // Atualizar cor das abas inativas
   var abaAtiva = document.querySelector('#appTabs button[style*="border-bottom-color: rgb"]');
   if (abaAtiva) {
-    var inactiveColor = isLight ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)';
+    var inactiveColor = isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)';
     document.querySelectorAll('#appTabs button').forEach(function(b){
       if (b.style.borderBottomColor === 'transparent') b.style.color = inactiveColor;
     });
@@ -3927,7 +3927,8 @@ function initApp(){
     if(tabVlEl) tabVlEl.style.display='inline-block';
     const tabQrvVlEl=document.getElementById('tabQrvVl');
     if(tabQrvVlEl) tabQrvVlEl.style.display='inline-block';
-    trocarAba('rel'); // sempre iniciar na aba relatório ao logar
+    trocarAba('rel'); // admin, central, chefia: iniciar no relatório
+    if(G.role==='supervisor') trocarAba('evt'); // supervisor: iniciar no evento
   }
   // Aba Evento: visível para supervisor, admin, central, chefia
   // Botão Novo Evento: só para supervisores e admin
@@ -5175,7 +5176,7 @@ function trocarAba(aba){
     const idMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos'};
     const btn=document.getElementById(idMap[t]);
     const cor=(t==='vl'||t==='qrvvl')?'#fb923c':t==='admin'?'#f59e0b':t==='servicos'?'#10b981':'var(--accent2)';
-    const inactiveColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.45)' : 'rgba(255,255,255,0.55)';
+    const inactiveColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)';
     if(btn){btn.style.borderBottomColor=aba===t?cor:'transparent';btn.style.color=aba===t?cor:inactiveColor;}});
   if(isQrv){
     qrvSincData();
