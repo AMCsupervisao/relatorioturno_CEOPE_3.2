@@ -259,9 +259,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .view-field-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:3px;}
 .view-empty{font-size:12px;color:var(--text3);font-style:italic;}
 .view-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:6px;}
-.view-table{width:100%;border-collapse:collapse;margin-top:6px;min-width:320px;}
+.view-table{width:100%;border-collapse:collapse;margin-top:6px;min-width:420px;}
 .view-table th{background:rgba(46,125,82,0.3);color:var(--verde3);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
-.view-table td{padding:7px 8px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);word-break:break-word;max-width:160px;}
+.view-table td{padding:7px 8px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);word-break:break-word;}
+.view-table td:last-child{min-width:100px;}
 .view-table tr:last-child td{border-bottom:none;}
 .view-table tr:nth-child(even) td{background:rgba(255,255,255,0.03);}
 .view-card-item{background:var(--surface3);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
@@ -1738,7 +1739,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-04-v3'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-06-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4904,7 +4905,20 @@ function renderVisualizacao(d){
   const tabela=(arr,cols)=>{
     if(!arr||!arr.length)return'<span class="view-empty">Nenhum dado informado</span>';
     const head=cols.map(c=>`<th>${c}</th>`).join('');
-    const body=arr.map((r,i)=>`<tr><td>${i+1}</td>${cols.slice(1).map(c=>{ let v='—'; if(c==='Rota')v=(r.rota||'—').toUpperCase(); else if(c==='Veículo')v=(r.veiculo||'—').toUpperCase(); else if(c==='Agentes')v=(r.agentes||'—').toUpperCase(); else if(c==='Veículo (Tipo)')v=`${(r.veiculo||'').toUpperCase()} (${(r.tipo||'').toUpperCase()})`; else if(c==='Veículo (Plataforma)')v=`${(r.veiculo||'').toUpperCase()} (${(r.plataforma||'').toUpperCase()})`; return`<td>${v}</td>`;}).join('')}</tr>`).join('');
+    const body=arr.map((r,i)=>{
+      const cells=cols.map((c,ci)=>{
+        if(ci===0) return`<td>${i+1}</td>`;
+        let v='—';
+        if(c==='Rota') v=(r.rota||'—').toUpperCase();
+        else if(c==='Veículo') v=(r.veiculo||'—').toUpperCase();
+        else if(c==='Agentes') v=(r.agentes||r.motorista||'—').toUpperCase();
+        else if(c==='Veículo (Tipo)') v=`${(r.veiculo||'').toUpperCase()}${r.tipo?' ('+r.tipo.toUpperCase()+')':''}`;
+        else if(c==='Veículo (Plataforma)') v=`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
+        else if(c==='Rota após rendição') v=(r.rota||'—').toUpperCase();
+        return`<td>${v}</td>`;
+      }).join('');
+      return`<tr>${cells}</tr>`;
+    }).join('');
     return`<div class="view-table-wrap"><table class="view-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
   };
   const sec=(titulo,conteudo)=>`<div class="view-sec"><div class="view-sec-title">${titulo}</div>${conteudo}</div>`;
@@ -4952,9 +4966,9 @@ function renderVisualizacao(d){
     })())}
     ${sec('10. Aferição',fmtArr(d.afericao,[{label:'Local',key:'local'},{label:'Chefe',key:'chefe'}]))}
     ${sec('11. Apoio ETUFOR',tabela(d.apoioEtufor,['#','Veículo','Agentes']))}
+    ${sec('12. Zona Azul / Acessibilidade',tabela(d.zonaAzul,['#','Rota','Veículo (Tipo)','Agentes']))}
     ${sec('13. Fiscalização NVA',tabela(d.fiscNva,['#','Veículo','Agentes']))}
     ${sec('14. Fiscalização AET',tabela(d.fiscAet,['#','Veículo','Agentes']))}
-    ${sec('12. Zona Azul / Acessibilidade',tabela(d.zonaAzul,['#','Rota','Veículo (Tipo)','Agentes']))}
     ${(d.apoioAeroporto&&d.apoioAeroporto.length)?sec('Apoio Aeroporto (hist.)',tabela(d.apoioAeroporto,['#','Veículo (Plataforma)','Agentes'])):''}
     ${sec('15. Fiscalização Volante',tabela(d.fiscalizacao,['#','Rota','Veículo','Agentes']))}
     ${sec('16. Comando',fmtArr(d.comando,[{label:'Local',key:'local'},{label:'Coordenador',key:'coordenador'}]))}
