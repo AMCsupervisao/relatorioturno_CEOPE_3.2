@@ -259,12 +259,22 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .view-field-label{font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;display:block;margin-bottom:3px;}
 .view-empty{font-size:12px;color:var(--text3);font-style:italic;}
 .view-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:6px;}
-.view-table{width:100%;border-collapse:collapse;margin-top:6px;min-width:420px;}
+.view-table{width:100%;border-collapse:collapse;margin-top:6px;}
 .view-table th{background:rgba(46,125,82,0.3);color:var(--verde3);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 8px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
 .view-table td{padding:7px 8px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);word-break:break-word;}
-.view-table td:last-child{min-width:100px;}
 .view-table tr:last-child td{border-bottom:none;}
 .view-table tr:nth-child(even) td{background:rgba(255,255,255,0.03);}
+/* Cards mobile — mostrar em vez da tabela em telas pequenas */
+.view-cards-mobile{display:none;}
+.view-mobile-card{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;}
+.view-mc-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;}
+.view-mc-row:last-child{margin-bottom:0;}
+.view-mc-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--verde3);white-space:nowrap;min-width:64px;padding-top:1px;}
+.view-mc-val{font-size:13px;color:var(--text);font-weight:500;word-break:break-word;}
+@media(max-width:520px){
+  .view-table-desktop{display:none;}
+  .view-cards-mobile{display:block;}
+}
 .view-card-item{background:var(--surface3);border:1px solid var(--border);border-left:3px solid var(--accent2);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
 .view-card-row{display:flex;align-items:baseline;gap:6px;margin-bottom:3px;}
 .view-card-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;min-width:80px;flex-shrink:0;}
@@ -1739,7 +1749,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-06-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-06-v3'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4899,27 +4909,31 @@ function renderVisualizacao(d){
       }).join('');
       const hasPosto=(r.viaturas||[]).some(v=>v.postoBase);
       const vit=(r.viaturas||[]).map((v,i)=>`<tr><td>${i+1}</td><td>${(v.veiculo||'—').toUpperCase()}</td><td>${(v.agentes||'—').toUpperCase()}</td>${hasPosto?`<td>${(v.postoBase||'—').toUpperCase()}</td>`:''}</tr>`).join('');
-      return`<div class="view-card-item" style="margin-bottom:10px;">${rows}${vit?`<div class="viaturas-sub" style="margin-top:8px;">Viaturas/Motos</div><div class="view-table-wrap"><table class="view-table"><thead><tr><th>#</th><th>Veículo</th><th>Agentes</th>${hasPosto?'<th>Posto Base</th>':''}</tr></thead><tbody>${vit}</tbody></table></div>`:''}</div>`;
+      const vitCards=(r.viaturas||[]).map(v=>`<div class="view-mobile-card">${v.veiculo?`<div class="view-mc-row"><span class="view-mc-label">Veículo</span><span class="view-mc-val">${v.veiculo.toUpperCase()}</span></div>`:''} ${v.agentes?`<div class="view-mc-row"><span class="view-mc-label">Agentes</span><span class="view-mc-val">${v.agentes.toUpperCase()}</span></div>`:''} ${hasPosto&&v.postoBase?`<div class="view-mc-row"><span class="view-mc-label">Posto Base</span><span class="view-mc-val">${v.postoBase.toUpperCase()}</span></div>`:''}</div>`).join('');
+      return`<div class="view-card-item" style="margin-bottom:10px;">${rows}${vit?`<div class="viaturas-sub" style="margin-top:8px;">Viaturas/Motos</div><div class="view-table-wrap view-table-desktop"><table class="view-table"><thead><tr><th>#</th><th>Veículo</th><th>Agentes</th>${hasPosto?'<th>Posto Base</th>':''}</tr></thead><tbody>${vit}</tbody></table></div><div class="view-cards-mobile">${vitCards}</div>`:''}</div>`;
     }).join('');
   };
   const tabela=(arr,cols)=>{
     if(!arr||!arr.length)return'<span class="view-empty">Nenhum dado informado</span>';
+    // Função que lê o valor correto por coluna
+    const getVal=(r,c)=>{
+      if(c==='#')return'';
+      if(c==='Rota')return(r.rota||'').toUpperCase();
+      if(c==='Veículo')return(r.veiculo||'').toUpperCase();
+      if(c==='Agentes')return(r.agentes||r.motorista||'').toUpperCase();
+      if(c==='Veículo (Tipo)')return`${(r.veiculo||'').toUpperCase()}${r.tipo?' ('+r.tipo.toUpperCase()+')':''}`;
+      if(c==='Veículo (Plataforma)')return`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
+      if(c==='Rota após rendição')return(r.rota||'').toUpperCase();
+      return'';
+    };
+    const dataCols=cols.filter(c=>c!=='#');
+    // Versão desktop: tabela normal
     const head=cols.map(c=>`<th>${c}</th>`).join('');
-    const body=arr.map((r,i)=>{
-      const cells=cols.map((c,ci)=>{
-        if(ci===0) return`<td>${i+1}</td>`;
-        let v='—';
-        if(c==='Rota') v=(r.rota||'—').toUpperCase();
-        else if(c==='Veículo') v=(r.veiculo||'—').toUpperCase();
-        else if(c==='Agentes') v=(r.agentes||r.motorista||'—').toUpperCase();
-        else if(c==='Veículo (Tipo)') v=`${(r.veiculo||'').toUpperCase()}${r.tipo?' ('+r.tipo.toUpperCase()+')':''}`;
-        else if(c==='Veículo (Plataforma)') v=`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
-        else if(c==='Rota após rendição') v=(r.rota||'—').toUpperCase();
-        return`<td>${v}</td>`;
-      }).join('');
-      return`<tr>${cells}</tr>`;
-    }).join('');
-    return`<div class="view-table-wrap"><table class="view-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    const body=arr.map((r,i)=>`<tr><td>${i+1}</td>${dataCols.map(c=>`<td>${getVal(r,c)||'—'}</td>`).join('')}</tr>`).join('');
+    const tableHtml=`<div class="view-table-wrap view-table-desktop"><table class="view-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+    // Versão mobile: cards
+    const cardsHtml=`<div class="view-cards-mobile">${arr.map((r,i)=>`<div class="view-mobile-card">${dataCols.map(c=>{const v=getVal(r,c);return v?`<div class="view-mc-row"><span class="view-mc-label">${c}</span><span class="view-mc-val">${v}</span></div>`:''}).join('')}</div>`).join('')}</div>`;
+    return tableHtml+cardsHtml;
   };
   const sec=(titulo,conteudo)=>`<div class="view-sec"><div class="view-sec-title">${titulo}</div>${conteudo}</div>`;
   const campo=(label,val)=>val?`<div style="margin-bottom:6px;"><span class="view-field-label">${label}</span><div class="view-field">${val.toUpperCase()}</div></div>`:'';
@@ -4974,8 +4988,7 @@ function renderVisualizacao(d){
     ${sec('16. Comando',fmtArr(d.comando,[{label:'Local',key:'local'},{label:'Coordenador',key:'coordenador'}]))}
     ${sec('17. Outras Missões',fmtArr(d.missao,[{label:'Missão/Evento',key:'evento'},{label:'Local',key:'local'},{label:'Chefe da Missão',key:'chefe'}]))}
     ${sec('18. Supervisão',tabela(d.supervisao,['#','Rota','Veículo','Agentes']))}
-    ${d.observacoes?sec('18. Observações',`<div class="view-field">${d.observacoes.toUpperCase()}</div>`):''}
-    ${d.savedBy?`<div style="font-size:11px;color:var(--text3);text-align:right;margin-top:8px;font-family:'IBM Plex Mono',monospace;">Salvo por ${d.savedBy} · ${d.savedAt?new Date(d.savedAt).toLocaleString('pt-BR'):''}</div>`:''}
+    ${sec('19. Observações',d.observacoes?`<div class="view-field">${d.observacoes.toUpperCase()}</div>`:'<span class="view-empty">Nenhum dado informado</span>')}    ${d.savedBy?`<div style="font-size:11px;color:var(--text3);text-align:right;margin-top:8px;font-family:'IBM Plex Mono',monospace;">Salvo por ${d.savedBy} · ${d.savedAt?new Date(d.savedAt).toLocaleString('pt-BR'):''}</div>`:''}
   `;
 }
 
@@ -7352,26 +7365,41 @@ function vlRenderVisualizacao(d) {
   const campo=(label,val)=>val?`<div style="margin-bottom:6px;"><span class="view-field-label">${label}</span><div class="view-field">${val.toUpperCase()}</div></div>`:'';
   const tabela=(arr,cols)=>{
     if(!arr||!arr.length) return '<span class="view-empty">Nenhum dado informado</span>';
-    return `<div class="view-table-wrap"><table class="view-table"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>
-      ${arr.map((r,i)=>`<tr><td>${i+1}</td>${cols.slice(1).map(c=>{
-        if(c==='Região')return`<td>${(r.regiao==='OUTROS'?r.outraRegiao:r.regiao)||'—'}</td>`;
-        if(c==='Prefixo')return`<td>${(r.veiculo||r.veiculo_sup||'—').toUpperCase()}</td>`;
-        if(c==='Operadores')return`<td>${(r.operadores||'—').toUpperCase()}</td>`;
-        return`<td>—</td>`;
-      }).join('')}</tr>`).join('')}
-    </tbody></table></div>`;
+    const dataCols=cols.filter(c=>c!=='#');
+    const head=cols.map(c=>`<th>${c}</th>`).join('');
+    const body=arr.map((r,i)=>`<tr><td>${i+1}</td>${dataCols.map(c=>{
+      if(c==='Região')return`<td>${(r.regiao==='OUTROS'?r.outraRegiao:r.regiao)||'—'}</td>`;
+      if(c==='Prefixo')return`<td>${(r.veiculo||r.veiculo_sup||'—').toUpperCase()}</td>`;
+      if(c==='Operadores')return`<td>${(r.operadores||'—').toUpperCase()}</td>`;
+      return`<td>—</td>`;
+    }).join('')}</tr>`).join('');
+    const cards=arr.map(r=>`<div class="view-mobile-card">${dataCols.map(c=>{
+      let v='';
+      if(c==='Região')v=(r.regiao==='OUTROS'?r.outraRegiao:r.regiao)||'';
+      else if(c==='Prefixo')v=(r.veiculo||r.veiculo_sup||'').toUpperCase();
+      else if(c==='Operadores')v=(r.operadores||'').toUpperCase();
+      return v?`<div class="view-mc-row"><span class="view-mc-label">${c}</span><span class="view-mc-val">${v}</span></div>`:'';
+    }).join('')}</div>`).join('');
+    return `<div class="view-table-wrap view-table-desktop"><table class="view-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div><div class="view-cards-mobile">${cards}</div>`;
   };
   const fmtPostos=(arr)=>{
     if(!arr||!arr.length)return'<span class="view-empty">Nenhum dado informado</span>';
     return arr.map(p=>{
       const reg=(p.regiao==='OUTROS'?p.outraRegiao:p.regiao)||'—';
       const vits=(p.viaturas||[]).map((v,i)=>`<tr>
-        <td>${i+1}</td><td>${v.tipo||'—'}</td><td>${v.veiculo||'—'}</td>
-        <td>${v.operadores||'—'}</td><td>${v.postoFixo||v.postoBase||'—'}</td>
+        <td>${i+1}</td><td>${v.tipo||'—'}</td><td>${(v.veiculo||'—').toUpperCase()}</td>
+        <td>${(v.operadores||'—').toUpperCase()}</td><td>${(v.postoFixo||v.postoBase||'—').toUpperCase()}</td>
         <td>${v.rendicao||'NÃO'}</td></tr>`).join('');
+      const vitCards=(p.viaturas||[]).map(v=>`<div class="view-mobile-card">
+        ${v.tipo?`<div class="view-mc-row"><span class="view-mc-label">Tipo</span><span class="view-mc-val">${v.tipo}</span></div>`:''}
+        ${v.veiculo?`<div class="view-mc-row"><span class="view-mc-label">Prefixo</span><span class="view-mc-val">${v.veiculo.toUpperCase()}</span></div>`:''}
+        ${v.operadores?`<div class="view-mc-row"><span class="view-mc-label">Operadores</span><span class="view-mc-val">${v.operadores.toUpperCase()}</span></div>`:''}
+        ${(v.postoFixo||v.postoBase)?`<div class="view-mc-row"><span class="view-mc-label">Posto</span><span class="view-mc-val">${(v.postoFixo||v.postoBase).toUpperCase()}</span></div>`:''}
+        <div class="view-mc-row"><span class="view-mc-label">Rendição</span><span class="view-mc-val">${v.rendicao||'NÃO'}</span></div>
+      </div>`).join('');
       return`<div class="view-card-item" style="margin-bottom:10px;">
         <div class="view-card-row"><span class="view-card-label">Região</span><span class="view-card-val">${reg}</span></div>
-        ${vits?`<div class="view-table-wrap"><table class="view-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Tipo</th><th>Prefixo</th><th>Operadores</th><th>Posto</th><th>Rendição</th></tr></thead><tbody>${vits}</tbody></table></div>`:''}
+        ${vits?`<div class="view-table-wrap view-table-desktop"><table class="view-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Tipo</th><th>Prefixo</th><th>Operadores</th><th>Posto</th><th>Rendição</th></tr></thead><tbody>${vits}</tbody></table></div><div class="view-cards-mobile">${vitCards}</div>`:''}
       </div>`;
     }).join('');
   };
@@ -7379,20 +7407,31 @@ function vlRenderVisualizacao(d) {
     if(!arr||!arr.length)return'<span class="view-empty">Nenhum dado informado</span>';
     return arr.map((m,idx)=>{
       const vits=(m.viaturas||[]).map((v,i)=>`<tr>
-        <td>${i+1}</td><td>${v.tipo||'—'}</td><td>${v.veiculo||'—'}</td>
-        <td>${v.operadores||'—'}</td><td>${v.postoBase||'—'}</td><td>${v.rendicao||'NÃO'}</td></tr>`).join('');
+        <td>${i+1}</td><td>${v.tipo||'—'}</td><td>${(v.veiculo||'—').toUpperCase()}</td>
+        <td>${(v.operadores||'—').toUpperCase()}</td><td>${(v.postoBase||'—').toUpperCase()}</td><td>${v.rendicao||'NÃO'}</td></tr>`).join('');
+      const vitCards=(m.viaturas||[]).map(v=>`<div class="view-mobile-card">
+        ${v.tipo?`<div class="view-mc-row"><span class="view-mc-label">Tipo</span><span class="view-mc-val">${v.tipo}</span></div>`:''}
+        ${v.veiculo?`<div class="view-mc-row"><span class="view-mc-label">Prefixo</span><span class="view-mc-val">${v.veiculo.toUpperCase()}</span></div>`:''}
+        ${v.operadores?`<div class="view-mc-row"><span class="view-mc-label">Operadores</span><span class="view-mc-val">${v.operadores.toUpperCase()}</span></div>`:''}
+        ${v.postoBase?`<div class="view-mc-row"><span class="view-mc-label">Posto Base</span><span class="view-mc-val">${v.postoBase.toUpperCase()}</span></div>`:''}
+        <div class="view-mc-row"><span class="view-mc-label">Rendição</span><span class="view-mc-val">${v.rendicao||'NÃO'}</span></div>
+      </div>`).join('');
       return`<div class="view-card-item" style="margin-bottom:10px;border-left-color:#f59e0b;">
         <div class="view-card-row"><span class="view-card-label">Missão</span><span class="view-card-val">${m.evento||'—'}</span></div>
         <div class="view-card-row"><span class="view-card-label">Local</span><span class="view-card-val">${m.local||'—'}</span></div>
-        ${vits?`<div class="view-table-wrap"><table class="view-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Tipo</th><th>Prefixo</th><th>Operadores</th><th>Posto Base</th><th>Rendição</th></tr></thead><tbody>${vits}</tbody></table></div>`:''}
+        ${vits?`<div class="view-table-wrap view-table-desktop"><table class="view-table" style="margin-top:6px;"><thead><tr><th>#</th><th>Tipo</th><th>Prefixo</th><th>Operadores</th><th>Posto Base</th><th>Rendição</th></tr></thead><tbody>${vits}</tbody></table></div><div class="view-cards-mobile">${vitCards}</div>`:''}
       </div>`;
     }).join('');
   };
   const fmtSup=(arr)=>{
     if(!arr||!arr.length)return'<span class="view-empty">Nenhum dado informado</span>';
-    return`<div class="view-table-wrap"><table class="view-table"><thead><tr><th>#</th><th>Região</th><th>Prefixo</th><th>Operadores</th></tr></thead><tbody>
-      ${arr.map((s,i)=>`<tr><td>${i+1}</td><td>${s.regiao||'—'}</td><td>${s.veiculo||'—'}</td><td>${s.operadores||'—'}</td></tr>`).join('')}
-    </tbody></table></div>`;
+    const rows=arr.map((s,i)=>`<tr><td>${i+1}</td><td>${s.regiao||'—'}</td><td>${(s.veiculo||'—').toUpperCase()}</td><td>${(s.operadores||'—').toUpperCase()}</td></tr>`).join('');
+    const cards=arr.map(s=>`<div class="view-mobile-card">
+      ${s.regiao?`<div class="view-mc-row"><span class="view-mc-label">Região</span><span class="view-mc-val">${s.regiao}</span></div>`:''}
+      ${s.veiculo?`<div class="view-mc-row"><span class="view-mc-label">Prefixo</span><span class="view-mc-val">${s.veiculo.toUpperCase()}</span></div>`:''}
+      ${s.operadores?`<div class="view-mc-row"><span class="view-mc-label">Operadores</span><span class="view-mc-val">${s.operadores.toUpperCase()}</span></div>`:''}
+    </div>`).join('');
+    return`<div class="view-table-wrap view-table-desktop"><table class="view-table"><thead><tr><th>#</th><th>Região</th><th>Prefixo</th><th>Operadores</th></tr></thead><tbody>${rows}</tbody></table></div><div class="view-cards-mobile">${cards}</div>`;
   };
 
   el.innerHTML = `
