@@ -573,141 +573,6 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 #updateBar{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;padding:7px 16px;letter-spacing:1px;display:none;align-items:center;justify-content:center;gap:12px;}
 #updateBar button{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:4px 12px;cursor:pointer;text-transform:uppercase;}
 #updateBar button:hover{background:rgba(255,255,255,0.35);}
-/* ── Sinistros Fatais: estilos base ── */
-.sf-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-.sf-section-title {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
-  letter-spacing: 2px; text-transform: uppercase; color: #ef4444;
-  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-  padding-bottom: 6px; border-bottom: 1px solid rgba(198,40,40,0.25);
-}
-.sf-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  color: #94a3b8; display: block; margin-bottom: 4px; margin-top: 8px;
-  padding-left: 7px; border-left: 2px solid #c62828;
-}
-body.light-mode .sf-label { color: #374151; }
-.sf-input::placeholder { color: #64748b; }
-body.light-mode .sf-input::placeholder { color: #9ca3af; }
-body.light-mode .sf-input { color: #1e293b; background: #f8fafc; border-color: #cbd5e1; }
-body.light-mode .sf-input:focus { border-color: #c62828; background: #fff; }
-body.light-mode .sf-section-title { color: #c62828; }
-body.light-mode .sf-item { background: rgba(198,40,40,0.05); }
-body.light-mode .sf-item-blue { background: rgba(59,130,246,0.05); }
-body.light-mode .sf-subsec { background: #f8fafc; border-color: #e2e8f0; }
-body.light-mode .sf-card { background: #fff; border-color: #e2e8f0; }
-body.light-mode .sf-ck-item { background: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-body.light-mode .sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.08); border-color: #c62828; }
-.sf-input {
-  width: 100%; padding: 10px 12px; background: var(--surface3);
-  border: 1.5px solid var(--border); border-radius: 8px; color: var(--text);
-  font-size: 14px; font-family: inherit; box-sizing: border-box;
-  text-transform: uppercase; transition: border-color .2s;
-}
-.sf-input:focus { border-color: #c62828; outline: none; background: var(--card); }
-.sf-input::placeholder { text-transform: none; color: var(--text3); }
-textarea.sf-input { resize: vertical; min-height: 70px; touch-action: pan-y; }
-select.sf-input { text-transform: none; }
-.sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.sf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.sf-item {
-  background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25);
-  border-left: 4px solid #c62828; border-radius: 8px; padding: 12px 42px 12px 12px;
-  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
-}
-.sf-item-blue {
-  background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.25);
-  border-left: 4px solid #3b82f6; border-radius: 8px; padding: 12px 42px 12px 12px;
-  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
-}
-.sf-item-tit {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
-  letter-spacing: 1.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 8px;
-}
-.sf-item-blue .sf-item-tit { color: #60a5fa; }
-.sf-btnrem {
-  position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.18);
-  border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; padding: 4px 8px;
-  color: #f87171; font-size: 11px; font-family: 'Rajdhani', sans-serif;
-  font-weight: 700; cursor: pointer; z-index: 2;
-}
-.sf-add-btn {
-  padding: 8px 14px; background: rgba(198,40,40,0.12);
-  border: 1px dashed rgba(198,40,40,0.4); border-radius: 8px; color: #ef4444;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
-  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
-}
-.sf-add-btn-blue {
-  padding: 8px 14px; background: rgba(59,130,246,0.1);
-  border: 1px dashed rgba(59,130,246,0.4); border-radius: 8px; color: #60a5fa;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
-  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
-}
-.sf-ck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
-.sf-ck-item {
-  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);
-  cursor: pointer; padding: 6px 8px; border-radius: 6px;
-  border: 1px solid var(--border); background: rgba(255,255,255,0.03);
-  transition: background .15s;
-}
-.sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.4); }
-.sf-ck-item input[type="checkbox"] { accent-color: #c62828; width: 15px; height: 15px; flex-shrink: 0; }
-.sf-radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-.sf-radio-label {
-  display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text);
-  cursor: pointer; font-weight: normal;
-}
-.sf-radio-label input[type="radio"] { accent-color: #c62828; }
-.sf-char { font-size: 10px; color: var(--text3); text-align: right; margin-top: 2px; }
-/* Imagens */
-.sf-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
-.sf-img-slot {
-  border: 2px dashed var(--border2); border-radius: 8px; padding: 10px;
-  text-align: center; background: var(--surface3); min-height: 150px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-}
-.sf-img-slot .sf-img-wrap {
-  width: 100%; height: 120px; display: flex; align-items: center; justify-content: center;
-  overflow: hidden; flex-shrink: 0;
-}
-.sf-img-slot img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; }
-.sf-img-slot button { margin: 2px 2px 0; font-size: 11px; padding: 5px 8px; }
-/* Subsecção de fatores */
-.sf-subsec {
-  background: var(--card); border: 1px solid var(--border);
-  border-left: 4px solid rgba(198,40,40,0.4); border-radius: 8px;
-  padding: 12px; margin-bottom: 10px;
-}
-.sf-subsec-tit {
-  font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #ef4444;
-  text-transform: uppercase; margin-bottom: 8px;
-}
-/* Fichas dos cartões na lista */
-.sf-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-left: 4px solid #c62828; border-radius: 10px; padding: 12px;
-  margin-bottom: 8px; transition: transform .15s;
-}
-.sf-card:active { transform: scale(0.99); }
-@keyframes fadeinUp { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-@media (max-width: 768px) {
-  .sf-row  { grid-template-columns: 1fr; }
-  .sf-row3 { grid-template-columns: 1fr 1fr; }
-  .sf-ck-grid { grid-template-columns: 1fr; }
-  .sf-img-grid { grid-template-columns: 1fr 1fr; }
-  .sf-add-btn, .sf-add-btn-blue { width: 100%; padding: 13px; font-size: 14px; margin-top: 6px; }
-  .sf-btnrem { padding: 8px 12px; font-size: 13px; }
-  .sf-item, .sf-item-blue { padding: 12px; margin-bottom: 10px; }
-  .sf-section { padding: 12px; }
-  .sf-section-title { font-size: 14px; }
-  .sf-subsec { padding: 10px; }
-  .sf-ck-item { padding: 10px 8px; font-size: 13px; }
-  #telaFatais { touch-action: pan-y; }
-  /* Garantir que cards filhos não bloqueiem scroll do modal no mobile */
-  #sfModalBox { touch-action: pan-y; }
-  #sfFormBody { touch-action: pan-y; }
-  .sf-item, .sf-item-blue, .sf-subsec, .sf-section { touch-action: pan-y; }
-}
 </style>
 </head>
 
@@ -1885,7 +1750,7 @@ select.sf-input { text-transform: none; }
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-18-v1'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-18-v5'; // Via Livre integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -3213,6 +3078,7 @@ async function evtGerarPDF(){
 let _touchStartY=0;
 document.addEventListener('touchstart',e=>{_touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchmove',e=>{
+  if(e.target&&e.target.closest&&e.target.closest('#sfModalBox'))return;
   const dy=e.touches[0].clientY-_touchStartY;
   if(dy>0&&(window.scrollY||document.documentElement.scrollTop)===0){
     e.preventDefault();
@@ -4040,12 +3906,11 @@ function initApp(){
   // Aba Admin: só para admin
   const tabAdminEl = document.getElementById('tabAdmin');
   if (tabAdminEl) tabAdminEl.style.display = G.role === 'admin' ? 'inline-block' : 'none';
-  // Aba Sinistros Fatais: supervisor e admin editam; central e chefia leem; operadorvl NÃO vê
-  const tabFataisEl = document.getElementById('tabFatais');
-  if (tabFataisEl) tabFataisEl.style.display = ['admin','supervisor','central','chefia'].includes(G.role) ? 'inline-block' : 'none';
   // Aba Serviços: admin, central, supervisor, chefia (não operadorvl)
   const tabServicosEl = document.getElementById('tabServicos');
   if (tabServicosEl) tabServicosEl.style.display = ['admin','central','supervisor','chefia'].includes(G.role) ? 'inline-block' : 'none';
+  const tabFataisEl = document.getElementById('tabFatais');
+  if (tabFataisEl) tabFataisEl.style.display = ['admin','supervisor','central','chefia'].includes(G.role) ? 'inline-block' : 'none';
   // Mostrar botão senhas só para admin
   const btnS = document.getElementById('btnSenhas');
   if (btnS) btnS.style.display = G.role === 'admin' ? 'inline-flex' : 'none';
@@ -5396,7 +5261,7 @@ function trocarAba(aba){
     if(srvAutoTimer) clearInterval(srvAutoTimer);
     srvAutoTimer=setInterval(function(){srvLoadRecords(false,true);srvLoadRenditions(false,true);},60000);
   }else{ if(srvAutoTimer&&!isServicos){clearInterval(srvAutoTimer);srvAutoTimer=null;} }
-  if(isFatais){ sfInit(); if(typeof sfAutoTimer!=='undefined'&&sfAutoTimer)clearInterval(sfAutoTimer); }
+  if(isFatais){ sfInit(); if(sfAutoTimer)clearInterval(sfAutoTimer); sfAutoTimer=setInterval(()=>sfCarregar(false),60000); }else{ if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;} }
   if(isRel){
     // Recarregar relatório ao voltar para a aba (mostra seta)
     carregarRelatorio(false,false);
@@ -9525,50 +9390,149 @@ function srvCm(id) { var el=document.getElementById(id); if(el)el.classList.remo
   </div>
 </div>
 <!-- Modal Importar Usuários em Lote -->
-<div id="adminImportModal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;">Importar Usuários em Lote</div>
-      <button onclick="adminFecharImport()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Selecione o arquivo <strong style="color:#f59e0b;">.csv</strong> preenchido com o template. Todos os usuários serão cadastrados com senha inicial definida na planilha.</div>
 
-    <!-- Upload area -->
-    <div id="adminImportDrop" onclick="document.getElementById('adminImportFile').click()"
-      style="border:2px dashed rgba(245,158,11,0.4);border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:rgba(245,158,11,0.04);margin-bottom:14px;transition:border-color .2s;"
-      ondragover="event.preventDefault();this.style.borderColor='#f59e0b';"
-      ondragleave="this.style.borderColor='rgba(245,158,11,0.4)';"
-      ondrop="event.preventDefault();this.style.borderColor='rgba(245,158,11,0.4)';adminProcessarArquivo(event.dataTransfer.files[0]);">
-      <div style="font-size:32px;margin-bottom:8px;">📂</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;color:#f59e0b;">Clique ou arraste o arquivo CSV</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px;">Formato: .csv separado por vírgula</div>
-    </div>
-    <input type="file" id="adminImportFile" accept=".csv" style="display:none;" onchange="adminProcessarArquivo(this.files[0])">
+<!-- TELA SINISTROS FATAIS                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Sinistros Fatais: estilos base ── */
+.sf-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.sf-section-title {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; color: #ef4444;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  padding-bottom: 6px; border-bottom: 1px solid rgba(198,40,40,0.25);
+}
+.sf-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: #94a3b8; display: block; margin-bottom: 4px; margin-top: 8px;
+  padding-left: 7px; border-left: 2px solid #c62828;
+}
+body.light-mode .sf-label { color: #374151; }
+.sf-input::placeholder { color: #64748b; }
+body.light-mode .sf-input::placeholder { color: #9ca3af; }
+body.light-mode .sf-input { color: #1e293b; background: #f8fafc; border-color: #cbd5e1; }
+body.light-mode .sf-input:focus { border-color: #c62828; background: #fff; }
+body.light-mode .sf-section-title { color: #c62828; }
+body.light-mode .sf-item { background: rgba(198,40,40,0.05); }
+body.light-mode .sf-item-blue { background: rgba(59,130,246,0.05); }
+body.light-mode .sf-subsec { background: #f8fafc; border-color: #e2e8f0; }
+body.light-mode .sf-card { background: #fff; border-color: #e2e8f0; }
+body.light-mode .sf-ck-item { background: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
+body.light-mode .sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.08); border-color: #c62828; }
+.sf-input {
+  width: 100%; padding: 10px 12px; background: var(--surface3);
+  border: 1.5px solid var(--border); border-radius: 8px; color: var(--text);
+  font-size: 14px; font-family: inherit; box-sizing: border-box;
+  text-transform: uppercase; transition: border-color .2s;
+}
+.sf-input:focus { border-color: #c62828; outline: none; background: var(--card); }
+.sf-input::placeholder { text-transform: none; color: var(--text3); }
+textarea.sf-input { resize: vertical; min-height: 70px; touch-action: pan-y; }
+select.sf-input { text-transform: none; }
+.sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.sf-item {
+  background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25);
+  border-left: 4px solid #c62828; border-radius: 8px; padding: 12px 42px 12px 12px;
+  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
+}
+.sf-item-blue {
+  background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.25);
+  border-left: 4px solid #3b82f6; border-radius: 8px; padding: 12px 42px 12px 12px;
+  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
+}
+.sf-item-tit {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 8px;
+}
+.sf-item-blue .sf-item-tit { color: #60a5fa; }
+.sf-btnrem {
+  position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.18);
+  border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; padding: 4px 8px;
+  color: #f87171; font-size: 11px; font-family: 'Rajdhani', sans-serif;
+  font-weight: 700; cursor: pointer; z-index: 2;
+}
+.sf-add-btn {
+  padding: 8px 14px; background: rgba(198,40,40,0.12);
+  border: 1px dashed rgba(198,40,40,0.4); border-radius: 8px; color: #ef4444;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
+}
+.sf-add-btn-blue {
+  padding: 8px 14px; background: rgba(59,130,246,0.1);
+  border: 1px dashed rgba(59,130,246,0.4); border-radius: 8px; color: #60a5fa;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
+}
+.sf-ck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.sf-ck-item {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);
+  cursor: pointer; padding: 6px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+  transition: background .15s;
+}
+.sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.4); }
+.sf-ck-item input[type="checkbox"] { accent-color: #c62828; width: 15px; height: 15px; flex-shrink: 0; }
+.sf-radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.sf-radio-label {
+  display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text);
+  cursor: pointer; font-weight: normal;
+}
+.sf-radio-label input[type="radio"] { accent-color: #c62828; }
+.sf-char { font-size: 10px; color: var(--text3); text-align: right; margin-top: 2px; }
+/* Imagens */
+.sf-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
+.sf-img-slot {
+  border: 2px dashed var(--border2); border-radius: 8px; padding: 10px;
+  text-align: center; background: var(--surface3); min-height: 150px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+}
+.sf-img-slot .sf-img-wrap {
+  width: 100%; height: 120px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.sf-img-slot img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; }
+.sf-img-slot button { margin: 2px 2px 0; font-size: 11px; padding: 5px 8px; }
+/* Subsecção de fatores */
+.sf-subsec {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid rgba(198,40,40,0.4); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+}
+.sf-subsec-tit {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #ef4444;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+/* Fichas dos cartões na lista */
+.sf-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid #c62828; border-radius: 10px; padding: 12px;
+  margin-bottom: 8px; transition: transform .15s;
+}
+.sf-card:active { transform: scale(0.99); }
+@keyframes fadeinUp { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width: 768px) {
+  .sf-row  { grid-template-columns: 1fr; }
+  .sf-row3 { grid-template-columns: 1fr 1fr; }
+  .sf-ck-grid { grid-template-columns: 1fr; }
+  .sf-img-grid { grid-template-columns: 1fr 1fr; }
+  .sf-add-btn, .sf-add-btn-blue { width: 100%; padding: 13px; font-size: 14px; margin-top: 6px; }
+  .sf-btnrem { padding: 8px 12px; font-size: 13px; }
+  .sf-item, .sf-item-blue { padding: 12px; margin-bottom: 10px; }
+  .sf-section { padding: 12px; }
+  .sf-section-title { font-size: 14px; }
+  .sf-subsec { padding: 10px; }
+  .sf-ck-item { padding: 10px 8px; font-size: 13px; }
+  #telaFatais { touch-action: pan-y; }
+  /* Garantir que cards filhos não bloqueiem scroll do modal no mobile */
+  #sfModalBox { touch-action: pan-y; }
+  #sfFormBody { touch-action: pan-y; }
+  .sf-item, .sf-item-blue, .sf-subsec, .sf-section { touch-action: pan-y; }
+}
 
-    <!-- Preview -->
-    <div id="adminImportPreview" style="display:none;">
-      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;" id="adminImportCount"></div>
-      <div id="adminImportErros" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#f87171;"></div>
-      <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:14px;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead><tr style="background:rgba(255,255,255,0.06);">
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">CPF</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Nome de Guerra</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Matrícula</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Perfis</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Status</th>
-          </tr></thead>
-          <tbody id="adminImportTbody"></tbody>
-        </table>
-      </div>
-      <div id="adminImportErr" style="display:none;color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="adminLimparImport()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Limpar</button>
-        <button id="adminImportBtn" onclick="adminConfirmarImport()" style="flex:2;padding:12px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-import"></i> Importar Todos</button>
-      </div>
-    </div>
-  </div>
-</div>
+</style>
+
+<!-- ── TELA PRINCIPAL (LISTA) ── -->
 <div id="telaFatais" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
   <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
     <div class="toolbar-row1">
@@ -9842,6 +9806,7 @@ function srvCm(id) { var el=document.getElementById(id); if(el)el.classList.remo
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════ -->
+
 <!-- JS DO MÓDULO SINISTROS FATAIS                                 -->
 <!-- ══════════════════════════════════════════════════════════════ -->
 <script>
@@ -11189,1277 +11154,8 @@ async function sfExecutarBusca(){
   }catch(e){toast('Erro na busca: '+e.message,'err');}
 }
 function sfLimparBusca(){sfSearchResults=[];sfSearchMode=false;['sfSrchDe','sfSrchAte','sfSrchTxt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const info=document.getElementById('sfSearchInfo');if(info)info.style.display='none';sfRenderLista();}
-// ── Navegação de data ─────────────────────────────────────────
-function sfNavDate(delta) { sfCurrentDate=new Date(sfCurrentDate); sfCurrentDate.setDate(sfCurrentDate.getDate()+delta); document.getElementById('sfDateInput').value=sfIso(sfCurrentDate); sfCarregar(); }
-function sfGoHoje() { sfCurrentDate=new Date(); document.getElementById('sfDateInput').value=sfIso(sfCurrentDate); sfCarregar(); }
-function sfOnDateChange() { sfCurrentDate=new Date(document.getElementById('sfDateInput').value+'T12:00:00'); sfCarregar(); }
-
-// ── Init ──────────────────────────────────────────────────────
-function sfInit() {
-  sfCurrentDate=new Date();
-  document.getElementById('sfDateInput').value=sfIso(sfCurrentDate);
-  const btnN=document.getElementById('sfBtnNovo');
-  if(btnN) btnN.style.display=sfPodeEditar()?'inline-block':'none';
-  sfCarregar();
-}
-
-// ── Carregar lista ────────────────────────────────────────────
-var _sfCarregando = false;
-async function sfCarregar(manual=false) {
-  if(_sfCarregando && !manual) return; // evitar chamadas simultâneas
-  _sfCarregando = true;
-  const bref=document.getElementById('sfBRef'); if(bref)bref.classList.add('spin');
-  const info=document.getElementById('sfRefreshInfo');
-  try {
-    const iso=sfIso(sfCurrentDate);
-    const filtro = G.role==='supervisor' ? {data:iso, savedBy:G.name} : {data:iso};
-    const r = await apiFatais('getSinistrosFatais', filtro);
-    // Aceitar tanto {data:[...]} quanto {success:true, data:[...]}
-    sfListaData = (r && (r.data || r.result || [])) || [];
-    sfCardAberto = null;
-    sfRenderLista();
-    if(info) info.textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' ('+sfListaData.length+'reg)';
-    if(manual) toast('Lista atualizada. '+sfListaData.length+' registro(s).','ok');
-  } catch(e) {
-    if(info) info.textContent='⚠ Erro';
-    toast('Erro ao carregar: '+e.message,'err');
-  } finally { if(bref)bref.classList.remove('spin'); _sfCarregando=false; }
-}
-
-// ── Renderizar lista ──────────────────────────────────────────
-function sfRenderLista() {
-  const c=document.getElementById('sfLista'); if(!c)return;
-  const lista=sfSearchMode?sfSearchResults:sfListaData;
-  if(!lista.length){
-    c.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:32px;margin-bottom:10px;">📋</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">'+(sfSearchMode?'Nenhum resultado encontrado':'Nenhum sinistro registrado')+'</div></div>';
-    return;
-  }
-  const canEdit=sfPodeEditar();
-  c.innerHTML=lista.map((s,i)=>{
-    const vitimas=(s.envolvidos||[]).filter(e=>(e.condicao||'').includes('FATAL'));
-    const nVit=vitimas.length||1;
-    const podeEd=canEdit&&(G.role==='admin'||s.savedBy===G.name);
-    const miniImgs=(s.imagens||[]).filter(u=>u&&!u.startsWith('data:')).slice(0,6);
-    const envList=(s.envolvidos||[]).map(e=>{
-      const partes=[e.nome||'—',e.tipo,e.condicao].filter(Boolean);
-      return `<div style="font-size:11px;color:var(--text);padding:3px 0;border-bottom:1px solid var(--border);">${partes.join(' · ')}</div>`;
-    }).join('');
-    const veicList=(s.veiculos||[]).map((v,vi)=>`<div style="font-size:11px;color:var(--text);padding:3px 0;border-bottom:1px solid var(--border);">Veículo ${vi+1}: ${v.tipo||'—'}${v.placa?' · '+v.placa:''}${v.modelo?' · '+v.modelo:''}</div>`).join('');
-    const orgaosList=Object.entries(s.orgaos||{}).map(([tipo,arr])=>{
-      if(!arr||!arr.length)return'';
-      const nomes={amc:'AMC',pefoce:'PEFOCE',pm:'PM',samu:'SAMU',rabecao:'Rabecão',outros:'Outros'};
-      return arr.map(o=>`<span style="font-size:10px;padding:2px 7px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:4px;">${nomes[tipo]||tipo}${o.vtr?' · '+o.vtr:''}${o.agentes?' '+o.agentes:''}</span>`).join('');
-    }).join('');
-    const cks=s.checkboxes||{};
-    const fatAtivos=Object.entries({'Vestígios no pavimento':cks.ck_vestigios,'Pav. irregular':cks.ck_pavimento_irregular,'Sin. deficiente':cks.ck_sinalizacao_deficiente,'Ilum. deficiente':cks.ck_iluminacao_deficiente,'Excesso velocidade':!!(s.excVelocidade&&s.excVelocidade.trim())}).filter(([,v])=>v).map(([k])=>k);
-    return `<div class="sf-card" id="sfCard-${i}" style="cursor:pointer;" onclick="sfToggleCard(${i})">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <div style="background:rgba(198,40,40,0.2);border:1px solid rgba(198,40,40,0.4);border-radius:8px;padding:5px 9px;text-align:center;flex-shrink:0;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700;color:#ef4444;">${nVit}</div>
-          <div style="font-size:7px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(239,68,68,0.7);">${nVit===1?'VÍTIMA FATAL':'VÍTIMAS FATAIS'}</div>
-        </div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.tipo||'SEM TIPO'}</div>
-          <div style="font-size:12px;color:#ef4444;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.hora||'--:--'} · ${s.logradouro||'—'}${s.numero?', '+s.numero:''}</div>
-          <div style="font-size:10px;color:var(--text3);">${s.bairro||'—'}${s.savedBy?' · por '+s.savedBy:''}</div>
-        </div>
-        <div style="flex-shrink:0;font-size:15px;color:var(--text3);transition:transform .25s;line-height:1;" id="sfCardArrow-${i}">▸</div>
-      </div>
-      <div id="sfCardDetail-${i}" style="display:none;margin-top:12px;border-top:1px solid var(--border);padding-top:10px;animation:fadeinUp .2s;" onclick="event.stopPropagation()">
-        ${s.dinamica?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Dinâmica</div><div style="font-size:12px;color:var(--text);line-height:1.5;background:rgba(255,255,255,0.04);border-radius:6px;padding:8px;border-left:3px solid rgba(198,40,40,0.4);">${s.dinamica}</div></div>`:''}
-        ${s.veiculos&&s.veiculos.length?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Veículos</div>${veicList}</div>`:''}
-        ${s.envolvidos&&s.envolvidos.length?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Envolvidos</div>${envList}</div>`:''}
-        ${fatAtivos.length?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Fatores identificados</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${fatAtivos.map(f=>`<span style="font-size:10px;padding:2px 7px;background:rgba(198,40,40,0.15);border:1px solid rgba(198,40,40,0.3);border-radius:4px;color:#ef4444;">${f}</span>`).join('')}</div></div>`:''}
-        ${orgaosList?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Órgãos de Apoio</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${orgaosList}</div></div>`:''}
-        ${s.boat?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">BOAT: <span style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${s.boat}</span></div>`:''}
-        ${miniImgs.length?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">Imagens (${miniImgs.length})</div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;">${miniImgs.map((u,fi)=>{const thumb=u.includes('drive.google.com/uc')?u.replace('uc?export=view&','thumbnail?').replace(/&sz=\w+/,'')+'&sz=w600':u.includes('drive.google.com/thumbnail')?u:u;return`<div style="flex-shrink:0;cursor:pointer;" onclick="window.open('${u}','_blank')"><img src="${thumb}" style="width:120px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--border);display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:120px;height:90px;background:var(--surface3);border-radius:8px;border:2px solid var(--border);align-items:center;justify-content:center;flex-direction:column;gap:4px;"><i class='fas fa-image' style='font-size:24px;color:var(--text3);'></i><span style='font-size:9px;color:var(--text3);font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:1px;'>FOTO ${fi+1}</span></div></div>`;}).join('')}</div></div>`:''}
-        <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);">
-          ${podeEd?`<button onclick="sfAbrirModal('${s.id||''}')" style="flex:1;padding:9px 12px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-edit"></i> Editar</button>`:''}
-          <div style="flex:1;position:relative;" class="sf-pdf-card-wrap">
-            <button onclick="sfAbrirLeitura(${i})" style="width:100%;padding:9px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.4);border-radius:8px;color:#60a5fa;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-pdf"></i> PDF ${miniImgs.length?'<span style="font-size:9px;color:#f59e0b;margin-left:4px;" title="Fotos salvas no Drive podem não aparecer no PDF. Para garantir as fotos, gere o PDF logo após o registro.">⚠</span>':''}</button>
-            ${miniImgs.length?`<div style="font-size:9px;color:#f59e0b;text-align:center;margin-top:3px;line-height:1.3;"><i class="fas fa-exclamation-triangle" style="font-size:8px;"></i> Fotos só aparecem no PDF se gerado na hora do registro</div>`:''}
-          </div>
-          ${podeEd?`<button onclick="sfExcluir('${s.id||''}')" style="padding:9px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#f87171;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;"><i class="fas fa-trash"></i></button>`:''}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-var sfCardAberto=null;
-function sfToggleCard(i){
-  const det=document.getElementById('sfCardDetail-'+i);
-  const arr=document.getElementById('sfCardArrow-'+i);
-  if(!det)return;
-  const abrindo=det.style.display==='none';
-  if(sfCardAberto!==null&&sfCardAberto!==i){
-    const pd=document.getElementById('sfCardDetail-'+sfCardAberto);
-    const pa=document.getElementById('sfCardArrow-'+sfCardAberto);
-    if(pd)pd.style.display='none';
-    if(pa){pa.style.transform='';pa.textContent='▸';}
-  }
-  det.style.display=abrindo?'block':'none';
-  arr.style.transform=abrindo?'rotate(90deg)':'';
-  arr.textContent=abrindo?'▾':'▸';
-  sfCardAberto=abrindo?i:null;
-}
-
-function sfAbrirLeitura(idx){
-  const lista=sfSearchMode?sfSearchResults:sfListaData;
-  const s=lista[idx]; if(!s)return;
-  // Gerar PDF direto usando os dados salvos, sem abrir o formulário
-  sfGerarPDFDireto(s);
-}
-
-// ── Ver detalhe (somente leitura) ─────────────────────────────
-function sfVerDetalhe(idx) {
-  const lista=sfSearchMode?sfSearchResults:sfListaData;
-  const s=lista[idx]; if(!s)return;
-  sfEditandoId=null;
-  document.getElementById('sfModalTit').textContent='📋 '+s.tipo+' — '+sfFmtBR(s.data);
-  sfLimparForm();
-  sfPreencherForm(s);
-  // Desabilitar tudo para leitura
-  document.querySelectorAll('#sfFormBody input,#sfFormBody select,#sfFormBody textarea').forEach(el=>el.setAttribute('disabled','disabled'));
-  document.querySelectorAll('#sfFormBody button').forEach(el=>el.setAttribute('disabled','disabled'));
-  document.getElementById('sfBtnSalvar').style.display='none';
-  document.getElementById('sfBtnPDF').style.display=''; document.getElementById('sfBtnPDF').removeAttribute('disabled');
-  document.getElementById('sfModal').classList.add('open');
-}
-
-// ── Abrir modal (novo ou editar) ──────────────────────────────
-function sfAbrirModal(id) {
-  document.querySelectorAll('#sfFormBody input,#sfFormBody select,#sfFormBody textarea').forEach(el=>el.removeAttribute('disabled'));
-  document.querySelectorAll('#sfFormBody button').forEach(el=>el.removeAttribute('disabled'));
-  const btnSalvar=document.getElementById('sfBtnSalvar');
-  if(btnSalvar){
-    btnSalvar.style.display='';
-    btnSalvar.style.background='linear-gradient(135deg,#c62828,#7f0000)';
-    btnSalvar.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
-    btnSalvar.disabled=false;
-  }
-  document.getElementById('sfBtnPDF').style.display='';
-  if(!id){
-    sfEditandoId=null;
-    sfPdfGerado=false; // nova ocorrência: PDF ainda não gerado
-    document.getElementById('sfModalTit').textContent='⚠ NOVO SINISTRO FATAL';
-    sfLimparForm();
-  } else {
-    sfEditandoId=id;
-    document.getElementById('sfModalTit').textContent='✏ EDITAR SINISTRO FATAL';
-    const allLists=[...sfListaData,...sfSearchResults];
-    const s=allLists.find(x=>x.id===id);
-    if(s){sfLimparForm();sfPreencherForm(s);}
-  }
-  sfAbrirOverlay();
-}
-var _sfTouchStartY=0;
-var _sfTouchHandler=null;
-var _sfTouchStartHandler=null;
-function sfAbrirOverlay(){
-  var m=document.getElementById('sfModal');
-  if(!m)return;
-  m.classList.add('open');
-  m.style.overscrollBehavior='none';
-  document.body.style.overscrollBehavior='none';
-  var box=document.getElementById('sfModalBox');
-  setTimeout(function(){if(box){box.scrollTop=0;box.style.overflowY='auto';}},50);
-  // Remover handlers anteriores se existirem
-  if(box&&_sfTouchStartHandler)box.removeEventListener('touchstart',_sfTouchStartHandler);
-  if(box&&_sfTouchHandler)box.removeEventListener('touchmove',_sfTouchHandler);
-  if(!box)return;
-  // Handler de touchstart: registra posição inicial
-  _sfTouchStartHandler=function(e){
-    _sfTouchStartY=e.touches[0].clientY;
-  };
-  // Handler de touchmove: controla scroll manual para evitar travamento
-  _sfTouchHandler=function(e){
-    var dy=e.touches[0].clientY-_sfTouchStartY;
-    var atTop=box.scrollTop<=0;
-    var atBottom=box.scrollTop+box.clientHeight>=box.scrollHeight-1;
-    // Se tentando subir (dy<0) mas já no fundo, ou descer (dy>0) mas já no topo
-    // previne o event default para não vazar para o body
-    if((atBottom&&dy<0)||(atTop&&dy>0)){
-      e.preventDefault();
-    }
-    // Caso contrário deixa o scroll nativo do box acontecer normalmente
-  };
-  box.addEventListener('touchstart',_sfTouchStartHandler,{passive:true});
-  box.addEventListener('touchmove',_sfTouchHandler,{passive:false});
-}
-
-function sfFecharModal(force=false) {
-  if(!force){
-    const log=document.getElementById('sfLogradouro')?.value;
-    if(log&&log.trim()){
-      // Se é registro novo (sfEditandoId tem ID mas pdfGerado=false), avisar sobre PDF
-      const eNovo=document.getElementById('sfModalTit')?.textContent?.includes('NOVO')||
-                  (!sfPdfGerado&&sfEditandoId&&!document.getElementById('sfModalTit')?.textContent?.includes('EDITAR'));
-      const semPdf=!sfPdfGerado&&sfImgs.some(Boolean); // tem imagens mas não gerou PDF
-      const titNovo=document.getElementById('sfModalTit')?.textContent?.includes('NOVO');
-      const temFotos=sfImgs&&sfImgs.some(Boolean);
-      if(!sfPdfGerado&&titNovo&&temFotos){
-        // Registro novo com fotos: avisar que fotos não vão aparecer no PDF gerado depois
-        const resp=confirm('⚠ PDF ainda não foi gerado!\n\nVocê adicionou fotos neste registro. Se fechar agora sem gerar o PDF, as fotos NÃO aparecerao em PDFs gerados posteriormente.\n\nRecomendamos gerar o PDF antes de fechar.\n\nFechar assim mesmo?');
-        if(!resp) return;
-      } else {
-        if(!confirm('Encerrar o preenchimento? O formulário será fechado.')) return;
-      }
-    }
-  }
-  var m=document.getElementById('sfModal');
-  if(m){ m.classList.remove('open'); m.style.overscrollBehavior=''; }
-  document.body.style.overscrollBehavior='';
-  // Remover touch handlers do box
-  var box=document.getElementById('sfModalBox');
-  if(box&&_sfTouchStartHandler)box.removeEventListener('touchstart',_sfTouchStartHandler);
-  if(box&&_sfTouchHandler)box.removeEventListener('touchmove',_sfTouchHandler);
-  _sfTouchStartHandler=null;_sfTouchHandler=null;
-  // Restaurar scroll
-
-
-  document.querySelectorAll('#sfFormBody input,#sfFormBody select,#sfFormBody textarea').forEach(el=>el.removeAttribute('disabled'));
-  sfEditandoId=null;
-}
-
-// ── Limpar form ───────────────────────────────────────────────
-function sfLimparForm() {
-  ['sfData','sfHora','sfLogradouro','sfNumero','sfBairro','sfDinamica',
-   'sfDetPavimento','sfDetSin','sfVelocidade','sfExcVel','sfOutrosFatores',
-   'sfBoat','sfObservacoes','sfCameraOrigem','sfTipoOutro','sfVestigioOutro'].forEach(id=>{
-    const el=document.getElementById(id); if(el)el.value='';
-  });
-  const sel=document.getElementById('sfTipo'); if(sel)sel.value='';
-  ['sfCkVestigios','sfCkPavimento','sfCkTampas','sfCkCalcada','sfCkSinDef','sfCkSemaforo','sfCkSinBom','sfCkCurva','sfCkVisib','sfCkIlum'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
-  const rN=document.querySelector('input[name="sfRadar"][value="NÃO"]'); if(rN)rN.checked=true;
-  const cN=document.querySelector('input[name="sfCameras"][value="NÃO"]'); if(cN)cN.checked=true;
-  const ts=document.querySelector('input[name="sfTipoSinaliz"][value="VERTICAL E HORIZONTAL"]'); if(ts)ts.checked=true;
-  ['sfTipoOutroWrap','sfTipoVestigiosWrap','sfConservSinWrap','sfDetSinWrap','sfCameraOrigemWrap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  ['sfVeiculosContainer','sfEnvolvidosContainer','sfFatoresContainer','sfDRVContainer','sfTesteContainer','sfDocContainer','sfTestemunhasContainer','sfAmcContainer','sfPefoceContainer','sfPmContainer','sfSamuContainer','sfRabecaoContainer','sfOutrosContainer'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
-  const condc=document.getElementById('sfCondicoesVeicContainer'); if(condc)condc.innerHTML='<p style="color:var(--text3);font-size:12px;margin:4px 0;">Adicione veículos na seção 2.</p>';
-  sfVeiculosAtivos=[];sfEnvolvidosAtivos=[];sfTestemunhasAtivas=[];
-  sfVeiculosInfo={};sfEnvolvidosInfo={};
-  sfImgs=[null,null,null,null,null,null,null,null];
-  sfImgsRotacao=[0,0,0,0,0,0,0,0];
-  sfCriarImgs();
-  ['sfDinCount','sfPavCount','sfSinCount','sfVelCount','sfOutCount','sfObsCount'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0 caracteres';});
-  document.getElementById('sfData').value=sfIso(new Date());
-}
-
-// ── Preencher form ────────────────────────────────────────────
-function sfPreencherForm(s) {
-  document.getElementById('sfData').value=s.data||'';
-  document.getElementById('sfHora').value=s.hora||'';
-  const tipos=['COLISÃO','ATROPELAMENTO','CAPOTAMENTO','DESEQUILÍBRIO DE MOTO','CHOQUE COM POSTE','CHOQUE COM ÁRVORE'];
-  if(tipos.includes(s.tipo||'')){document.getElementById('sfTipo').value=s.tipo||'';}
-  else if(s.tipo){document.getElementById('sfTipo').value='OUTROS';document.getElementById('sfTipoOutroWrap').style.display='block';document.getElementById('sfTipoOutro').value=s.tipo;}
-  ['sfLogradouro','sfNumero','sfBairro','sfDinamica','sfDetPavimento','sfDetSin','sfVelocidade','sfExcVel','sfOutrosFatores','sfBoat','sfObservacoes','sfCameraOrigem'].forEach(id=>{
-    const map={sfLogradouro:'logradouro',sfNumero:'numero',sfBairro:'bairro',sfDinamica:'dinamica',sfDetPavimento:'detPavimento',sfDetSin:'detSin',sfVelocidade:'velocidade',sfExcVel:'excVelocidade',sfOutrosFatores:'outrosFatores',sfBoat:'boat',sfObservacoes:'observacoes',sfCameraOrigem:'cameraOrigem'};
-    const el=document.getElementById(id); if(el&&s[map[id]]!==undefined)el.value=s[map[id]]||'';
-  });
-  const cks=s.checkboxes||{};
-  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente'};
-  Object.entries(ckMap).forEach(([domId,dataKey])=>{const el=document.getElementById(domId);if(el)el.checked=!!cks[dataKey];});
-  if(cks.ck_vestigios) document.getElementById('sfTipoVestigiosWrap').style.display='block';
-  if(cks.ck_sinalizacao_deficiente) document.getElementById('sfDetSinWrap').style.display='block';
-  if(cks.ck_sinalizacao_bom_estado) document.getElementById('sfConservSinWrap').style.display='block';
-  const rv=document.querySelector('input[name="sfRadar"][value="'+(s.radar||'NÃO')+'"]'); if(rv)rv.checked=true;
-  const rc=document.querySelector('input[name="sfCameras"][value="'+(s.cameras||'NÃO')+'"]'); if(rc)rc.checked=true;
-  if((s.cameras||'NÃO')==='SIM'){document.getElementById('sfCameraOrigemWrap').style.display='block';}
-  if(s.tipoVestigio){const rt=document.querySelector('input[name="sfTipoVestigio"][value="'+s.tipoVestigio+'"]');if(rt)rt.checked=true;}
-  if(s.vestigioOutro){document.getElementById('sfVestigioOutro').value=s.vestigioOutro;document.getElementById('sfVestigioOutro').style.display='block';}
-  if(s.tipoSinaliz){const rs=document.querySelector('input[name="sfTipoSinaliz"][value="'+s.tipoSinaliz+'"]');if(rs)rs.checked=true;}
-  (s.veiculos||[]).forEach(v=>sfAddVeiculo(v));
-  (s.envolvidos||[]).forEach(e=>sfAddEnvolvido(e));
-  (s.testemunhas||[]).forEach(t=>sfAddTestemunha(t));
-  // Seção 6: Documentação
-  (s.drv||[]).forEach(d=>sfAddDRV(d));
-  (s.testes||[]).forEach(t=>sfAddTeste(t));
-  (s.docs||[]).forEach(d=>sfAddDoc(d));
-  // Seção 7: Órgãos de Apoio
-  const orgContainers={amc:'sfAmcContainer',pefoce:'sfPefoceContainer',pm:'sfPmContainer',samu:'sfSamuContainer',rabecao:'sfRabecaoContainer',outros:'sfOutrosContainer'};
-  Object.entries(orgContainers).forEach(([tipo,cid])=>{(s.orgaos&&s.orgaos[tipo]||[]).forEach(o=>sfAddOrgao(tipo,o));});
-  // Seção 5: campos textuais extras que podem não ter sido mapeados
-  const camposExtras={
-    sfDetPavimento:'detPavimento', sfDetSin:'detSin',
-    sfVelocidade:'velocidade', sfExcVel:'excVelocidade',
-    sfOutrosFatores:'outrosFatores', sfBoat:'boat',
-    sfObservacoes:'observacoes', sfCameraOrigem:'cameraOrigem',
-    sfLogradouro:'logradouro', sfNumero:'numero', sfBairro:'bairro',
-    sfDinamica:'dinamica'
-  };
-  Object.entries(camposExtras).forEach(([domId,dataKey])=>{
-    const el=document.getElementById(domId);
-    if(el&&s[dataKey]!==undefined&&s[dataKey]!==null) el.value=s[dataKey]||'';
-  });
-  // Restaurar radios que podem ter sido resetados
-  if(s.radar){const rv=document.querySelector('input[name="sfRadar"][value="'+s.radar+'"]');if(rv)rv.checked=true;}
-  if(s.cameras){const rc=document.querySelector('input[name="sfCameras"][value="'+s.cameras+'"]');if(rc)rc.checked=true;if(s.cameras==='SIM')document.getElementById('sfCameraOrigemWrap').style.display='block';}
-  if(s.tipoSinaliz){const rs=document.querySelector('input[name="sfTipoSinaliz"][value="'+s.tipoSinaliz+'"]');if(rs)rs.checked=true;}
-  if(s.tipoVestigio){const rt=document.querySelector('input[name="sfTipoVestigio"][value="'+s.tipoVestigio+'"]');if(rt)rt.checked=true;document.getElementById('sfTipoVestigiosWrap').style.display='block';}
-  if(s.vestigioOutro){const ev=document.getElementById('sfVestigioOutro');if(ev){ev.value=s.vestigioOutro;ev.style.display='block';}}
-  // Restaurar toggles visuais
-  if(s.checkboxes&&s.checkboxes.ck_sinalizacao_deficiente)document.getElementById('sfDetSinWrap').style.display='block';
-  if(s.checkboxes&&s.checkboxes.ck_sinalizacao_bom_estado)document.getElementById('sfConservSinWrap').style.display='block';
-  if(s.checkboxes&&s.checkboxes.ck_vestigios)document.getElementById('sfTipoVestigiosWrap').style.display='block';
-  // Seção 5.6: Condições dos veículos (restaurar após addVeiculo ter criado os containers)
-  if(s.condicoesVeic&&Object.keys(s.condicoesVeic).length){
-    setTimeout(()=>{
-      Object.entries(s.condicoesVeic).forEach(([id,val])=>{
-        const el=document.querySelector(`[data-veic-cond="${id}"] textarea`);
-        if(el&&val)el.value=val;
-      });
-    },50);
-  }
-  // Imagens (URLs do Drive)
-  (s.imagens||[]).forEach((url,i)=>{if(i<8&&url){if(url.startsWith('data:')){sfImgs[i]=url;sfAtualizarSlot(i,'b64');}else{sfImgs[i]=url;sfAtualizarSlot(i,'url');}}});
-}
-
-// ── Imagens ───────────────────────────────────────────────────
-function sfCriarImgs() {
-  const c=document.getElementById('sfImgContainer'); if(!c)return;
-  c.innerHTML=''; sfImgs=[null,null,null,null,null,null,null,null];
-  for(let i=0;i<8;i++){
-    const s=document.createElement('div'); s.className='sf-img-slot'; s.id='sfSlot'+i;
-    s.innerHTML=`<i class="fas fa-camera" style="font-size:28px;color:var(--text3);"></i><p style="color:var(--text3);margin:4px 0;font-size:11px;">Foto ${i+1}</p><input type="file" accept="image/*" id="sfImg${i}" style="display:none;"><button type="button" onclick="document.getElementById('sfImg${i}').click()" style="padding:6px 10px;margin:2px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;cursor:pointer;"><i class="fas fa-upload"></i> Galeria</button><button type="button" onclick="sfCamera(${i})" style="padding:6px 10px;margin:2px;background:#2e7d32;border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;"><i class="fas fa-camera"></i> Câmera</button>`;
-    c.appendChild(s);
-    document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));
-  }
-}
-function sfCarregarImg(i,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>{sfImgs[i]=ev.target.result;sfImgsRotacao[i]=0;sfAtualizarSlot(i,'b64');};r.readAsDataURL(f);}
-function sfCamera(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';inp.onchange=(e)=>sfCarregarImg(i,e);inp.click();}
-function sfAtualizarSlot(i,tipo){
-  const rot=sfImgsRotacao[i]||0;
-  const src=sfImgs[i]||'';
-  const s=document.getElementById('sfSlot'+i); if(!s)return;
-  const thumbSrc=src.includes('drive.google.com/uc')?src.replace('uc?export=view&','thumbnail?').replace(/&sz=\w+/,'')+'&sz=w400':src;
-  s.innerHTML=`<div class="sf-img-wrap"><img src="${thumbSrc}" style="transform:rotate(${rot}deg)${Math.abs(rot)%180===90?` scale(0.75)`:''};transition:transform .3s;max-height:120px;max-width:100%;cursor:pointer;" onclick="window.open('${src}','_blank')"></div><div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;justify-content:center;">${tipo==='b64'?`<button type="button" onclick="sfRotImg(${i},-90)" style="padding:4px 8px;margin:0;background:#555;border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-undo"></i></button><button type="button" onclick="sfRotImg(${i},90)" style="padding:4px 8px;margin:0;background:#555;border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-redo"></i></button>`:''}<button type="button" onclick="sfRemImg(${i})" style="padding:4px 8px;margin:0;background:var(--vermelho,#c62828);border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-trash"></i></button></div>`;
-}
-function sfRotImg(i,graus){sfImgsRotacao[i]=((sfImgsRotacao[i]||0)+graus+360)%360;sfAtualizarSlot(i,'b64');}
-function sfRemImg(i){if(!confirm('Remover esta imagem?'))return;sfImgs[i]=null;sfImgsRotacao[i]=0;const s=document.getElementById('sfSlot'+i);if(s){s.innerHTML=`<i class="fas fa-camera" style="font-size:28px;color:var(--text3);"></i><p style="color:var(--text3);margin:4px 0;font-size:11px;">Foto ${i+1}</p><input type="file" accept="image/*" id="sfImg${i}" style="display:none;"><button type="button" onclick="document.getElementById('sfImg${i}').click()" style="padding:6px 10px;margin:2px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;cursor:pointer;"><i class="fas fa-upload"></i> Galeria</button><button type="button" onclick="sfCamera(${i})" style="padding:6px 10px;margin:2px;background:#2e7d32;border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;"><i class="fas fa-camera"></i> Câmera</button>`;document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));}}
-
-// ── Veículos ──────────────────────────────────────────────────
-function sfGetVeicOpts(){return sfVeiculosAtivos.map(id=>{const inf=sfVeiculosInfo[id];const lab=inf&&(inf.tipo||inf.placa)?`Veículo ${id} (${inf.tipo||''}${inf.tipo&&inf.placa?' - ':''}${inf.placa||''})` :`Veículo ${id}`;return`<option value="VEÍCULO ${id}">${lab}</option>`;}).join('');}
-function sfGetVeicOptsSimples(){return sfVeiculosAtivos.map(id=>{const inf=sfVeiculosInfo[id];const lab=inf&&(inf.tipo||inf.placa)?`Veículo ${id} (${inf.tipo||''}${inf.tipo&&inf.placa?' - ':''}${inf.placa||''})` :`Veículo ${id}`;return`<option value="${id}">${lab}</option>`;}).join('');}
-function sfGetEnvOpts(){return sfEnvolvidosAtivos.map(id=>{const inf=sfEnvolvidosInfo[id];const lab=inf?.nome?`Envolvido ${id} (${inf.nome})` :`Envolvido ${id}`;return`<option value="${id}">${lab}</option>`;}).join('');}
-
-function sfAddVeiculo(v={}) {
-  const id=sfVeiculosAtivos.length>0?Math.max(...sfVeiculosAtivos)+1:1;
-  sfVeiculosAtivos.push(id);
-  // Preencher sfVeiculosInfo imediatamente com dados salvos (não esperar onchange)
-  const tipoReal=(v.tipo==='OUTROS'&&v.tipoOutro)?v.tipoOutro:(v.tipo||'');
-  sfVeiculosInfo[id]={tipo:tipoReal,placa:v.placa||''};
-  const c=document.getElementById('sfVeiculosContainer');
-  const d=document.createElement('div'); d.className='sf-item'; d.dataset.veiculoId=id;
-  d.innerHTML=`<button class="sf-btnrem" onclick="sfRemVeiculo(this,${id})"><i class="fas fa-trash"></i></button>
-    <div class="sf-item-tit">Veículo ${id}</div>
-    <label class="sf-label">Tipo</label>
-    <select class="sf-input" onchange="sfAtualizarVeicInfo(${id});sfToggleOutroTipoVeic(this)">
-      <option value="">Selecione</option><option value="MOTOCICLETA"${v.tipo==='MOTOCICLETA'?' selected':''}>Motocicleta</option><option value="AUTOMÓVEL"${v.tipo==='AUTOMÓVEL'?' selected':''}>Automóvel</option><option value="CAMINHÃO"${v.tipo==='CAMINHÃO'?' selected':''}>Caminhão</option><option value="ÔNIBUS"${v.tipo==='ÔNIBUS'?' selected':''}>Ônibus</option><option value="BICICLETA"${v.tipo==='BICICLETA'?' selected':''}>Bicicleta</option><option value="QUADRICICLO"${v.tipo==='QUADRICICLO'?' selected':''}>Quadriciclo</option><option value="VEÍCULO AUTOPROPELIDO"${v.tipo==='VEÍCULO AUTOPROPELIDO'?' selected':''}>Veíc. Autopropelido</option><option value="OUTROS"${v.tipo==='OUTROS'?' selected':''}>Outros</option>
-    </select>
-    <input type="text" class="sf-input v-tipo-outro" placeholder="ESPECIFIQUE O TIPO" style="display:${v.tipo==='OUTROS'?'block':'none'};margin-top:4px;" value="${v.tipoOutro||''}" onchange="sfAtualizarVeicInfo(${id})">
-    <label class="sf-label">Placa</label><input type="text" class="sf-input" placeholder="ABC1234 / ABC1D23" maxlength="7" oninput="sfMascaraPlaca(this)" onchange="sfAtualizarVeicInfo(${id})" value="${v.placa||''}">
-    <label class="sf-label">Modelo / Marca</label><input type="text" class="sf-input" placeholder="HONDA CG 150" value="${v.modelo||''}">
-    <label class="sf-label">Ano / Licenciamento</label><input type="text" class="sf-input" placeholder="2020/2024" maxlength="9" inputmode="numeric" oninput="sfMascaraAno(this)" value="${v.ano||''}">`;
-  c.appendChild(d);
-  sfAtualizarVinc(); sfAtualizarFatores(); sfAtualizarDRVs(); sfAtualizarCondVeic();
-}
-function sfToggleOutroTipoVeic(sel){sel.nextElementSibling.style.display=sel.value==='OUTROS'?'block':'none';}
-function sfAtualizarVeicInfo(id){const item=document.querySelector(`[data-veiculo-id="${id}"]`);if(!item)return;const tipo=item.querySelector('select').value;sfVeiculosInfo[id]={tipo:tipo==='OUTROS'?item.querySelector('.v-tipo-outro').value:tipo,placa:item.querySelectorAll('input')[1]?.value||''};sfAtualizarDRVs();sfAtualizarCondVeic();sfAtualizarFatores();}
-function sfRemVeiculo(btn,id){if(!confirm('Remover veículo?'))return;btn.parentElement.remove();sfVeiculosAtivos=sfVeiculosAtivos.filter(v=>v!==id);delete sfVeiculosInfo[id];sfAtualizarVinc();sfAtualizarFatores();sfAtualizarDRVs();sfAtualizarCondVeic();}
-function sfRemEnvolvido(btn,id){
-  if(!confirm('Remover envolvido?'))return;
-  btn.closest('.sf-item').remove();
-  sfEnvolvidosAtivos=sfEnvolvidosAtivos.filter(e=>e!==id);
-  delete sfEnvolvidosInfo[id];
-  sfAtualizarFatores();sfAtualizarTestes();sfAtualizarVinc();
-}
-function sfAtualizarEnvInfo(id){
-  const item=document.querySelector(`[data-envolvido-id="${id}"]`);
-  if(!item)return;
-  const nome=(item.querySelector('.e-nome')?.value||'').trim();
-  if(!sfEnvolvidosInfo[id])sfEnvolvidosInfo[id]={};
-  sfEnvolvidosInfo[id].nome=nome;
-  sfAtualizarTestes();sfAtualizarFatores();
-}
-
-function sfAtualizarVinc(){
-  document.querySelectorAll('#sfEnvolvidosContainer .e-vinc').forEach(s=>{
-    const v=s.value;
-    s.innerHTML='<option value="PEDESTRE">Pedestre</option><option value="ANIMAL">Animal</option><option value="NÃO IDENTIFICADO">Não Identificado</option>'+sfGetVeicOpts();
-    if(v)s.value=v;
-  });
-}
-
-function sfAtualizarFatores(){
-  const c=document.getElementById('sfFatoresContainer');
-  if(!c)return;
-  // Salvar valores existentes
-  const salvos={};
-  c.querySelectorAll('[data-fator-id]').forEach(el=>{
-    const id=el.dataset.fatorId;
-    const cap=el.querySelector(`input[name="sfCap-${id}"]:checked`);
-    const cin=el.querySelector(`input[name="sfCin-${id}"]:checked`);
-    salvos[id]={cap:cap?.value,cin:cin?.value};
-  });
-  c.innerHTML='';
-  document.querySelectorAll('#sfEnvolvidosContainer .sf-item').forEach(env=>{
-    const vincVal=env.querySelector('.e-vinc')?.value||'';
-    const id=env.dataset.envolvidoId;
-    if(vincVal==='ANIMAL'||vincVal==='NÃO IDENTIFICADO'||vincVal==='')return;
-    const info=sfEnvolvidosInfo[id];
-    const label=info?.nome?`Envolvido ${id} — ${info.nome}`:`Envolvido ${id}`;
-    const inf2=sfEnvolvidosInfo[id]||{}; const s=salvos[id]||{cap:inf2.cap||undefined,cin:inf2.cin||undefined};
-    // Detectar tipo do veículo vinculado
-    const veicNum=vincVal.match(/VEÍCULO (\d+)/)?.[1];
-    const veicTipo=veicNum?sfVeiculosInfo[veicNum]?.tipo||'':'';
-    const motoTipos=['MOTOCICLETA','QUADRICICLO','BICICLETA'];
-    const cintoTipos=['AUTOMÓVEL','CAMINHÃO','ÔNIBUS','VEÍCULO AUTOPROPELIDO'];
-    const isPedestreEnv=vincVal==='PEDESTRE';
-    const isMoto=motoTipos.includes(veicTipo);
-    const temCap=!isPedestreEnv&&(isMoto||veicTipo==='');
-    const temCin=!isPedestreEnv&&!isMoto&&(cintoTipos.includes(veicTipo)||veicTipo==='');
-    if(!temCap&&!temCin)return;
-    const div=document.createElement('div');div.className='sf-subsec';div.dataset.fatorId=id;
-    let html=`<div class="sf-subsec-tit"><i class="fas fa-user"></i> ${label}</div>`;
-    if(temCap){html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Capacete:</div><div class="sf-radio-group">${['SIM','NÃO','SEM INFORMAÇÃO','N/A'].map(v=>`<label class="sf-radio-label"><input type="radio" name="sfCap-${id}" value="${v}"${(s.cap||'N/A')===v?' checked':''}> ${v}</label>`).join('')}</div>`;}
-    if(temCin){html+=`<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px;">Cinto de Segurança:</div><div class="sf-radio-group">${['SIM','NÃO','SEM INFORMAÇÃO','N/A'].map(v=>`<label class="sf-radio-label"><input type="radio" name="sfCin-${id}" value="${v}"${(s.cin||'N/A')===v?' checked':''}> ${v}</label>`).join('')}</div>`;}
-    div.innerHTML=html;
-    c.appendChild(div);
-  });
-}
-
-// ── DRV / Testes / Docs ─────────────────────────────────────
-function sfAddDRV(d={}) {
-  const div=document.createElement('div');div.className='sf-item';
-  div.innerHTML=`<button class="sf-btnrem" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-    <div class="sf-row">
-      <div><label class="sf-label">Veículo</label>
-        <select class="sf-input drv-veiculo">
-          <option value="">Selecione</option>${sfGetVeicOptsSimples()}
-        </select>
-      </div>
-      <div><label class="sf-label">Número DRV</label>
-        <input type="text" class="sf-input drv-numero" value="${d.numero||''}">
-      </div>
-    </div>`;
-  const c=document.getElementById('sfDRVContainer');
-  if(c){c.appendChild(div);if(d.veiculo)div.querySelector('.drv-veiculo').value=d.veiculo;}
-}
-
-function sfAddTeste(t={}) {
-  const div=document.createElement('div');div.className='sf-item';
-  div.innerHTML=`<button class="sf-btnrem" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-    <div class="sf-row">
-      <div><label class="sf-label">Envolvido</label>
-        <select class="sf-input teste-envolvido">
-          <option value="">Selecione</option>${sfGetEnvOpts()}
-        </select>
-      </div>
-      <div><label class="sf-label">Nº Teste</label>
-        <input type="text" class="sf-input" value="${t.numero||''}">
-      </div>
-    </div>
-    <label class="sf-label">Resultado</label>
-    <select class="sf-input teste-resultado">
-      <option value="NEGATIVO"${(t.resultado||'')==='NEGATIVO'?' selected':''}>Negativo</option>
-      <option value="POSITIVO"${t.resultado==='POSITIVO'?' selected':''}>Positivo</option>
-      <option value="RECUSOU"${t.resultado==='RECUSOU'?' selected':''}>Recusou</option>
-      <option value="NÃO REALIZADO"${t.resultado==='NÃO REALIZADO'?' selected':''}>Não Realizado</option>
-    </select>`;
-  const c=document.getElementById('sfTesteContainer');
-  if(c){c.appendChild(div);if(t.envolvido)div.querySelector('.teste-envolvido').value=t.envolvido;}
-}
-
-function sfAddDoc(d={}) {
-  const div=document.createElement('div');div.className='sf-item';
-  div.innerHTML=`<button class="sf-btnrem" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
-    <div class="sf-row">
-      <div><label class="sf-label">Tipo</label><input type="text" class="sf-input" placeholder="LAUDO, BO..." value="${d.tipo||''}"></div>
-      <div><label class="sf-label">Número</label><input type="text" class="sf-input" value="${d.numero||''}"></div>
-    </div>`;
-  const c=document.getElementById('sfDocContainer');
-  if(c) c.appendChild(div);
-}
-
-function sfAtualizarDRVs(){
-  document.querySelectorAll('#sfDRVContainer .drv-veiculo').forEach(s=>{
-    const v=s.value;
-    s.innerHTML='<option value="">Selecione</option>'+sfGetVeicOptsSimples();
-    if(v)s.value=v;
-  });
-}
-
-function sfAtualizarTestes(){
-  document.querySelectorAll('#sfTesteContainer .teste-envolvido').forEach(s=>{
-    const v=s.value;
-    s.innerHTML='<option value="">Selecione</option>'+sfGetEnvOpts();
-    if(v)s.value=v;
-  });
-}
-
-function sfAtualizarCondVeic(){
-  const c=document.getElementById('sfCondicoesVeicContainer');
-  if(!c)return;
-  const existentes={};
-  c.querySelectorAll('[data-veic-cond]').forEach(el=>{
-    existentes[el.dataset.veicCond]=el.querySelector('textarea').value;
-  });
-  c.innerHTML='';
-  if(!sfVeiculosAtivos.length){
-    c.innerHTML='<p style="color:var(--text3);font-size:12px;margin:4px 0;">Adicione veículos na seção 2.</p>';
-    return;
-  }
-  sfVeiculosAtivos.forEach(id=>{
-    const inf=sfVeiculosInfo[id];
-    const lab=inf&&(inf.tipo||inf.placa)?`Veículo ${id} (${inf.tipo}${inf.placa?' - '+inf.placa:''})`:`Veículo ${id}`;
-    const div=document.createElement('div');div.dataset.veicCond=id;div.style.marginBottom='8px';
-    div.innerHTML=`<label class="sf-label">${lab}</label><textarea class="sf-input" rows="2" placeholder="CONDIÇÕES DO VEÍCULO, PNEUS, FREIOS, LUZES...">${existentes[id]||''}</textarea>`;
-    c.appendChild(div);
-  });
-}
-
-// ── Envolvidos ────────────────────────────────────────────────
-function sfAddEnvolvido(e={}) {
-  const id=sfEnvolvidosAtivos.length>0?Math.max(...sfEnvolvidosAtivos)+1:1;
-  sfEnvolvidosAtivos.push(id); sfEnvolvidosInfo[id]={nome:e.nome||'',cap:e.capacete||null,cin:e.cinto||null};
-  const c=document.getElementById('sfEnvolvidosContainer');
-  const d=document.createElement('div'); d.className='sf-item'; d.dataset.envolvidoId=id;
-  // Calcular visibilidade inicial
-  const vinc=e.vinculo||'';
-  const isAnimal=vinc==='ANIMAL';
-  const isNaoId=vinc==='NÃO IDENTIFICADO';
-  const isPessoa=vinc!==''&&!isAnimal&&!isNaoId;
-  d.innerHTML=`<button class="sf-btnrem" onclick="sfRemEnvolvido(this,${id})"><i class="fas fa-trash"></i></button>
-    <div class="sf-item-tit">Envolvido ${id}</div>
-    <label class="sf-label">Vinculação *</label>
-    <select class="sf-input e-vinc" onchange="sfToggleCamposEnv(this);sfAtualizarEnvInfo(${id})">
-      <option value="">-- Selecione --</option>
-      <option value="PEDESTRE"${vinc==='PEDESTRE'?' selected':''}>Pedestre</option>
-      <option value="ANIMAL"${vinc==='ANIMAL'?' selected':''}>Animal</option>
-      <option value="NÃO IDENTIFICADO"${vinc==='NÃO IDENTIFICADO'?' selected':''}>Não Identificado</option>
-      ${sfGetVeicOpts()}
-    </select>
-    <div class="campos-animal campo-oculto" style="${isAnimal?'':'display:none;'}">
-      <label class="sf-label">Tipo de Animal</label>
-      <input type="text" class="sf-input e-animal" placeholder="CACHORRO, CAVALO..." value="${e.animal||''}">
-    </div>
-    <div class="campos-condicao" style="display:block;">
-      <label class="sf-label">Condição</label>
-      <select class="sf-input e-condicao">
-        <option value="">-- Selecione --</option>
-        <option value="VÍTIMA FATAL"${(e.condicao||'')==='VÍTIMA FATAL'?' selected':''}>Vítima Fatal</option>
-        <option value="FERIDO GRAVE"${e.condicao==='FERIDO GRAVE'?' selected':''}>Ferido Grave</option>
-        <option value="FERIDO LEVE"${e.condicao==='FERIDO LEVE'?' selected':''}>Ferido Leve</option>
-        <option value="ILESO"${e.condicao==='ILESO'?' selected':''}>Ileso</option>
-      </select>
-    </div>
-    <div class="campos-nao-id campo-oculto" style="${isNaoId?'':'display:none;'}">
-      <label class="sf-label">Tipo</label>
-      <select class="sf-input e-tipo-nid">
-        <option value="CONDUTOR"${(e.tipo||'')==='CONDUTOR'?' selected':''}>Condutor</option>
-        <option value="PASSAGEIRO"${e.tipo==='PASSAGEIRO'?' selected':''}>Passageiro</option>
-        <option value="PEDESTRE"${e.tipo==='PEDESTRE'?' selected':''}>Pedestre</option>
-      </select>
-    </div>
-    <div class="campos-pessoa campo-oculto" style="${isPessoa?'':'display:none;'}">
-      <label class="sf-label">Nome</label>
-      <input type="text" class="sf-input e-nome" value="${e.nome||''}" oninput="sfAtualizarEnvInfo(${id})" onchange="sfAtualizarEnvInfo(${id})">
-      <div class="sf-row">
-        <div><label class="sf-label">RG</label><input type="text" class="sf-input e-rg" inputmode="numeric" maxlength="20" oninput="this.value=this.value.replace(/\\D/g,'')" value="${e.rg||''}"></div>
-        <div><label class="sf-label">CPF</label><input type="text" class="sf-input e-cpf" inputmode="numeric" maxlength="14" oninput="sfMascaraCPF(this)" value="${e.cpf||''}"></div>
-      </div>
-      <div class="sf-row">
-        <div>
-          <label class="sf-label">Nasc. (DD/MM/AAAA)</label>
-          <div style="position:relative;display:flex;align-items:center;gap:6px;">
-            <input type="text" class="sf-input e-nasc" placeholder="DD/MM/AAAA" maxlength="10" oninput="sfSincNasc(this)" style="flex:1;" value="${e.dataNasc?sfFmtBR(e.dataNasc):''}">
-            <input type="date" class="e-nasc-date" onchange="sfCalcIdade(this)" style="position:absolute;right:0;opacity:0;width:36px;height:100%;cursor:pointer;z-index:2;" value="${e.dataNasc||''}">
-            <button type="button" onclick="this.previousElementSibling.showPicker()" style="padding:0 10px;margin:0;min-height:42px;background:#c62828;border:none;border-radius:6px;color:#fff;flex-shrink:0;" title="Calendário"><i class="fas fa-calendar-alt"></i></button>
-          </div>
-        </div>
-        <div><label class="sf-label">Idade</label><input type="text" class="sf-input e-idade" placeholder="Automática" value="${e.idade||''}"></div>
-      </div>
-      <div class="sf-row campos-cnh-cat">
-        <div><label class="sf-label">CNH</label><input type="text" class="sf-input e-cnh" value="${e.cnh||''}"></div>
-        <div><label class="sf-label">Categoria</label><input type="text" class="sf-input e-cat" placeholder="A/B" maxlength="10" oninput="this.value=this.value.replace(/[^a-zA-Z\/]/g,'').toUpperCase()" value="${e.categoria||''}"></div>
-      </div>
-      <label class="sf-label">Tipo</label>
-      <select class="sf-input e-tipo" onchange="sfToggleCamposCNH(this)">
-        <option value="CONDUTOR"${(e.tipo||'')==='CONDUTOR'?' selected':''}>Condutor</option>
-        <option value="PASSAGEIRO"${e.tipo==='PASSAGEIRO'?' selected':''}>Passageiro</option>
-        <option value="PEDESTRE"${e.tipo==='PEDESTRE'?' selected':''}>Pedestre</option>
-      </select>
-    </div>`;
-  c.appendChild(d);
-  // Forçar o valor do select de vinculação após inserção no DOM
-  // (necessário para options dinâmicas de veículo geradas por sfGetVeicOpts)
-  if(vinc){
-    const sel=d.querySelector('.e-vinc');
-    if(sel)sel.value=vinc;
-  }
-  sfAtualizarFatores(); sfAtualizarTestes();
-}
-
-// ── Testemunhas ───────────────────────────────────────────────
-function sfAddTestemunha(t={}) {
-  const id=sfTestemunhasAtivas.length>0?Math.max(...sfTestemunhasAtivas)+1:1;
-  sfTestemunhasAtivas.push(id);
-  const c=document.getElementById('sfTestemunhasContainer');
-  const d=document.createElement('div');d.className='sf-item-blue';d.dataset.testemunhaId=id;
-  d.innerHTML=`<button class="sf-btnrem" style="background:rgba(59,130,246,0.18);border-color:rgba(59,130,246,0.35);color:#60a5fa;" onclick="sfRemTestemunha(this,${id})"><i class="fas fa-trash"></i></button>
-    <div class="sf-item-tit">Testemunha ${id}</div>
-    <label class="sf-label">Nome</label><input type="text" class="sf-input t-nome" placeholder="NOME COMPLETO" value="${t.nome||''}">
-    <div class="sf-row"><div><label class="sf-label">Telefone</label><input type="text" class="sf-input t-fone" placeholder="(85) 99999-9999" value="${t.telefone||'(85) '}" oninput="sfMascaraTel(this)" inputmode="numeric" maxlength="15"></div><div><label class="sf-label">RG/CPF</label><input type="text" class="sf-input t-doc" value="${t.doc||''}"></div></div>
-    <label class="sf-label">Declaração / Depoimento</label><textarea class="sf-input t-decl" rows="3">${t.declaracao||''}</textarea>`;
-  c.appendChild(d);
-}
-function sfRemTestemunha(btn,id){if(!confirm('Remover testemunha?'))return;btn.parentElement.remove();sfTestemunhasAtivas=sfTestemunhasAtivas.filter(t=>t!==id);}
-
-// ── Órgãos ────────────────────────────────────────────────────
-function sfAddOrgao(tipo,v={}) {
-  const contMap={amc:'sfAmcContainer',pefoce:'sfPefoceContainer',pm:'sfPmContainer',samu:'sfSamuContainer',rabecao:'sfRabecaoContainer',outros:'sfOutrosContainer'};
-  const c=document.getElementById(contMap[tipo]||'sfOutrosContainer');
-  const d=document.createElement('div');d.className='sf-item';
-  let h=`<button class="sf-btnrem" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>`;
-  if(tipo==='amc'){
-    const uid='sfamc'+Date.now()+Math.random().toString(36).slice(2,5);
-    h+=`<label class="sf-label">Viatura</label><div style="position:relative;"><input type="text" class="sf-input orgao-viatura" id="${uid}-vtr" placeholder="VT-163" autocomplete="off" value="${v.viatura||v.vtr||''}" oninput="sfAmcSugestVtr(this)" onblur="sfAmcFecharSug(this)" onfocus="sfAmcSugestVtr(this)"></div><label class="sf-label">Agentes</label><div style="position:relative;"><input type="text" class="sf-input orgao-info" id="${uid}-ag" placeholder="Nomes dos agentes..." autocomplete="off" value="${v.agentes||''}" oninput="sfAmcSugestAg(this)" onblur="sfAmcFecharSug(this)"></div>`;
-  } else if(tipo==='pefoce'){
-    h+=`<label class="sf-label">Viatura</label><input type="text" class="sf-input orgao-viatura" placeholder="VTR-7121" value="${v.viatura||v.vtr||''}"><label class="sf-label">Perito</label><input type="text" class="sf-input orgao-perito" value="${v.perito||''}"><label class="sf-label">Motorista</label><input type="text" class="sf-input orgao-motorista" value="${v.motorista||''}">`;
-  } else if(tipo==='pm'){
-    h+=`<label class="sf-label">Viatura</label><input type="text" class="sf-input orgao-viatura" placeholder="VTR-21362" value="${v.viatura||v.vtr||''}"><label class="sf-label">Equipe</label><input type="text" class="sf-input orgao-info" placeholder="SGT, CB..." value="${v.agentes||v.equipe||''}">`;
-  } else if(tipo==='samu'){
-    h+=`<label class="sf-label">Viatura</label><input type="text" class="sf-input orgao-viatura" placeholder="49" value="${v.viatura||v.vtr||''}"><label class="sf-label">Médico</label><input type="text" class="sf-input orgao-medico" value="${v.medico||''}"><label class="sf-label">Enfermeiro(a)</label><input type="text" class="sf-input orgao-enfermeiro" value="${v.enfermeiro||''}"><label class="sf-label">Motorista</label><input type="text" class="sf-input orgao-motorista" value="${v.motorista||''}">`;
-  } else if(tipo==='rabecao'){
-    h+=`<label class="sf-label">Viatura</label><input type="text" class="sf-input orgao-viatura" placeholder="7205" value="${v.viatura||v.vtr||''}"><label class="sf-label">Motorista</label><input type="text" class="sf-input orgao-motorista" value="${v.motorista||''}"><label class="sf-label">Auxiliar</label><input type="text" class="sf-input orgao-auxiliar" value="${v.auxiliar||''}">`;
-  } else {
-    h+=`<label class="sf-label">Órgão</label><input type="text" class="sf-input orgao-nome" value="${v.nome||v.orgao||''}"><label class="sf-label">Informações</label><input type="text" class="sf-input orgao-info" value="${v.agentes||v.info||''}">`;
-  }
-  d.innerHTML=h; c.appendChild(d);
-}
-
-// ── Máscaras de campos ────────────────────────────────────────
-function sfMascaraTel(inp){
-  // Preservar prefixo (85)
-  let v=inp.value.replace(/\D/g,'');
-  if(v.length>11)v=v.substring(0,11);
-  let fmt='';
-  if(v.length>0) fmt='('+v.substring(0,2);
-  if(v.length>=2) fmt+=') '+v.substring(2,7);
-  if(v.length>=7) fmt+='-'+v.substring(7,11);
-  inp.value=fmt;
-  // Se apagou tudo, restaurar prefixo
-  if(inp.value.length<5) inp.value='(85) ';
-}
-function sfMascaraHora(inp){
-  let v=inp.value.replace(/\D/g,'').substring(0,4);
-  if(v.length>=3) v=v.substring(0,2)+':'+v.substring(2);
-  // Validar horas e minutos
-  if(v.length===5){
-    const [h,m]=v.split(':').map(Number);
-    if(h>23) v='23:'+v.split(':')[1];
-    if(m>59) v=v.split(':')[0]+':59';
-  }
-  inp.value=v;
-}
-function sfMascaraPlaca(inp){
-  // Remove tudo que não é alfanumérico, uppercase
-  let v=inp.value.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().substring(0,7);
-  // Padrão antigo: ABC1234 — Mercosul: ABC1D23
-  inp.value=v;
-}
-function sfMascaraAno(inp){
-  // Formato: AAAA ou AAAA/AAAA
-  let v=inp.value.replace(/[^0-9\/]/g,'').substring(0,9);
-  inp.value=v;
-}
-
-// ── Sugestões AMC ─────────────────────────────────────────────
-function sfAmcCriarSug(inp, itens, onSelect){
-  if(inp._sfSug){inp._sfSug.remove();inp._sfSug=null;}
-  if(!itens.length)return;
-  const sug=document.createElement('div');
-  sug.className='suggestions';
-  sug.style.cssText='position:absolute;top:100%;left:0;right:0;z-index:9999;max-height:180px;overflow-y:auto;border-radius:0 0 8px 8px;';
-  sug.innerHTML='<ul>'+itens.map(a=>'<li style="padding:12px 14px;font-size:14px;">'+a+'</li>').join('')+'</ul>';
-  inp.parentElement.appendChild(sug);
-  inp._sfSug=sug;
-  sug.querySelectorAll('li').forEach(li=>{
-    const pick=()=>{onSelect(li.textContent.trim());sug.remove();inp._sfSug=null;inp.focus();};
-    li.addEventListener('mousedown',e=>{e.preventDefault();pick();});
-    let _ty=0;
-    li.addEventListener('touchstart',e=>{_ty=e.touches[0].clientY;},{passive:true});
-    li.addEventListener('touchend',e=>{if(Math.abs(e.changedTouches[0].clientY-_ty)<8){e.preventDefault();pick();}},{passive:false});
-  });
-}
-function sfAmcSugestVtr(inp){
-  const val=(inp.value||'').toUpperCase().trim();
-  const all=typeof viaturas!=='undefined'?viaturas:[];
-  // Filtra por contains (inclui qualquer parte do texto)
-  const fil=val?all.filter(v=>v.toUpperCase().includes(val)):all.slice(0,20);
-  sfAmcCriarSug(inp, fil.slice(0,20), nome=>{inp.value=nome; sfAgendarAutoSave();});
-}
-function sfAmcSugestAg(inp){
-  const val=inp.value||'';
-  const lastComma=val.lastIndexOf(',');
-  const cur=(lastComma>=0?val.substring(lastComma+1):val).trim().toUpperCase();
-  if(!cur||cur.length<1)return;
-  const all=typeof agentes!=='undefined'?agentes:[];
-  const fil=all.filter(a=>a.toUpperCase().startsWith(cur)).slice(0,15);
-  sfAmcCriarSug(inp, fil, nome=>{
-    const v=inp.value.trim();const lc=v.lastIndexOf(',');
-    const prefix=lc>=0?v.substring(0,lc+1).trim():'';
-    inp.value=(prefix?prefix+' ':'')+nome+', ';
-    sfAgendarAutoSave();
-  });
-}
-function sfAmcFecharSug(inp){setTimeout(()=>{if(inp&&inp._sfSug){inp._sfSug.remove();inp._sfSug=null;}},250);}
-
-// ── Auto-save Sinistros Fatais ────────────────────────────────
-var sfSaveTimer=null;
-function sfAgendarAutoSave(){
-  if(sfSaveTimer)clearTimeout(sfSaveTimer);
-  sfSaveTimer=setTimeout(()=>{
-    // Se usuário ainda está com cursor em algum campo, reagendar por mais 5s
-    const el=document.activeElement;
-    if(el&&el.closest&&el.closest('#sfModal')&&(el.tagName==='INPUT'||el.tagName==='TEXTAREA')){
-      sfSaveTimer=setTimeout(()=>sfAutoSalvarSilencioso(),5000);
-      return;
-    }
-    sfAutoSalvarSilencioso();
-  },10000);
-}
-async function sfAutoSalvarSilencioso(){
-  // Verificar se modal está aberto e se há dados mínimos
-  const modal=document.getElementById('sfModal');
-  if(!modal||modal.style.display==='none'||modal.style.display==='')return;
-  const dados=sfColetarDados();
-  // Exige ao menos data, hora e logradouro para auto-salvar
-  if(!dados.data||!dados.hora||!dados.logradouro)return;
-  try{
-    let action, res;
-    if(sfEditandoId){
-      // Já tem ID — atualizar
-      dados.id=sfEditandoId;
-      res=await apiFatais('updateSinistroFatal',dados);
-    } else {
-      // Sem ID — criar novo automaticamente
-      res=await apiFatais('saveSinistroFatal',dados);
-      if(res&&res.id){
-        sfEditandoId=res.id;
-        // Atualizar título do modal para indicar que já foi salvo
-        const tit=document.getElementById('sfModalTit');
-        if(tit)tit.textContent='✏ EDITAR SINISTRO FATAL';
-      }
-    }
-    const info=document.getElementById('sfRefreshInfo');
-    if(info)info.textContent='Auto-salvo '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    sfCarregar();
-  }catch(e){console.warn('[SF] auto-save falhou:',e.message);}
-}
-
-// ── Data Nascimento e Idade ───────────────────────────────────
-function sfCalcIdadeValores(ano, mes, dia) {
-  const hj = new Date();
-  let id = hj.getFullYear() - ano;
-  if (hj.getMonth() + 1 < mes || (hj.getMonth() + 1 === mes && hj.getDate() < dia)) id--;
-  return id < 0 ? 0 : id;
-}
-function sfCalcIdade(inp) {
-  const item = inp.closest('.sf-item'); if (!item) return;
-  if (!inp.value) return;
-  const [ano, mes, dia] = inp.value.split('-').map(Number);
-  if (!ano || !mes || !dia) return;
-  const idade = sfCalcIdadeValores(ano, mes, dia);
-  const nascFormatado = String(dia).padStart(2,'0') + '/' + String(mes).padStart(2,'0') + '/' + ano;
-  const eNasc = item.querySelector('.e-nasc'); if (eNasc) eNasc.value = nascFormatado;
-  const eIdade = item.querySelector('.e-idade'); if (eIdade) eIdade.value = idade;
-}
-function sfSincNasc(inp) {
-  // Máscara DD/MM/AAAA enquanto digita
-  let v = inp.value.replace(/\D/g, '').substring(0, 8);
-  if (v.length >= 5) v = v.substring(0,2) + '/' + v.substring(2,4) + '/' + v.substring(4);
-  else if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
-  inp.value = v;
-  // Calcular quando data completa
-  if (v.length === 10) {
-    const [d, m, a] = v.split('/').map(Number);
-    if (d >= 1 && d <= 31 && m >= 1 && m <= 12 && a >= 1900 && a <= new Date().getFullYear()) {
-      const item = inp.closest('.sf-item'); if (!item) return;
-      const idade = sfCalcIdadeValores(a, m, d);
-      const eIdade = item.querySelector('.e-idade'); if (eIdade) eIdade.value = idade;
-      const eDate = item.querySelector('.e-nasc-date');
-      if (eDate) eDate.value = a + '-' + String(m).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    }
-  }
-}
-
-// ── Máscara CPF ────────────────────────────────────────────────
-function sfMascaraCPF(inp){
-  let v=inp.value.replace(/\D/g,'').substring(0,11);
-  if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,'$1.$2.$3-$4');
-  else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d{1,3})/,'$1.$2.$3');
-  else if(v.length>3) v=v.replace(/(\d{3})(\d{1,3})/,'$1.$2');
-  inp.value=v;
-}
-
-function sfToggleCamposEnv(sel){
-  const item=sel.closest('.sf-item');
-  const val=sel.value;
-  const isAnimal=val==='ANIMAL';
-  const isNaoId=val==='NÃO IDENTIFICADO';
-  const isPedestre=val==='PEDESTRE';
-  const isPessoa=val!==''&&!isAnimal&&!isNaoId;
-  const show=(el,vis)=>{if(el){el.style.display=vis?'block':'none';el.classList.toggle('campo-oculto',!vis);}};
-  show(item.querySelector('.campos-animal'), isAnimal);
-  show(item.querySelector('.campos-pessoa'), isPessoa);
-  show(item.querySelector('.campos-nao-id'), isNaoId);
-  const condDiv=item.querySelector('.campos-condicao');
-  if(condDiv) condDiv.style.display='block';
-  if(isPessoa){
-    const tipoSel=item.querySelector('.e-tipo');
-    const cnhCat=item.querySelector('.campos-cnh-cat');
-    if(isPedestre){
-      if(tipoSel) tipoSel.value='PEDESTRE';
-      if(cnhCat) cnhCat.style.display='none';
-    } else {
-      if(tipoSel&&tipoSel.value==='PEDESTRE') tipoSel.value='CONDUTOR';
-      if(cnhCat) cnhCat.style.display='';
-    }
-    sfToggleCamposCNH(tipoSel);
-  }
-  sfAtualizarFatores();
-}
-function sfToggleCamposCNH(sel){
-  if(!sel)return;
-  const item=sel.closest('.sf-item');
-  const cnhCat=item&&item.querySelector('.campos-cnh-cat');
-  if(cnhCat) cnhCat.style.display=sel.value==='PEDESTRE'?'none':'';
-}
-
-// ── Toggles ───────────────────────────────────────────────────
-function sfToggleOutroTipo(){const v=document.getElementById('sfTipo').value;document.getElementById('sfTipoOutroWrap').style.display=v==='OUTROS'?'block':'none';}
-function sfToggleCameraOrigem(){const v=document.querySelector('input[name="sfCameras"]:checked')?.value;document.getElementById('sfCameraOrigemWrap').style.display=v==='SIM'?'block':'none';}
-function sfToggleTipoVestigios(){const ck=document.getElementById('sfCkVestigios');document.getElementById('sfTipoVestigiosWrap').style.display=ck&&ck.checked?'block':'none';}
-function sfToggleDetSin(){const ck=document.getElementById('sfCkSinDef');document.getElementById('sfDetSinWrap').style.display=ck&&ck.checked?'block':'none';}
-function sfToggleConservSin(){const ck=document.getElementById('sfCkSinBom');document.getElementById('sfConservSinWrap').style.display=ck&&ck.checked?'block':'none';}
-document.addEventListener('change',function(e){
-  if(!e.target.closest('#sfModal'))return;
-  if(e.target.name==='sfTipoVestigio'){document.getElementById('sfVestigioOutro').style.display=e.target.value==='OUTRO'?'block':'none';}
-});
-
-// ── Coletar dados ─────────────────────────────────────────────
-function sfColetarDados() {
-  const tipo=document.getElementById('sfTipo').value;
-  const tipoFinal=tipo==='OUTROS'?(document.getElementById('sfTipoOutro').value||'OUTROS').toUpperCase():tipo;
-  const checkboxes={};
-  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente'};
-  Object.entries(ckMap).forEach(([domId,dataKey])=>{checkboxes[dataKey]=document.getElementById(domId)?.checked||false;});
-
-  const veiculos=sfVeiculosAtivos.map(id=>{
-    const item=document.querySelector(`[data-veiculo-id="${id}"]`);if(!item)return null;
-    const inputs=item.querySelectorAll('input');const sel=item.querySelector('select');
-    return{tipo:sel?.value||'',tipoOutro:inputs[0]?.value||'',placa:inputs[1]?.value||'',modelo:inputs[2]?.value||'',ano:inputs[3]?.value||''};
-  }).filter(Boolean);
-
-  const envolvidos=sfEnvolvidosAtivos.map(id=>{
-    const item=document.querySelector(`[data-envolvido-id="${id}"]`);if(!item)return null;
-    const fat=document.querySelector(`[data-fator-id="${id}"]`);
-    const vinculo=item.querySelector('.e-vinc')?.value||'';
-    const isNaoId=vinculo==='NÃO IDENTIFICADO';
-    const isAnimal=vinculo==='ANIMAL';
-    // tipo: pessoa=e-tipo, não-id=e-tipo-nid
-    const tipoEl=isNaoId?item.querySelector('.e-tipo-nid'):item.querySelector('.e-tipo');
-    return{
-      vinculo,
-      animal:item.querySelector('.e-animal')?.value||'',
-      nome:item.querySelector('.e-nome')?.value||'',
-      rg:item.querySelector('.e-rg')?.value||'',
-      cpf:item.querySelector('.e-cpf')?.value||'',
-      dataNasc:item.querySelector('.e-nasc-date')?.value||'',
-      idade:item.querySelector('.e-idade')?.value||'',
-      cnh:item.querySelector('.e-cnh')?.value||'',
-      categoria:item.querySelector('.e-cat')?.value||'',
-      tipo:tipoEl?.value||'CONDUTOR',
-      condicao:item.querySelector('.e-condicao')?.value||'VÍTIMA FATAL',
-      capacete:fat?fat.querySelector(`input[name="sfCap-${id}"]:checked`)?.value||'N/A':'N/A',
-      cinto:fat?fat.querySelector(`input[name="sfCin-${id}"]:checked`)?.value||'N/A':'N/A',
-    };
-  }).filter(Boolean);
-
-  const testemunhas=document.querySelectorAll('#sfTestemunhasContainer [data-testemunha-id]');
-  const tes=[...testemunhas].map(item=>({nome:item.querySelector('.t-nome')?.value||'',telefone:item.querySelector('.t-fone')?.value||'',doc:item.querySelector('.t-doc')?.value||'',declaracao:item.querySelector('.t-decl')?.value||''}));
-
-  const drv=[...document.querySelectorAll('#sfDRVContainer .sf-item')].map(item=>({veiculo:item.querySelector('.drv-veiculo')?.value||'',numero:item.querySelector('.drv-numero')?.value||''}));
-  const testes=[...document.querySelectorAll('#sfTesteContainer .sf-item')].map(item=>({envolvido:item.querySelector('.teste-envolvido')?.value||'',numero:item.querySelectorAll('input')[1]?.value||'',resultado:item.querySelector('.teste-resultado')?.value||''}));
-  const docs=[...document.querySelectorAll('#sfDocContainer .sf-item')].map(item=>({tipo:item.querySelectorAll('input')[0]?.value||'',numero:item.querySelectorAll('input')[1]?.value||''}));
-
-  const orgaos={};
-  const orgConts={amc:'sfAmcContainer',pefoce:'sfPefoceContainer',pm:'sfPmContainer',samu:'sfSamuContainer',rabecao:'sfRabecaoContainer',outros:'sfOutrosContainer'};
-  Object.entries(orgConts).forEach(([tipo,cid])=>{
-    const items=[...document.querySelectorAll(`#${cid} .sf-item`)];
-    orgaos[tipo]=items.map(item=>{
-      const inps=item.querySelectorAll('input');
-      if(tipo==='pefoce') return{vtr:inps[0]?.value||'',perito:inps[1]?.value||'',motorista:inps[2]?.value||''};
-      if(tipo==='samu') return{vtr:inps[0]?.value||'',medico:inps[1]?.value||'',enfermeiro:inps[2]?.value||'',motorista:inps[3]?.value||''};
-      if(tipo==='rabecao') return{vtr:inps[0]?.value||'',motorista:inps[1]?.value||'',auxiliar:inps[2]?.value||''};
-      if(tipo==='outros') return{orgao:inps[0]?.value||'',info:inps[1]?.value||''};
-      return{vtr:inps[0]?.value||'',agentes:inps[1]?.value||''};
-    });
-  });
-
-  const condicoesVeic={};
-  document.querySelectorAll('#sfCondicoesVeicContainer [data-veic-cond]').forEach(el=>{condicoesVeic[el.dataset.veicCond]=el.querySelector('textarea')?.value||'';});
-
-  return{
-    data:document.getElementById('sfData').value,
-    hora:document.getElementById('sfHora').value,
-    tipo:tipoFinal,
-    logradouro:(document.getElementById('sfLogradouro').value||'').toUpperCase(),
-    numero:(document.getElementById('sfNumero').value||'').toUpperCase(),
-    bairro:(document.getElementById('sfBairro').value||'').toUpperCase(),
-    dinamica:(document.getElementById('sfDinamica').value||'').toUpperCase(),
-    checkboxes,
-    tipoVestigio:document.querySelector('input[name="sfTipoVestigio"]:checked')?.value||'',
-    vestigioOutro:(document.getElementById('sfVestigioOutro').value||'').toUpperCase(),
-    detPavimento:(document.getElementById('sfDetPavimento').value||'').toUpperCase(),
-    tipoSinaliz:document.querySelector('input[name="sfTipoSinaliz"]:checked')?.value||'',
-    detSin:(document.getElementById('sfDetSin').value||'').toUpperCase(),
-    velocidade:(document.getElementById('sfVelocidade').value||'').toUpperCase(),
-    excVelocidade:(document.getElementById('sfExcVel').value||'').toUpperCase(),
-    radar:document.querySelector('input[name="sfRadar"]:checked')?.value||'NÃO',
-    cameras:document.querySelector('input[name="sfCameras"]:checked')?.value||'NÃO',
-    cameraOrigem:(document.getElementById('sfCameraOrigem').value||'').toUpperCase(),
-    outrosFatores:(document.getElementById('sfOutrosFatores').value||'').toUpperCase(),
-    boat:(document.getElementById('sfBoat').value||'').toUpperCase(),
-    observacoes:(document.getElementById('sfObservacoes').value||'').toUpperCase(),
-    veiculos, envolvidos, testemunhas:tes, drv, testes, docs, orgaos, condicoesVeic,
-    imagens:sfImgs.filter(Boolean),
-    savedBy:G.name, savedAt:new Date().toISOString(),
-  };
-}
-
-// ── Salvar ────────────────────────────────────────────────────
-async function sfSalvar() {
-  const dados=sfColetarDados();
-  if(!dados.data||!dados.hora||!dados.tipo||!dados.logradouro||!dados.bairro){
-    toast('Preencha os campos obrigatórios: data, hora, tipo, logradouro, bairro.','err'); return;
-  }
-  const btn=document.getElementById('sfBtnSalvar');
-  btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';
-  try {
-    const isNovo=!sfEditandoId;
-    if(sfEditandoId){dados.id=sfEditandoId;}
-    const action=sfEditandoId?'updateSinistroFatal':'saveSinistroFatal';
-    const res=await apiFatais(action,dados);
-    // Se era novo, guarda o ID para que salvas seguintes virem update
-    if(isNovo&&res.id){ sfEditandoId=res.id; document.getElementById('sfModalTit').textContent='\u270f EDITAR SINISTRO FATAL'; }
-    // Atualiza lista em background sem fechar o modal
-    await sfCarregar();
-    // Feedback visual no botão — fica verde por 2,5s e volta ao normal
-    toast('✓ Salvo! Clique em × ou gere o PDF para encerrar.','ok');
-    btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
-    btn.style.background='linear-gradient(135deg,#15803d,#166534)';
-    setTimeout(()=>{ btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem'; btn.style.background='linear-gradient(135deg,#c62828,#7f0000)'; btn.disabled=false; },3000);
-  } catch(e){
-    toast('Erro ao salvar: '+e.message,'err');
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
-  }
-}
-
-// ── Excluir ───────────────────────────────────────────────────
-async function sfExcluir(id) {
-  if(!id)return;
-  if(!confirm('Excluir este registro? Ação irreversível.'))return;
-  try{ await apiFatais('deleteSinistroFatal',{id}); toast('Registro excluído.','ok'); sfCarregar(); }
-  catch(e){ toast('Erro: '+e.message,'err'); }
-}
-
-// ── Gerar PDF (com imagens do Drive carregadas) ───────────────
-// Gera PDF direto dos dados salvos (sem abrir formulário)
-async function sfGerarPDFDireto(s) {
-  if(!s){toast('Registro não encontrado.','err');return;}
-  // Carregar dados no sfImgs para o PDF ter acesso às imagens
-  sfImgs=[null,null,null,null,null,null,null,null];
-  (s.imagens||[]).forEach((url,i)=>{if(i<8&&url)sfImgs[i]=url;});
-  // Montar objeto dados equivalente ao sfColetarDados() mas direto do registro salvo
-  const dados={
-    data:s.data||'', hora:s.hora||'', tipo:s.tipo||'',
-    logradouro:s.logradouro||'', numero:s.numero||'', bairro:s.bairro||'',
-    dinamica:s.dinamica||'', detPavimento:s.detPavimento||'',
-    detSin:s.detSin||'', velocidade:s.velocidade||'',
-    excVelocidade:s.excVelocidade||'', outrosFatores:s.outrosFatores||'',
-    boat:s.boat||'', observacoes:s.observacoes||'',
-    cameras:s.cameras||'NÃO', cameraOrigem:s.cameraOrigem||'',
-    radar:s.radar||'NÃO', tipoVestigio:s.tipoVestigio||'',
-    vestigioOutro:s.vestigioOutro||'', tipoSinaliz:s.tipoSinaliz||'',
-    checkboxes:s.checkboxes||{}, veiculos:s.veiculos||[],
-    envolvidos:s.envolvidos||[], testemunhas:s.testemunhas||[],
-    drv:s.drv||[], testes:s.testes||[], docs:s.docs||[],
-    orgaos:s.orgaos||{}, condicoesVeic:s.condicoesVeic||{},
-    imagens:sfImgs.filter(Boolean)
-  };
-  await sfGerarPDFComDados(dados, false); // false = não perguntar ao fechar
-}
-
-async function sfGerarPDF() {
-  const dados=sfColetarDados();
-  await sfGerarPDFComDados(dados, true); // true = perguntar se quer encerrar
-}
-
-async function sfGerarPDFComDados(dados, perguntarFechar=true) {
-  if(!dados.logradouro){toast('Preencha ao menos o logradouro antes de gerar o PDF.','err');return;}
-  await new Promise(r=>setTimeout(r,100)); // aguardar jsPDF
-  let jsPDF_cls;
-  try{jsPDF_cls=(window.jspdf||window).jsPDF;}catch(e){toast('jsPDF não carregado.','err');return;}
-  if(!jsPDF_cls){toast('jsPDF não carregado. Aguarde e tente novamente.','err');return;}
-  const doc=new jsPDF_cls({orientation:'portrait',unit:'mm',format:'a4'});
-  const mE=10, lMax=190, altPag=297, altCab=15, altRod=15;
-  let y=altCab+5, pagAtual=1;
-  const urlCab='https://i.imgur.com/ugHshEu.jpeg';
-  const urlRod='https://i.imgur.com/9QqgR97.jpg';
-  const fileName='Sinistro_Fatal_'+(dados.data||sfIso(new Date())).split('-').reverse().join('_')+'_'+(dados.logradouro||'LOCAL').replace(/\s+/g,'_').substring(0,30)+'.pdf';
-  async function loadImg(url){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin='Anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=url;});}
-  // Pre-carregar cabecalho e rodape uma vez so para todas as paginas
-  let imgCab=null,imgRod=null;
-  try{imgCab=await loadImg(urlCab);}catch(e){}
-  try{imgRod=await loadImg(urlRod);}catch(e){}
-  function addCab(){if(imgCab){doc.addImage(imgCab,'JPEG',mE,2,lMax,altCab-2);}doc.setFillColor(127,0,0);doc.rect(mE,altCab+1,lMax,9,'F');doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(255,255,255);const t='RELATÓRIO DE SINISTRO FATAL - AMC';doc.text(t,(210-doc.getTextWidth(t))/2,altCab+7);doc.setTextColor(0,0,0);}
-  function addRod(){if(imgRod){doc.addImage(imgRod,'JPEG',mE,altPag-altRod,lMax,altRod);}doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100);doc.text('Página '+pagAtual,200-doc.getTextWidth('Página '+pagAtual),altPag-2);}
-  function novaPagina(){addRod();doc.addPage();pagAtual++;addCab();y=altCab+18;}
-  function verificar(h){if(y+h>altPag-altRod-10){novaPagina();}}
-  function addTit(txt){verificar(12);doc.setFillColor(127,0,0);doc.rect(mE,y-3,lMax,9,'F');doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(255,255,255);doc.text(txt.toUpperCase(),mE+3,y+3);y+=12;doc.setTextColor(0,0,0);}
-  function addSubTit(txt){verificar(8);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(127,0,0);doc.text(txt.toUpperCase(),mE,y);y+=6;doc.setTextColor(0,0,0);}
-  function addCampoSub(rot,val){if(!val||!String(val).trim())return;verificar(6);doc.setFontSize(8.5);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(100,30,30);doc.text(rot+':',mE+6,y);doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-8);doc.text(ls,mE+6+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
-  function addCampo(rot,val,indent=2){if(!val||!String(val).trim())return;verificar(5);doc.setFontSize(10);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(127,0,0);doc.text(rot+':',mE+indent,y);doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-indent-2);doc.text(ls,mE+indent+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
-  function addCaixa(txt){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';const pad=4;const xT=mE+3+pad;const lT=lMax-3-(2*pad)-2;doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lT);const eL=5.2;const aT=ls.length*eL;const h=aT+(2*pad)+2;verificar(h+6);doc.setFillColor(248,248,248);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.roundedRect(mE,y,lMax,h,2,2,'FD');doc.setFillColor(127,0,0);doc.rect(mE,y,3,h,'F');doc.setTextColor(0,0,0);const yB=y+pad+3.5;ls.forEach((l,i)=>doc.text(l,xT,yB+(i*eL)));y+=h+5;}
-  function addChecklist(items){const colW=lMax/2;let col=0,maxL=1;doc.setFontSize(10);const its=items.map(it=>({...it,label:it.label.toUpperCase(),linhas:doc.splitTextToSize(it.label.toUpperCase(),colW-12)}));verificar(Math.ceil(its.length/2)*6+4);its.forEach((item,idx)=>{const x=mE+(col*colW);if(item.checked){doc.setFillColor(127,0,0);doc.rect(x,y-3.5,4,4,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('X',x+0.8,y-0.5);}else{doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);doc.rect(x,y-3.5,4,4,'D');}doc.setFontSize(10);doc.setFont('helvetica',item.checked?'bold':'normal');doc.setTextColor(item.checked?40:150,item.checked?10:100,item.checked?10:100);doc.text(item.linhas,x+6,y);maxL=Math.max(maxL,item.linhas.length);col++;if(col>=2){col=0;y+=maxL*5.5+1;maxL=1;}});if(col!==0)y+=maxL*5.5+1;y+=2;}
-
-  addCab();
-  // 1
-  addTit('1. Dados Gerais');
-  addCampo('DATA',sfFmtBR(dados.data)); addCampo('HORA',dados.hora); addCampo('TIPO',dados.tipo);
-  addCampo('LOCAL',dados.logradouro+(dados.numero?', '+dados.numero:'')); addCampo('BAIRRO',dados.bairro);
-  y+=2;
-  // 2
-  addTit('2. Veículos Envolvidos');
-  (dados.veiculos||[]).forEach((v,i)=>{addSubTit('Veículo '+(i+1));addCampo('TIPO',v.tipo||'—');addCampo('PLACA',v.placa||'SEM REGISTRO');addCampo('MODELO/MARCA',v.modelo||'—');addCampo('ANO/LICENC.',v.ano||'—');y+=2;verificar(0);});
-  // 3
-  addTit('3. Envolvidos');
-  (dados.envolvidos||[]).forEach((e,i)=>{
-    addSubTit('Envolvido '+(i+1)+(e.nome?' — '+e.nome:''));
-    addCampo('VINCULAÇÃO',e.vinculo||'—');
-    if(e.vinculo!=='ANIMAL'&&e.vinculo!=='NÃO IDENTIFICADO'){
-      addCampo('TIPO/CONDIÇÃO',(e.tipo||'—')+' — '+(e.condicao||'—'));
-      addCampo('RG',e.rg||'—');addCampo('CPF',e.cpf||'—');
-      if(e.dataNasc)addCampo('NASC.',sfFmtBR(e.dataNasc)+(e.idade?' ('+e.idade+' anos)':''));
-      addCampo('CNH',e.cnh||'—');addCampo('CATEGORIA',e.categoria||'—');
-    } else if(e.vinculo==='ANIMAL'){addCampo('ANIMAL',e.animal||'—');}
-    y+=2;verificar(0);
-  });
-  // 4
-  addTit('4. Dinâmica do Sinistro'); addCaixa(dados.dinamica); y+=2;
-  // 5
-  addTit('5. Fatores de Risco');
-  // ── 5. FATORES DE RISCO ────────────────────────────────────────────────────
-  const motoTiposFat=['MOTOCICLETA','QUADRICICLO','BICICLETA'];
-  const cks=dados.checkboxes||{};
-
-  // 5a — EPI por envolvido
-  const envFiltrados5=(dados.envolvidos||[]).filter(e=>e.vinculo!=='ANIMAL'&&e.vinculo!=='NÃO IDENTIFICADO'&&e.vinculo!=='');
-  function addBloco(titulo){y+=2;verificar(12);doc.setFillColor(245,245,245);doc.setDrawColor(180,180,180);doc.setLineWidth(0.2);doc.rect(mE,y-3,lMax,9,'FD');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80,80,80);doc.text(titulo.toUpperCase(),mE+3,y+3);y+=11;doc.setTextColor(0,0,0);}
-  if(envFiltrados5.length){
-    addBloco('5a. Equipamentos de Proteção Individual (EPI)');
-    envFiltrados5.forEach((e,idx)=>{
-      const veicNum=parseInt((e.vinculo||'').replace(/[^0-9]/g,''))||0;
-      const veicTipo5=veicNum?((dados.veiculos||[])[veicNum-1]?.tipo||''):'';
-      const eMoto=motoTiposFat.some(m=>veicTipo5.toUpperCase().includes(m));
-      addSubTit((e.nome||'Envolvido '+(idx+1))+(e.vinculo?' — '+e.vinculo:''));
-      if(eMoto||!veicTipo5){addCampo('CAPACETE',e.capacete&&e.capacete!=='N/A'?e.capacete:'NÃO INFORMADO');}
-      if(!eMoto){addCampo('CINTO DE SEGURANÇA',e.cinto&&e.cinto!=='N/A'?e.cinto:'NÃO INFORMADO');}
-      y+=1;
-    });
-    y+=4;
-  }
-
-  // 5b — Pavimento e Calçadas
-  addBloco('5b. Pavimento e Calçadas');
-  addChecklist([{label:'Vestígios no pavimento',checked:cks.ck_vestigios},{label:'Pavimento irregular/buracos',checked:cks.ck_pavimento_irregular},{label:'Tampas/grelhas ausentes',checked:cks.ck_tampas_grelhas},{label:'Calçada deficiente',checked:cks.ck_calcada_deficiente}]);
-  if(dados.tipoVestigio){addCampoSub('TIPO DE VESTÍGIO NO PAVIMENTO',dados.tipoVestigio+(dados.tipoVestigio==='OUTRO'?': '+dados.vestigioOutro:''));}
-  if(dados.detPavimento){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Descrição do pavimento:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.detPavimento);
-  }
-  y+=2;
-
-  // 5c — Sinalização
-  addBloco('5c. Sinalização');
-  addChecklist([{label:'Sinalização deficiente/inexistente',checked:cks.ck_sinalizacao_deficiente},{label:'Falha em semáforo',checked:cks.ck_semaforo_falha},{label:'Sinalização em bom estado',checked:cks.ck_sinalizacao_bom_estado}]);
-  // Tipo sinaliz deficiente/inexistente: sem sub-campo (só o checklist já diz)
-  // Tipo sinaliz bom estado: aparece como sub-item quando checkbox bom estado marcado
-  if(cks.ck_sinalizacao_bom_estado&&dados.tipoSinaliz){addCampoSub('TIPO DE SINALIZAÇÃO EM BOM ESTADO',dados.tipoSinaliz);}
-  if(!cks.ck_sinalizacao_bom_estado&&dados.tipoSinaliz){addCampoSub('TIPO DE SINALIZAÇÃO DEFICIENTE/INEXISTENTE',dados.tipoSinaliz);}
-  if(dados.detSin){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Descrição da sinalização:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.detSin);
-  }
-  y+=2;
-
-  // 5d — Velocidade
-  addBloco('5d. Velocidade e Controle');
-  addCampo('VELOCIDADE DA VIA',dados.velocidade?(dados.velocidade+' km/h'):'NÃO INFORMADO');
-  addCampo('RADAR PRÓXIMO',dados.radar||'NÃO');
-  if(dados.excVelocidade){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Observações sobre excesso de velocidade:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.excVelocidade);
-  }
-  y+=2;
-
-  // 5e — Visibilidade
-  addBloco('5e. Visibilidade e Iluminação');
-  addChecklist([{label:'Trecho em curva',checked:cks.ck_trecho_curva},{label:'Dificuldade de visibilidade',checked:cks.ck_visibilidade_dificil},{label:'Iluminação deficiente',checked:cks.ck_iluminacao_deficiente}]);
-  y+=2;
-  // 5f — Câmeras (bloco próprio)
-  addBloco('5f. Monitoramento');
-  addCampo('CÂMERAS NO LOCAL',dados.cameras+(dados.cameras==='SIM'&&dados.cameraOrigem?' ('+dados.cameraOrigem+')':''));
-  y+=2;
-
-  // 5f — Condições dos Veículos
-  if(Object.keys(dados.condicoesVeic||{}).length&&Object.values(dados.condicoesVeic).some(v=>v)){
-    addBloco('5g. Condições dos Veículos');
-    Object.entries(dados.condicoesVeic||{}).forEach(([id,val])=>{if(val)addCampo('VEÍCULO '+id,val);});
-    y+=2;
-  }
-
-  // 5g — Outros Fatores
-  if(dados.outrosFatores&&dados.outrosFatores.trim()){
-    addBloco('5h. Outros Fatores');
-    addCaixa(dados.outrosFatores);
-  }
-  y+=2;
-  // 6
-  addTit('6. Documentação');
-  addCampo('BOAT',dados.boat||'—');
-  (dados.drv||[]).forEach(d=>addCampo('DRV '+(d.veiculo?'VEÍCULO '+d.veiculo:''),d.numero||'—'));
-  (dados.testes||[]).forEach(t=>addCampo('ALCOOLEMIA ENV.'+t.envolvido,t.resultado+(t.numero?' Nº '+t.numero:'')));
-  (dados.docs||[]).forEach(d=>addCampo(d.tipo||'DOCUMENTO',d.numero||'—'));
-  y+=2;
-  // 7
-  addTit('7. Órgãos de Apoio');
-  const orgNomes={amc:'AMC',pefoce:'PEFOCE',pm:'POLÍCIA MILITAR',samu:'SAMU',rabecao:'RABECÃO',outros:'OUTROS'};
-  Object.entries(dados.orgaos||{}).forEach(([tipo,arr])=>{if(!arr||!arr.length)return;addSubTit(orgNomes[tipo]||tipo.toUpperCase());arr.forEach(o=>{if(tipo==='pefoce')addCampo('VTR '+(o.vtr||'—'),'PERITO: '+(o.perito||'—')+' | MOTORISTA: '+(o.motorista||'—'));else if(tipo==='samu')addCampo('VTR '+(o.vtr||'—'),'MÉDICO: '+(o.medico||'—')+' | ENF: '+(o.enfermeiro||'—')+' | MOT: '+(o.motorista||'—'));else if(tipo==='rabecao')addCampo('VTR '+(o.vtr||'—'),'MOTORISTA: '+(o.motorista||'—')+' | AUXILIAR: '+(o.auxiliar||'—'));else if(tipo==='outros')addCampo(o.orgao||'—',o.info||'');else addCampo('VTR '+(o.vtr||'—'),o.agentes||o.equipe||'—');});});
-  y+=2;
-  // 8
-  if(dados.testemunhas&&dados.testemunhas.length){addTit('8. Testemunhas');dados.testemunhas.forEach((t,i)=>{addSubTit('Testemunha '+(i+1));addCampo('NOME',t.nome||'—');if(t.telefone)addCampo('TELEFONE',t.telefone);if(t.doc)addCampo('RG/CPF',t.doc);if(t.declaracao)addCaixa(t.declaracao);});y+=2;}
-  // 9 Imagens
-  const imgsUrl=(dados.imagens||[]).filter(u=>u&&!u.startsWith('data:'));
-  const imgsB64=(dados.imagens||[]).filter(u=>u&&u.startsWith('data:'));
-  const todasImgs=[...imgsUrl,...imgsB64];
-  if(todasImgs.length){
-    addTit('9. Imagens do Local');
-    let cnt=0;
-    for(const imgSrc of todasImgs){
-      if(cnt>=8)break; cnt++;
-      verificar(95);
-      try{
-        const iW=140,iH=85;const iX=mE+(lMax-iW)/2;
-        doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(127,0,0);
-        doc.text('FOTO '+cnt+':',mE,y);y+=4;
-        if(imgSrc.startsWith('data:')){
-          // Base64: extrair tipo e dados e passar direto ao jsPDF (mais confiável que Image element)
-          const match=imgSrc.match(/^data:image\/([\w]+);base64,(.+)$/);
-          if(match){
-            const fmt=match[1].toUpperCase()==='JPG'?'JPEG':match[1].toUpperCase()==='PNG'?'PNG':'JPEG';
-            doc.addImage(match[2],fmt,iX,y,iW,iH);
-          } else {
-            const imgEl=new Image();imgEl.src=imgSrc;
-            await new Promise(r=>{imgEl.onload=r;imgEl.onerror=r;});
-            doc.addImage(imgEl,'JPEG',iX,y,iW,iH);
-          }
-        } else {
-          // Tentar converter URL do Drive para base64 via fetch (evita CORS do loadImg)
-          let imgAdded=false;
-          try{
-            const resp=await fetch(imgSrc,{mode:'cors'});
-            if(resp.ok){
-              const blob=await resp.blob();
-              const b64=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob);});
-              const m2=b64.match(/^data:image\/(\w+);base64,(.+)$/);
-              if(m2){const f2=m2[1].toUpperCase()==='PNG'?'PNG':'JPEG';doc.addImage(m2[2],f2,iX,y,iW,iH);imgAdded=true;}
-            }
-          }catch(e2){}
-          if(!imgAdded){
-            // Fallback: tentar via elemento Image (funciona em alguns browsers sem CORS estrito)
-            try{
-              const imgEl=await loadImg(imgSrc);
-              doc.addImage(imgEl,'JPEG',iX,y,iW,iH);
-              imgAdded=true;
-            }catch(e3){}
-          }
-          if(!imgAdded){
-            // Último recurso: tentar thumbnail URL do Drive (formato diferente, às vezes sem CORS)
-            if(imgSrc.includes('drive.google.com')){
-              try{
-                const thumbUrl=imgSrc.includes('uc?')?imgSrc.replace('uc?export=view&','thumbnail?').replace(/&sz=\w+/,'')+'&sz=w800':imgSrc;
-                const resp2=await fetch(thumbUrl,{mode:'cors'});
-                if(resp2.ok){
-                  const blob2=await resp2.blob();
-                  const b642=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob2);});
-                  const m3=b642.match(/^data:image\/(\w+);base64,(.+)$/);
-                  if(m3){doc.addImage(m3[2],'JPEG',iX,y,iW,iH);imgAdded=true;}
-                }
-              }catch(e4){}
-            }
-          }
-          if(!imgAdded)throw new Error('Imagem não carregável');
-        }
-        y+=iH+4;
-      }catch(e){doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(150);doc.text('Foto '+cnt+' não disponível.',mE+2,y);y+=8;}
-    }
-    y+=2;
-  }
-  // 10
-  addTit('10. Observações'); addCaixa(dados.observacoes);
-  addRod();
-  const total=doc.getNumberOfPages();
-  for(let p=1;p<=total;p++){doc.setPage(p);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100);doc.text('Página '+p+' de '+total,200-doc.getTextWidth('Página '+p+' de '+total),altPag-2);}
-  doc.save(fileName);
-  sfPdfGerado=true;
-  toast('PDF gerado com sucesso!','ok');
-  if(perguntarFechar){
-    setTimeout(()=>{
-      if(confirm('PDF gerado! \n\nRelatório concluído? Deseja encerrar o formulário?')){
-        sfFecharModal(true);
-      }
-    },400);
-  }
-}
-
-// ── Busca ─────────────────────────────────────────────────────
-function sfToggleBusca(){const bl=document.getElementById('sfBuscaBlock');if(bl){bl.style.display=bl.style.display==='none'?'block':'none';if(bl.style.display==='none')sfLimparBusca();}}
-async function sfExecutarBusca(){
-  const de=document.getElementById('sfSrchDe').value;
-  const ate=document.getElementById('sfSrchAte').value;
-  const txt=(document.getElementById('sfSrchTxt').value||'').trim().toUpperCase();
-  if(!de&&!ate&&!txt){toast('Informe ao menos um critério.','err');return;}
-  try{
-    const filtro=G.role==='supervisor'?{de,ate,txt,savedBy:G.name}:{de,ate,txt};
-    const r=await apiFatais('searchSinistrosFatais',filtro);
-    sfSearchResults=r.data||[]; sfSearchMode=true;
-    const info=document.getElementById('sfSearchInfo');
-    if(info){info.style.display='block';info.textContent=sfSearchResults.length+' resultado(s) encontrado(s)';}
-    sfRenderLista();
-  }catch(e){toast('Erro na busca: '+e.message,'err');}
-}
-function sfLimparBusca(){sfSearchResults=[];sfSearchMode=false;['sfSrchDe','sfSrchAte','sfSrchTxt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const info=document.getElementById('sfSearchInfo');if(info)info.style.display='none';sfRenderLista();}
 </script>
 
-
-<!-- Modal Importar Usuários em Lote -->
 <div id="adminImportModal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
   <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
