@@ -1912,7 +1912,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-18-v10'; // Via Livre integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-18-v90'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9326,651 +9326,11 @@ function srvDelRend(id) {
 }
 
 function srvCm(id) { var el=document.getElementById(id); if(el)el.classList.remove('open'); }
-// ── fim Serviços ─────────────────────────────────────────────</script>
-<!-- TELA ADMIN -->
-<div id="telaAdmin" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);padding:12px 10px 40px;">
+// ── fim Serviços ─────────────────────────────────────────────
 
-  <!-- Header Admin -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--accent2);letter-spacing:1px;">⚙ GESTÃO DE USUÁRIOS</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="adminBaixarTemplate()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-download"></i> Template</button>
-      <button onclick="adminAbrirImport()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-import"></i> Importar</button>
-      <button onclick="adminNovoUsuario()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-plus"></i> Novo Usuário</button>
-    </div>
-  </div>
-
-  <!-- Filtros -->
-  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-    <div style="flex:1;min-width:180px;position:relative;">
-      <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;"></i>
-      <input type="text" id="adminBusca" placeholder="Buscar por nome, CPF, matrícula..." oninput="adminFiltrar()"
-        style="width:100%;padding:9px 12px 9px 32px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
-    </div>
-    <select id="adminFiltroPerfil" onchange="adminFiltrar()"
-      style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;">
-      <option value="">Todos os perfis</option>
-      <option value="admin">Administrador</option>
-      <option value="supervisor">Supervisor</option>
-      <option value="central">Central</option>
-      <option value="chefia">Chefia</option>
-      <option value="operadorvl">Operador VL</option>
-    </select>
-    <select id="adminFiltroStatus" onchange="adminFiltrar()"
-      style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;">
-      <option value="">Todos</option>
-      <option value="ativo">Ativos</option>
-      <option value="inativo">Inativos</option>
-    </select>
-  </div>
-
-  <!-- Lista de usuários -->
-  <div id="adminLista" style="display:flex;flex-direction:column;gap:6px;">
-    <div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;">Carregando usuários...</div>
-  </div>
-</div>
-
-<!-- Modal Usuário (criar/editar) -->
-<div id="adminModal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;">
-    <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:16px;" id="adminModalTitulo">Novo Usuário</div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div style="grid-column:1/-1;">
-        <span class="flabel">Nome Completo</span>
-        <input type="text" class="finput" id="adminNomeCompleto" placeholder="Nome completo do agente" autocomplete="off" style="text-transform:uppercase;">
-      </div>
-      <div>
-        <span class="flabel">Nome de Guerra</span>
-        <input type="text" class="finput" id="adminNomeGuerra" placeholder="Ex: SILVA" autocomplete="off" style="text-transform:uppercase;">
-      </div>
-      <div>
-        <span class="flabel">Matrícula</span>
-        <input type="text" class="finput" id="adminMatricula" placeholder="Ex: 12345" autocomplete="off" style="text-transform:uppercase;">
-      </div>
-      <div>
-        <span class="flabel">CPF</span>
-        <input type="text" class="finput" id="adminCpf" placeholder="000.000.000-00" maxlength="14" oninput="fmtCpf(this)" autocomplete="off">
-      </div>
-      <div>
-        <span class="flabel">Status</span>
-        <select class="fselect" id="adminAtivo">
-          <option value="true">✅ Ativo</option>
-          <option value="false">🚫 Inativo</option>
-        </select>
-      </div>
-    </div>
-
-    <div style="margin-bottom:14px;">
-      <span class="flabel">Perfis de Acesso</span>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="adminPerfisWrap">
-        <label class="admin-perfil-chk"><input type="checkbox" value="admin"> Administrador</label>
-        <label class="admin-perfil-chk"><input type="checkbox" value="supervisor"> Supervisor</label>
-        <label class="admin-perfil-chk"><input type="checkbox" value="central"> Central</label>
-        <label class="admin-perfil-chk"><input type="checkbox" value="chefia"> Chefia</label>
-        <label class="admin-perfil-chk"><input type="checkbox" value="operadorvl"> Operador VL</label>
-      </div>
-      <div id="adminPerfisErr" style="display:none;color:var(--red2);font-size:11px;margin-top:4px;">Selecione pelo menos um perfil.</div>
-    </div>
-
-    <div id="adminSenhaInicialWrap" style="margin-bottom:14px;">
-      <span class="flabel">Senha Inicial <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(o usuário deverá trocar no primeiro acesso)</span></span>
-      <div style="position:relative;">
-        <input type="password" class="finput" id="adminSenhaInicial" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="padding-right:44px;">
-        <button type="button" onclick="toggleSenhaVis('adminSenhaInicial',this)"
-          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;">👁</button>
-      </div>
-    </div>
-
-    <div id="adminModalErr" style="display:none;color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px;"></div>
-
-    <div style="display:flex;gap:8px;">
-      <button onclick="adminFecharModal()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
-      <button id="adminBtnSalvar" onclick="adminSalvarUsuario()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- TELA SERVIÇOS -->
-<div id="telaServicos" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
-  <div class="srv-subbar">
-    <div class="srv-subtab active" id="srvTabAuth" onclick="srvSwitchTab('auth')">📋 Autorizações</div>
-    <div class="srv-subtab" id="srvTabRend" onclick="srvSwitchTab('rend')">🔄 Rendições</div>
-  </div>
-  <div class="srv-pane active" id="srvPaneAuth">
-    <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
-      <div class="toolbar-row1">
-        <button class="bnav" onclick="srvNavDate(-1)">‹</button>
-        <input type="date" class="date-sel" id="srvAuthDate" onchange="srvOnAuthDateChange()">
-        <button class="bnav" onclick="srvNavDate(1)">›</button>
-        <button class="bnav btoday" onclick="srvGoToday('auth')">Hoje</button>
-      </div>
-      <div class="toolbar-row2">
-        <button class="bref" id="srvBRefA" onclick="srvLoadRecords(true)">↻</button>
-        <span class="refresh-info" id="srvAuthRefreshInfo"></span>
-        <button class="bnav btoday" id="srvBtnBusca" onclick="srvToggleBusca()" style="font-size:14px;">🔍</button>
-        <button id="srvBtnNA" onclick="srvOpenAuthModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Novo</button>
-      </div>
-    </div>
-    <div style="padding:8px 10px 0;">
-      <div class="s-search-block" id="srvSearchBlock" style="display:none;">
-        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#60a5fa;text-transform:uppercase;margin-bottom:8px;">Buscar por Local / Via</div>
-        <div class="s-row2">
-          <div><label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px;">De</label><input type="date" id="srvSrchDe"></div>
-          <div><label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px;">Até</label><input type="date" id="srvSrchAte"></div>
-        </div>
-        <div class="s-sinput-row">
-          <input type="text" id="srvSrchLocal" placeholder="Digite o local ou via...">
-          <button class="s-btn-buscar" onclick="srvExecutarBusca()">Buscar</button>
-          <button class="s-btn-limpar" onclick="srvLimparBusca()">✕</button>
-        </div>
-      </div>
-      <div id="srvSearchResultInfo" class="s-search-result-info" style="display:none;"></div>
-      <div class="s-frow">
-        <div class="s-fchip active" onclick="srvSetFilter('todos')" data-sf="todos">Todos</div>
-        <div class="s-fchip" onclick="srvSetFilter('qru')" data-sf="qru">QRU</div>
-        <div class="s-fchip" onclick="srvSetFilter('interdicao')" data-sf="interdicao">Interdição</div>
-        <div class="s-fchip" onclick="srvSetFilter('circulacao')" data-sf="circulacao">Circulação</div>
-        <div class="s-fchip" onclick="srvSetFilter('estacionamento')" data-sf="estacionamento">Estacionamento</div>
-        <div class="s-fchip" onclick="srvSetFilter('fato')" data-sf="fato">Fato</div>
-      </div>
-      <div id="srvAuthList"></div>
-    </div>
-  </div>
-  <div class="srv-pane" id="srvPaneRend">
-    <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
-      <div class="toolbar-row1">
-        <button class="bnav" onclick="srvNavRD(-1)">‹</button>
-        <input type="date" class="date-sel" id="srvRendDate" onchange="srvOnRendDateChange()">
-        <button class="bnav" onclick="srvNavRD(1)">›</button>
-        <button class="bnav btoday" onclick="srvGoToday('rend')">Hoje</button>
-      </div>
-      <div class="toolbar-row2">
-        <button class="bref" id="srvBRefR" onclick="srvLoadRenditions(true)">↻</button>
-        <span class="refresh-info" id="srvRendRefreshInfo"></span>
-        <button id="srvBtnNR" onclick="srvOpenRendModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Rendição</button>
-      </div>
-    </div>
-    <div style="padding:8px 10px 0;">
-      <div class="s-search-bar"><span style="color:var(--text3);">🔍</span><input type="text" id="srvRendSearch" placeholder="Buscar por nome do agente..." oninput="srvRenderRend()"></div>
-      <div class="s-rend-tabs" id="srvRendTabs">
-        <div class="s-rend-tab active-ma" onclick="srvSetRendTab('madrugada')" data-rt="madrugada">🌑 Madrugada</div>
-        <div class="s-rend-tab" onclick="srvSetRendTab('manha')" data-rt="manha">☀️ Manhã</div>
-        <div class="s-rend-tab" onclick="srvSetRendTab('tarde')" data-rt="tarde">🌤 Tarde</div>
-        <div class="s-rend-tab" onclick="srvSetRendTab('noite')" data-rt="noite">🌙 Noite</div>
-      </div>
-      <div class="s-rend-sf">
-        <div class="s-rsf act" onclick="srvSetRendSF('todos')" data-sf="todos">Todos</div>
-        <div class="s-rsf" onclick="srvSetRendSF('pendente')" data-sf="pendente">Pendentes</div>
-        <div class="s-rsf" onclick="srvSetRendSF('concluida')" data-sf="concluida">Concluídas</div>
-        <div class="s-rsf" onclick="srvSetRendSF('cancelada')" data-sf="cancelada">Canceladas</div>
-      </div>
-      <div id="srvRendList"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Rendição Serviços -->
-<div class="cov" id="srvMRend" style="z-index:850;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;" id="srvMRendTit">Nova Rendição</div>
-      <button onclick="srvCm('srvMRend')" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div style="margin-bottom:10px;"><span class="flabel">Nº do Registro</span><input type="text" class="finput" id="srvFRReg" placeholder="Ex: REG.13979-26" autocomplete="off"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-      <div><span class="flabel">Data</span><input type="date" class="finput" id="srvFRD" style="min-height:unset;padding:11px 12px;font-size:14px;"></div>
-      <div><span class="flabel">Turno</span>
-        <select class="finput" id="srvFRT" style="min-height:unset;padding:11px 12px;font-size:14px;">
-          <option value="">Selecione...</option><option value="madrugada">Madrugada</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option>
-        </select>
-      </div>
-    </div>
-    <div style="margin-bottom:10px;"><span class="flabel">Local / Posto</span><input type="text" class="finput" id="srvFRL" placeholder="Ex: Semáforo REG.13979-26" autocomplete="off"></div>
-    <div style="margin-bottom:10px;"><span class="flabel">Agente a ser Rendido</span><input type="text" class="finput" id="srvFRA" placeholder="Nome e/ou matrícula" autocomplete="off"></div>
-    <div style="margin-bottom:10px;"><span class="flabel">Motivo da Rendição</span><textarea class="finput" id="srvFRM" placeholder="Descreva o motivo..." rows="3" style="min-height:80px;resize:none;"></textarea></div>
-    <div style="margin-bottom:14px;"><span class="flabel">Substituto <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(opcional)</span></span><input type="text" class="finput" id="srvFRS" placeholder="Preencher quando realizada" autocomplete="off"></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="srvCm('srvMRend')" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
-      <button id="srvBSR" onclick="srvSaveRend()" style="flex:2;padding:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Autorização Serviços -->
-<div class="cov" id="srvMAuth" style="z-index:850;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;" id="srvMAuthTit">Novo Registro</div>
-      <button onclick="srvCm('srvMAuth')" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div id="srvMAuthBody"></div>
-    <div style="display:flex;gap:8px;margin-top:16px;">
-      <button onclick="srvCm('srvMAuth')" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
-      <button id="srvBSA" onclick="srvSaveAuth()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
-    </div>
-  </div>
-</div>
-<!-- Modal Importar Usuários em Lote -->
-
-<!-- TELA SINISTROS FATAIS                                         -->
-<!-- ══════════════════════════════════════════════════════════════ -->
-<style>
-/* ── Sinistros Fatais: estilos base ── */
-.sf-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
-.sf-section-title {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
-  letter-spacing: 2px; text-transform: uppercase; color: #ef4444;
-  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
-  padding-bottom: 6px; border-bottom: 1px solid rgba(198,40,40,0.25);
-}
-.sf-label {
-  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-  color: #94a3b8; display: block; margin-bottom: 4px; margin-top: 8px;
-  padding-left: 7px; border-left: 2px solid #c62828;
-}
-body.light-mode .sf-label { color: #374151; }
-.sf-input::placeholder { color: #64748b; }
-body.light-mode .sf-input::placeholder { color: #9ca3af; }
-body.light-mode .sf-input { color: #1e293b; background: #f8fafc; border-color: #cbd5e1; }
-body.light-mode .sf-input:focus { border-color: #c62828; background: #fff; }
-body.light-mode .sf-section-title { color: #c62828; }
-body.light-mode .sf-item { background: rgba(198,40,40,0.05); }
-body.light-mode .sf-item-blue { background: rgba(59,130,246,0.05); }
-body.light-mode .sf-subsec { background: #f8fafc; border-color: #e2e8f0; }
-body.light-mode .sf-card { background: #fff; border-color: #e2e8f0; }
-body.light-mode .sf-ck-item { background: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
-body.light-mode .sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.08); border-color: #c62828; }
-.sf-input {
-  width: 100%; padding: 10px 12px; background: var(--surface3);
-  border: 1.5px solid var(--border); border-radius: 8px; color: var(--text);
-  font-size: 14px; font-family: inherit; box-sizing: border-box;
-  text-transform: uppercase; transition: border-color .2s;
-}
-.sf-input:focus { border-color: #c62828; outline: none; background: var(--card); }
-.sf-input::placeholder { text-transform: none; color: var(--text3); }
-textarea.sf-input { resize: vertical; min-height: 70px; touch-action: pan-y; }
-select.sf-input { text-transform: none; }
-.sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.sf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-.sf-item {
-  background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25);
-  border-left: 4px solid #c62828; border-radius: 8px; padding: 12px 42px 12px 12px;
-  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
-}
-.sf-item-blue {
-  background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.25);
-  border-left: 4px solid #3b82f6; border-radius: 8px; padding: 12px 42px 12px 12px;
-  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
-}
-.sf-item-tit {
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
-  letter-spacing: 1.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 8px;
-}
-.sf-item-blue .sf-item-tit { color: #60a5fa; }
-.sf-btnrem {
-  position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.18);
-  border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; padding: 4px 8px;
-  color: #f87171; font-size: 11px; font-family: 'Rajdhani', sans-serif;
-  font-weight: 700; cursor: pointer; z-index: 2;
-}
-.sf-add-btn {
-  padding: 8px 14px; background: rgba(198,40,40,0.12);
-  border: 1px dashed rgba(198,40,40,0.4); border-radius: 8px; color: #ef4444;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
-  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
-}
-.sf-add-btn-blue {
-  padding: 8px 14px; background: rgba(59,130,246,0.1);
-  border: 1px dashed rgba(59,130,246,0.4); border-radius: 8px; color: #60a5fa;
-  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
-  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
-}
-.sf-ck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
-.sf-ck-item {
-  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);
-  cursor: pointer; padding: 6px 8px; border-radius: 6px;
-  border: 1px solid var(--border); background: rgba(255,255,255,0.03);
-  transition: background .15s;
-}
-.sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.4); }
-.sf-ck-item input[type="checkbox"] { accent-color: #c62828; width: 15px; height: 15px; flex-shrink: 0; }
-.sf-radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
-.sf-radio-label {
-  display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text);
-  cursor: pointer; font-weight: normal;
-}
-.sf-radio-label input[type="radio"] { accent-color: #c62828; }
-.sf-char { font-size: 10px; color: var(--text3); text-align: right; margin-top: 2px; }
-/* Imagens */
-.sf-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
-.sf-img-slot {
-  border: 2px dashed var(--border2); border-radius: 8px; padding: 10px;
-  text-align: center; background: var(--surface3); min-height: 150px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-}
-.sf-img-slot .sf-img-wrap {
-  width: 100%; height: 120px; display: flex; align-items: center; justify-content: center;
-  overflow: hidden; flex-shrink: 0;
-}
-.sf-img-slot img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; }
-.sf-img-slot button { margin: 2px 2px 0; font-size: 11px; padding: 5px 8px; }
-/* Subsecção de fatores */
-.sf-subsec {
-  background: var(--card); border: 1px solid var(--border);
-  border-left: 4px solid rgba(198,40,40,0.4); border-radius: 8px;
-  padding: 12px; margin-bottom: 10px;
-}
-.sf-subsec-tit {
-  font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #ef4444;
-  text-transform: uppercase; margin-bottom: 8px;
-}
-/* Fichas dos cartões na lista */
-.sf-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-left: 4px solid #c62828; border-radius: 10px; padding: 12px;
-  margin-bottom: 8px; transition: transform .15s;
-}
-.sf-card:active { transform: scale(0.99); }
-@keyframes fadeinUp { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
-@media (max-width: 768px) {
-  .sf-row  { grid-template-columns: 1fr; }
-  .sf-row3 { grid-template-columns: 1fr 1fr; }
-  .sf-ck-grid { grid-template-columns: 1fr; }
-  .sf-img-grid { grid-template-columns: 1fr 1fr; }
-  .sf-add-btn, .sf-add-btn-blue { width: 100%; padding: 13px; font-size: 14px; margin-top: 6px; }
-  .sf-btnrem { padding: 8px 12px; font-size: 13px; }
-  .sf-item, .sf-item-blue { padding: 12px; margin-bottom: 10px; }
-  .sf-section { padding: 12px; }
-  .sf-section-title { font-size: 14px; }
-  .sf-subsec { padding: 10px; }
-  .sf-ck-item { padding: 10px 8px; font-size: 13px; }
-  #telaFatais { touch-action: pan-y; }
-  /* Garantir que cards filhos não bloqueiem scroll do modal no mobile */
-  #sfModalBox { touch-action: pan-y; }
-  #sfFormBody { touch-action: pan-y; }
-  .sf-item, .sf-item-blue, .sf-subsec, .sf-section { touch-action: pan-y; }
-}
-
-</style>
-
-<!-- ── TELA PRINCIPAL (LISTA) ── -->
-<div id="telaFatais" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
-  <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
-    <div class="toolbar-row1">
-      <button class="bnav" onclick="sfNavDate(-1)">‹</button>
-      <input type="date" class="date-sel" id="sfDateInput" onchange="sfOnDateChange()">
-      <button class="bnav" onclick="sfNavDate(1)">›</button>
-      <button class="bnav btoday" onclick="sfGoHoje()">Hoje</button>
-    </div>
-    <div class="toolbar-row2">
-      <button class="bref" id="sfBRef" onclick="sfCarregar(true)">↻</button>
-      <span class="refresh-info" id="sfRefreshInfo"></span>
-      <button id="sfBtnNovo" onclick="sfAbrirModal(null)" style="display:none;padding:9px 14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-plus"></i> Novo</button>
-      <button onclick="sfToggleBusca()" class="bnav btoday" style="font-size:14px;">🔍</button>
-    </div>
-  </div>
-  <!-- Bloco busca -->
-  <div id="sfBuscaBlock" style="display:none;padding:10px;background:var(--surface2);border-bottom:1px solid var(--border);">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#ef4444;text-transform:uppercase;margin-bottom:8px;">Buscar Sinistros</div>
-    <div class="sf-row" style="margin-bottom:8px;">
-      <div><label class="sf-label" style="border:none;padding:0;">De</label><input type="date" id="sfSrchDe" class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;"></div>
-      <div><label class="sf-label" style="border:none;padding:0;">Até</label><input type="date" id="sfSrchAte" class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;"></div>
-    </div>
-    <div style="display:flex;gap:6px;">
-      <input type="text" id="sfSrchTxt" placeholder="Local, vítima, tipo..." class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;flex:1;">
-      <button onclick="sfExecutarBusca()" style="padding:8px 14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Buscar</button>
-      <button onclick="sfLimparBusca()" style="padding:8px 10px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">✕</button>
-    </div>
-    <div id="sfSearchInfo" style="display:none;font-size:11px;color:#ef4444;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:6px;"></div>
-  </div>
-  <div style="padding:10px;" id="sfListaWrap"><div id="sfLista"></div></div>
-</div>
-
-<!-- ── MODAL FORMULÁRIO COMPLETO ── -->
-<div id="sfModal" class="cov" style="z-index:870;align-items:flex-end;">
- <div id="sfModalBox" style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;will-change:scroll-position;touch-action:pan-y;">
-
-    <!-- Cabeçalho -->
-    <div id="sfModalHeader" style="background:linear-gradient(135deg,#7f0000,#c62828);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0;margin:-0px;position:sticky;top:0;z-index:5;">
-      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:#fff;" id="sfModalTit">⚠ NOVO SINISTRO FATAL</div>
-      <button onclick="sfFecharModal()" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;width:36px;height:36px;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-    </div>
-
-   <div id="sfFormBody">
-
-      <!-- ══ 1. DADOS GERAIS ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-info-circle"></i> 1. Dados Gerais</div>
-        <div class="sf-row">
-          <div><label class="sf-label">Data *</label><input type="date" class="sf-input" id="sfData"></div>
-          <div><label class="sf-label">Hora *</label><input type="text" class="sf-input" id="sfHora" placeholder="HH:MM" maxlength="5" inputmode="numeric" oninput="sfMascaraHora(this)"></div>
-        </div>
-        <label class="sf-label">Tipo de Sinistro *</label>
-        <select class="sf-input" id="sfTipo" onchange="sfToggleOutroTipo()">
-          <option value="">Selecione...</option>
-          <option value="COLISÃO">Colisão</option>
-          <option value="ATROPELAMENTO">Atropelamento</option>
-          <option value="CAPOTAMENTO">Capotamento</option>
-          <option value="DESEQUILÍBRIO DE MOTO">Desequilíbrio de Moto</option>
-          <option value="CHOQUE COM POSTE">Choque com Poste</option>
-          <option value="CHOQUE COM ÁRVORE">Choque com Árvore</option>
-          <option value="OUTROS">Outros</option>
-        </select>
-        <div id="sfTipoOutroWrap" style="display:none;"><label class="sf-label">Especifique *</label><input type="text" class="sf-input" id="sfTipoOutro" placeholder="Tipo do sinistro"></div>
-        <label class="sf-label">Logradouro *</label>
-        <input type="text" class="sf-input" id="sfLogradouro" placeholder="AV. PRESIDENTE CASTELO BRANCO">
-        <div class="sf-row">
-          <div><label class="sf-label">Número / Referência</label><input type="text" class="sf-input" id="sfNumero" placeholder="2210"></div>
-          <div><label class="sf-label">Bairro *</label><input type="text" class="sf-input" id="sfBairro" placeholder="CARLITO PAMPLONA"></div>
-        </div>
-      </div>
-
-      <!-- ══ 2. VEÍCULOS ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-car-crash"></i> 2. Veículos Envolvidos</div>
-        <div id="sfVeiculosContainer"></div>
-        <button class="sf-add-btn" onclick="sfAddVeiculo()"><i class="fas fa-plus"></i> Adicionar Veículo</button>
-      </div>
-
-      <!-- ══ 3. ENVOLVIDOS ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-user-injured"></i> 3. Envolvidos</div>
-        <div id="sfEnvolvidosContainer"></div>
-        <button class="sf-add-btn" onclick="sfAddEnvolvido()"><i class="fas fa-user-plus"></i> Adicionar Envolvido</button>
-      </div>
-
-      <!-- ══ 4. DINÂMICA ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-route"></i> 4. Dinâmica do Sinistro</div>
-        <label class="sf-label">Descrição *</label>
-        <textarea class="sf-input" id="sfDinamica" rows="5" placeholder="DESCREVA DETALHADAMENTE COMO OCORREU O SINISTRO..." oninput="sfCharCount(this,'sfDinCount')"></textarea>
-        <div class="sf-char" id="sfDinCount">0 caracteres</div>
-      </div>
-
-      <!-- ══ 5. FATORES DE RISCO ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-exclamation-triangle"></i> 5. Fatores de Risco</div>
-
-        <!-- 5.1 Por envolvido (gerado dinamicamente) -->
-        <div id="sfFatoresContainer"></div>
-
-        <!-- 5.2 Pavimento -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-road"></i> Pavimento e Calçadas</div>
-          <div class="sf-ck-grid">
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkVestigios" onchange="sfToggleTipoVestigios()"> Vestígios no pavimento</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkPavimento"> Pavimento irregular/buracos</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkTampas"> Tampas/grelhas ausentes</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkCalcada"> Calçada deficiente</label>
-          </div>
-          <div id="sfTipoVestigiosWrap" style="display:none;margin-top:8px;">
-            <label class="sf-label" style="border:none;padding:0;">Tipo de vestígio:</label>
-            <div class="sf-radio-group">
-              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="AREIA"> Areia</label>
-              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="ÓLEO"> Óleo</label>
-              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="SUBSTÂNCIA DIVERSA"> Substância diversa</label>
-              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="OUTRO"> Outro</label>
-            </div>
-            <input type="text" class="sf-input" id="sfVestigioOutro" placeholder="ESPECIFIQUE O VESTÍGIO" style="display:none;margin-top:6px;">
-          </div>
-          <label class="sf-label">Detalhes do Pavimento</label>
-          <textarea class="sf-input" id="sfDetPavimento" rows="2" oninput="sfCharCount(this,'sfPavCount')"></textarea>
-          <div class="sf-char" id="sfPavCount">0 caracteres</div>
-        </div>
-
-        <!-- 5.3 Sinalização -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-traffic-light"></i> Sinalização</div>
-          <div class="sf-ck-grid">
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkSinDef" onchange="sfToggleDetSin()"> Sinalização deficiente/inexistente</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkSemaforo"> Falha em semáforo</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkSinBom" onchange="sfToggleConservSin()"> Sinalização em bom estado</label>
-          </div>
-          <div id="sfConservSinWrap" style="display:none;margin-top:8px;">
-            <label class="sf-label" style="border:none;padding:0;">Tipo em bom estado:</label>
-            <div class="sf-radio-group">
-              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="VERTICAL"> Vertical</label>
-              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="HORIZONTAL"> Horizontal</label>
-              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="VERTICAL E HORIZONTAL" checked> Ambas</label>
-            </div>
-          </div>
-          <div id="sfDetSinWrap" style="display:none;">
-            <label class="sf-label">Descreva a sinalização deficiente:</label>
-            <textarea class="sf-input" id="sfDetSin" rows="2" oninput="sfCharCount(this,'sfSinCount')"></textarea>
-            <div class="sf-char" id="sfSinCount">0 caracteres</div>
-          </div>
-          <div class="sf-row" style="margin-top:8px;">
-            <div><label class="sf-label">Velocidade da Via (km/h)</label><input type="text" class="sf-input" id="sfVelocidade" placeholder="EX: 60 KM/H"></div>
-            <div>
-              <label class="sf-label">Radar Próximo</label>
-              <div class="sf-radio-group" style="margin-top:4px;">
-                <label class="sf-radio-label"><input type="radio" name="sfRadar" value="SIM"> Sim</label>
-                <label class="sf-radio-label"><input type="radio" name="sfRadar" value="NÃO" checked> Não</label>
-              </div>
-            </div>
-          </div>
-          <label class="sf-label">Excesso de Velocidade (qual veículo)</label>
-          <textarea class="sf-input" id="sfExcVel" rows="2" oninput="sfCharCount(this,'sfVelCount')"></textarea>
-          <div class="sf-char" id="sfVelCount">0 caracteres</div>
-        </div>
-
-        <!-- 5.4 Visibilidade -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-eye"></i> Visibilidade</div>
-          <div class="sf-ck-grid">
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkCurva"> Trecho em curva</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkVisib"> Dificuldade de visibilidade</label>
-            <label class="sf-ck-item"><input type="checkbox" id="sfCkIlum"> Iluminação deficiente</label>
-          </div>
-        </div>
-
-        <!-- 5.5 Câmeras -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-camera"></i> Câmeras no Local</div>
-          <div class="sf-radio-group">
-            <label class="sf-radio-label"><input type="radio" name="sfCameras" value="NÃO" id="sfCamerasNao" checked onchange="sfToggleCameraOrigem()"> Não</label>
-            <label class="sf-radio-label"><input type="radio" name="sfCameras" value="SIM" id="sfCamerasSim" onchange="sfToggleCameraOrigem()"> Sim</label>
-          </div>
-          <div id="sfCameraOrigemWrap" style="display:none;margin-top:8px;">
-            <input type="text" class="sf-input" id="sfCameraOrigem" placeholder="ORIGEM: AMC, SSPDS, RESIDENCIAL...">
-          </div>
-        </div>
-
-        <!-- 5.6 Condições dos Veículos (dinâmico) -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-car-crash"></i> Condições dos Veículos</div>
-          <div id="sfCondicoesVeicContainer"><p style="color:var(--text3);font-size:12px;margin:4px 0;">Adicione veículos na seção 2 para preencher as condições.</p></div>
-        </div>
-
-        <!-- 5.7 Outros -->
-        <div class="sf-subsec">
-          <div class="sf-subsec-tit"><i class="fas fa-clipboard-list"></i> Outros Fatores</div>
-          <textarea class="sf-input" id="sfOutrosFatores" rows="2" oninput="sfCharCount(this,'sfOutCount')"></textarea>
-          <div class="sf-char" id="sfOutCount">0 caracteres</div>
-        </div>
-      </div>
-
-      <!-- ══ 6. DOCUMENTAÇÃO ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-file-alt"></i> 6. Documentação</div>
-        <label class="sf-label">BOAT</label>
-        <input type="text" class="sf-input" id="sfBoat" placeholder="NÚMERO DO BOAT">
-        <div style="margin-top:10px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">DRV — Documentos de Remoção de Veículos</div>
-          <div id="sfDRVContainer"></div>
-          <button class="sf-add-btn" onclick="sfAddDRV()"><i class="fas fa-plus"></i> Adicionar DRV</button>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Testes de Alcoolemia</div>
-          <div id="sfTesteContainer"></div>
-          <button class="sf-add-btn" onclick="sfAddTeste()"><i class="fas fa-plus"></i> Adicionar Teste</button>
-        </div>
-        <div style="margin-top:10px;">
-          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Outros Documentos</div>
-          <div id="sfDocContainer"></div>
-          <button class="sf-add-btn" onclick="sfAddDoc()"><i class="fas fa-plus"></i> Adicionar Documento</button>
-        </div>
-      </div>
-
-      <!-- ══ 7. ÓRGÃOS DE APOIO ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-shield-alt"></i> 7. Órgãos de Apoio</div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">AMC</div>
-        <div id="sfAmcContainer"></div>
-        <button class="sf-add-btn" id="sfBtnAMC" onclick="sfAddOrgao('amc')"><i class="fas fa-plus"></i> Adicionar AMC</button>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#a78bfa;text-transform:uppercase;margin:10px 0 4px;">PEFOCE</div>
-        <div id="sfPefoceContainer"></div>
-        <button class="sf-add-btn" id="sfBtnPEFOCE" onclick="sfAddOrgao('pefoce')"><i class="fas fa-plus"></i> Adicionar PEFOCE</button>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#34d399;text-transform:uppercase;margin:10px 0 4px;">Polícia Militar</div>
-        <div id="sfPmContainer"></div>
-        <button class="sf-add-btn" id="sfBtnPM" onclick="sfAddOrgao('pm')"><i class="fas fa-plus"></i> Adicionar PM</button>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#60a5fa;text-transform:uppercase;margin:10px 0 4px;">SAMU</div>
-        <div id="sfSamuContainer"></div>
-        <button class="sf-add-btn" id="sfBtnSAMU" onclick="sfAddOrgao('samu')"><i class="fas fa-plus"></i> Adicionar SAMU</button>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#fbbf24;text-transform:uppercase;margin:10px 0 4px;">Rabecão</div>
-        <div id="sfRabecaoContainer"></div>
-        <button class="sf-add-btn" id="sfBtnRabecao" onclick="sfAddOrgao('rabecao')"><i class="fas fa-plus"></i> Adicionar Rabecão</button>
-        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin:10px 0 4px;">Outros</div>
-        <div id="sfOutrosContainer"></div>
-        <button class="sf-add-btn" id="sfBtnOutros" onclick="sfAddOrgao('outros')"><i class="fas fa-plus"></i> Adicionar Outro Órgão</button>
-      </div>
-
-      <!-- ══ 8. TESTEMUNHAS ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-user-friends"></i> 8. Testemunhas</div>
-        <div id="sfTestemunhasContainer"></div>
-        <button class="sf-add-btn-blue" id="sfBtnTestemunha" onclick="sfAddTestemunha()"><i class="fas fa-user-plus"></i> Adicionar Testemunha</button>
-      </div>
-
-      <!-- ══ 9. IMAGENS ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-images"></i> 9. Imagens do Local</div>
-        <p style="color:var(--text3);font-size:12px;margin:0 0 8px;">Adicione até 8 fotos do local. Fotos salvas no Google Drive.</p>
-        <div class="sf-img-grid" id="sfImgContainer"></div>
-      </div>
-
-      <!-- ══ 10. OBSERVAÇÕES ══ -->
-      <div class="sf-section">
-        <div class="sf-section-title"><i class="fas fa-sticky-note"></i> 10. Observações</div>
-        <textarea class="sf-input" id="sfObservacoes" rows="4" oninput="sfCharCount(this,'sfObsCount')"></textarea>
-        <div class="sf-char" id="sfObsCount">0 caracteres</div>
-      </div>
-
-          <!-- Botões de ação -->
-      <div style="padding:14px 16px 24px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button id="sfBtnSalvar" onclick="sfSalvar()" style="flex:2;min-width:140px;padding:14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem</button>
-        <button id="sfBtnPDF" onclick="sfGerarPDF()" style="flex:1;min-width:90px;padding:14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-pdf"></i> PDF</button>
-        <button onclick="sfFecharModal()" style="flex:1;min-width:70px;padding:14px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Cancelar</button>
-      </div>
-    </div><!-- /sfFormBody -->
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════════════════════════════ -->
-<!-- JS DO MÓDULO SINISTROS FATAIS                                 -->
-<!-- ══════════════════════════════════════════════════════════════ -->
-<script>
+// ══════════════════════════════════════════════════════════════
+// JS DO MÓDULO SINISTROS FATAIS
+// ══════════════════════════════════════════════════════════════
 // ── Config ────────────────────────────────────────────────────
 var SF_URL = localStorage.getItem('sfScriptUrl') || 'https://script.google.com/macros/s/AKfycbxvXTM-dEBPRkQ-y5QS7u85Z9xDOWmhe83wYxMxHf5K1yfmiKJ8f-mVUn8DtLz0AUTRPQ/exec';
 
@@ -10055,6 +9415,8 @@ function sfOnDateChange() { sfCurrentDate=new Date(document.getElementById('sfDa
 
 // ── Init ──────────────────────────────────────────────────────
 function sfInit() {
+  // Guard: só inicializar se o DOM da aba fatal estiver presente
+  if(!document.getElementById('sfDateInput')) return;
   sfCurrentDate=new Date();
   document.getElementById('sfDateInput').value=sfIso(sfCurrentDate);
   const btnN=document.getElementById('sfBtnNovo');
@@ -10065,6 +9427,8 @@ function sfInit() {
 // ── Carregar lista ────────────────────────────────────────────
 var _sfCarregando = false;
 async function sfCarregar(manual=false) {
+  // Guard: abortar se DOM da aba fatal não estiver presente
+  if(!document.getElementById('sfLista')) return;
   if(_sfCarregando && !manual) return; // evitar chamadas simultâneas
   _sfCarregando = true;
   const bref=document.getElementById('sfBRef'); if(bref)bref.classList.add('spin');
@@ -11315,7 +10679,650 @@ async function sfExecutarBusca(){
   }catch(e){toast('Erro na busca: '+e.message,'err');}
 }
 function sfLimparBusca(){sfSearchResults=[];sfSearchMode=false;['sfSrchDe','sfSrchAte','sfSrchTxt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const info=document.getElementById('sfSearchInfo');if(info)info.style.display='none';sfRenderLista();}
+
 </script>
+<!-- TELA ADMIN -->
+<div id="telaAdmin" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);padding:12px 10px 40px;">
+
+  <!-- Header Admin -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--accent2);letter-spacing:1px;">⚙ GESTÃO DE USUÁRIOS</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="adminBaixarTemplate()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-download"></i> Template</button>
+      <button onclick="adminAbrirImport()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-import"></i> Importar</button>
+      <button onclick="adminNovoUsuario()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-plus"></i> Novo Usuário</button>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:180px;position:relative;">
+      <i class="fas fa-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;"></i>
+      <input type="text" id="adminBusca" placeholder="Buscar por nome, CPF, matrícula..." oninput="adminFiltrar()"
+        style="width:100%;padding:9px 12px 9px 32px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+    </div>
+    <select id="adminFiltroPerfil" onchange="adminFiltrar()"
+      style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;">
+      <option value="">Todos os perfis</option>
+      <option value="admin">Administrador</option>
+      <option value="supervisor">Supervisor</option>
+      <option value="central">Central</option>
+      <option value="chefia">Chefia</option>
+      <option value="operadorvl">Operador VL</option>
+    </select>
+    <select id="adminFiltroStatus" onchange="adminFiltrar()"
+      style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border);border-radius:8px;color:#fff;font-size:13px;outline:none;">
+      <option value="">Todos</option>
+      <option value="ativo">Ativos</option>
+      <option value="inativo">Inativos</option>
+    </select>
+  </div>
+
+  <!-- Lista de usuários -->
+  <div id="adminLista" style="display:flex;flex-direction:column;gap:6px;">
+    <div style="text-align:center;padding:40px;color:var(--text3);font-size:13px;">Carregando usuários...</div>
+  </div>
+</div>
+
+<!-- Modal Usuário (criar/editar) -->
+<div id="adminModal" style="display:none;position:fixed;inset:0;z-index:800;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
+  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;">
+    <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;margin-bottom:16px;" id="adminModalTitulo">Novo Usuário</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="grid-column:1/-1;">
+        <span class="flabel">Nome Completo</span>
+        <input type="text" class="finput" id="adminNomeCompleto" placeholder="Nome completo do agente" autocomplete="off" style="text-transform:uppercase;">
+      </div>
+      <div>
+        <span class="flabel">Nome de Guerra</span>
+        <input type="text" class="finput" id="adminNomeGuerra" placeholder="Ex: SILVA" autocomplete="off" style="text-transform:uppercase;">
+      </div>
+      <div>
+        <span class="flabel">Matrícula</span>
+        <input type="text" class="finput" id="adminMatricula" placeholder="Ex: 12345" autocomplete="off" style="text-transform:uppercase;">
+      </div>
+      <div>
+        <span class="flabel">CPF</span>
+        <input type="text" class="finput" id="adminCpf" placeholder="000.000.000-00" maxlength="14" oninput="fmtCpf(this)" autocomplete="off">
+      </div>
+      <div>
+        <span class="flabel">Status</span>
+        <select class="fselect" id="adminAtivo">
+          <option value="true">✅ Ativo</option>
+          <option value="false">🚫 Inativo</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px;">
+      <span class="flabel">Perfis de Acesso</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;" id="adminPerfisWrap">
+        <label class="admin-perfil-chk"><input type="checkbox" value="admin"> Administrador</label>
+        <label class="admin-perfil-chk"><input type="checkbox" value="supervisor"> Supervisor</label>
+        <label class="admin-perfil-chk"><input type="checkbox" value="central"> Central</label>
+        <label class="admin-perfil-chk"><input type="checkbox" value="chefia"> Chefia</label>
+        <label class="admin-perfil-chk"><input type="checkbox" value="operadorvl"> Operador VL</label>
+      </div>
+      <div id="adminPerfisErr" style="display:none;color:var(--red2);font-size:11px;margin-top:4px;">Selecione pelo menos um perfil.</div>
+    </div>
+
+    <div id="adminSenhaInicialWrap" style="margin-bottom:14px;">
+      <span class="flabel">Senha Inicial <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(o usuário deverá trocar no primeiro acesso)</span></span>
+      <div style="position:relative;">
+        <input type="password" class="finput" id="adminSenhaInicial" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="padding-right:44px;">
+        <button type="button" onclick="toggleSenhaVis('adminSenhaInicial',this)"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;">👁</button>
+      </div>
+    </div>
+
+    <div id="adminModalErr" style="display:none;color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px;"></div>
+
+    <div style="display:flex;gap:8px;">
+      <button onclick="adminFecharModal()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
+      <button id="adminBtnSalvar" onclick="adminSalvarUsuario()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TELA SERVIÇOS -->
+<div id="telaServicos" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
+  <div class="srv-subbar">
+    <div class="srv-subtab active" id="srvTabAuth" onclick="srvSwitchTab('auth')">📋 Autorizações</div>
+    <div class="srv-subtab" id="srvTabRend" onclick="srvSwitchTab('rend')">🔄 Rendições</div>
+  </div>
+  <div class="srv-pane active" id="srvPaneAuth">
+    <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
+      <div class="toolbar-row1">
+        <button class="bnav" onclick="srvNavDate(-1)">‹</button>
+        <input type="date" class="date-sel" id="srvAuthDate" onchange="srvOnAuthDateChange()">
+        <button class="bnav" onclick="srvNavDate(1)">›</button>
+        <button class="bnav btoday" onclick="srvGoToday('auth')">Hoje</button>
+      </div>
+      <div class="toolbar-row2">
+        <button class="bref" id="srvBRefA" onclick="srvLoadRecords(true)">↻</button>
+        <span class="refresh-info" id="srvAuthRefreshInfo"></span>
+        <button class="bnav btoday" id="srvBtnBusca" onclick="srvToggleBusca()" style="font-size:14px;">🔍</button>
+        <button id="srvBtnNA" onclick="srvOpenAuthModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Novo</button>
+      </div>
+    </div>
+    <div style="padding:8px 10px 0;">
+      <div class="s-search-block" id="srvSearchBlock" style="display:none;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#60a5fa;text-transform:uppercase;margin-bottom:8px;">Buscar por Local / Via</div>
+        <div class="s-row2">
+          <div><label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px;">De</label><input type="date" id="srvSrchDe"></div>
+          <div><label style="font-size:10px;color:var(--text3);display:block;margin-bottom:4px;">Até</label><input type="date" id="srvSrchAte"></div>
+        </div>
+        <div class="s-sinput-row">
+          <input type="text" id="srvSrchLocal" placeholder="Digite o local ou via...">
+          <button class="s-btn-buscar" onclick="srvExecutarBusca()">Buscar</button>
+          <button class="s-btn-limpar" onclick="srvLimparBusca()">✕</button>
+        </div>
+      </div>
+      <div id="srvSearchResultInfo" class="s-search-result-info" style="display:none;"></div>
+      <div class="s-frow">
+        <div class="s-fchip active" onclick="srvSetFilter('todos')" data-sf="todos">Todos</div>
+        <div class="s-fchip" onclick="srvSetFilter('qru')" data-sf="qru">QRU</div>
+        <div class="s-fchip" onclick="srvSetFilter('interdicao')" data-sf="interdicao">Interdição</div>
+        <div class="s-fchip" onclick="srvSetFilter('circulacao')" data-sf="circulacao">Circulação</div>
+        <div class="s-fchip" onclick="srvSetFilter('estacionamento')" data-sf="estacionamento">Estacionamento</div>
+        <div class="s-fchip" onclick="srvSetFilter('fato')" data-sf="fato">Fato</div>
+      </div>
+      <div id="srvAuthList"></div>
+    </div>
+  </div>
+  <div class="srv-pane" id="srvPaneRend">
+    <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
+      <div class="toolbar-row1">
+        <button class="bnav" onclick="srvNavRD(-1)">‹</button>
+        <input type="date" class="date-sel" id="srvRendDate" onchange="srvOnRendDateChange()">
+        <button class="bnav" onclick="srvNavRD(1)">›</button>
+        <button class="bnav btoday" onclick="srvGoToday('rend')">Hoje</button>
+      </div>
+      <div class="toolbar-row2">
+        <button class="bref" id="srvBRefR" onclick="srvLoadRenditions(true)">↻</button>
+        <span class="refresh-info" id="srvRendRefreshInfo"></span>
+        <button id="srvBtnNR" onclick="srvOpenRendModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Rendição</button>
+      </div>
+    </div>
+    <div style="padding:8px 10px 0;">
+      <div class="s-search-bar"><span style="color:var(--text3);">🔍</span><input type="text" id="srvRendSearch" placeholder="Buscar por nome do agente..." oninput="srvRenderRend()"></div>
+      <div class="s-rend-tabs" id="srvRendTabs">
+        <div class="s-rend-tab active-ma" onclick="srvSetRendTab('madrugada')" data-rt="madrugada">🌑 Madrugada</div>
+        <div class="s-rend-tab" onclick="srvSetRendTab('manha')" data-rt="manha">☀️ Manhã</div>
+        <div class="s-rend-tab" onclick="srvSetRendTab('tarde')" data-rt="tarde">🌤 Tarde</div>
+        <div class="s-rend-tab" onclick="srvSetRendTab('noite')" data-rt="noite">🌙 Noite</div>
+      </div>
+      <div class="s-rend-sf">
+        <div class="s-rsf act" onclick="srvSetRendSF('todos')" data-sf="todos">Todos</div>
+        <div class="s-rsf" onclick="srvSetRendSF('pendente')" data-sf="pendente">Pendentes</div>
+        <div class="s-rsf" onclick="srvSetRendSF('concluida')" data-sf="concluida">Concluídas</div>
+        <div class="s-rsf" onclick="srvSetRendSF('cancelada')" data-sf="cancelada">Canceladas</div>
+      </div>
+      <div id="srvRendList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Rendição Serviços -->
+<div class="cov" id="srvMRend" style="z-index:850;">
+  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;" id="srvMRendTit">Nova Rendição</div>
+      <button onclick="srvCm('srvMRend')" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="margin-bottom:10px;"><span class="flabel">Nº do Registro</span><input type="text" class="finput" id="srvFRReg" placeholder="Ex: REG.13979-26" autocomplete="off"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div><span class="flabel">Data</span><input type="date" class="finput" id="srvFRD" style="min-height:unset;padding:11px 12px;font-size:14px;"></div>
+      <div><span class="flabel">Turno</span>
+        <select class="finput" id="srvFRT" style="min-height:unset;padding:11px 12px;font-size:14px;">
+          <option value="">Selecione...</option><option value="madrugada">Madrugada</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;"><span class="flabel">Local / Posto</span><input type="text" class="finput" id="srvFRL" placeholder="Ex: Semáforo REG.13979-26" autocomplete="off"></div>
+    <div style="margin-bottom:10px;"><span class="flabel">Agente a ser Rendido</span><input type="text" class="finput" id="srvFRA" placeholder="Nome e/ou matrícula" autocomplete="off"></div>
+    <div style="margin-bottom:10px;"><span class="flabel">Motivo da Rendição</span><textarea class="finput" id="srvFRM" placeholder="Descreva o motivo..." rows="3" style="min-height:80px;resize:none;"></textarea></div>
+    <div style="margin-bottom:14px;"><span class="flabel">Substituto <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(opcional)</span></span><input type="text" class="finput" id="srvFRS" placeholder="Preencher quando realizada" autocomplete="off"></div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="srvCm('srvMRend')" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
+      <button id="srvBSR" onclick="srvSaveRend()" style="flex:2;padding:12px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Autorização Serviços -->
+<div class="cov" id="srvMAuth" style="z-index:850;">
+  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:#fff;" id="srvMAuthTit">Novo Registro</div>
+      <button onclick="srvCm('srvMAuth')" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div id="srvMAuthBody"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="srvCm('srvMAuth')" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
+      <button id="srvBSA" onclick="srvSaveAuth()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
+    </div>
+  </div>
+</div>
+<!-- Modal Importar Usuários em Lote -->
+
+<!-- TELA SINISTROS FATAIS                                         -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<style>
+/* ── Sinistros Fatais: estilos base ── */
+.sf-section { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.sf-section-title {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 13px;
+  letter-spacing: 2px; text-transform: uppercase; color: #ef4444;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+  padding-bottom: 6px; border-bottom: 1px solid rgba(198,40,40,0.25);
+}
+.sf-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: #94a3b8; display: block; margin-bottom: 4px; margin-top: 8px;
+  padding-left: 7px; border-left: 2px solid #c62828;
+}
+body.light-mode .sf-label { color: #374151; }
+.sf-input::placeholder { color: #64748b; }
+body.light-mode .sf-input::placeholder { color: #9ca3af; }
+body.light-mode .sf-input { color: #1e293b; background: #f8fafc; border-color: #cbd5e1; }
+body.light-mode .sf-input:focus { border-color: #c62828; background: #fff; }
+body.light-mode .sf-section-title { color: #c62828; }
+body.light-mode .sf-item { background: rgba(198,40,40,0.05); }
+body.light-mode .sf-item-blue { background: rgba(59,130,246,0.05); }
+body.light-mode .sf-subsec { background: #f8fafc; border-color: #e2e8f0; }
+body.light-mode .sf-card { background: #fff; border-color: #e2e8f0; }
+body.light-mode .sf-ck-item { background: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
+body.light-mode .sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.08); border-color: #c62828; }
+.sf-input {
+  width: 100%; padding: 10px 12px; background: var(--surface3);
+  border: 1.5px solid var(--border); border-radius: 8px; color: var(--text);
+  font-size: 14px; font-family: inherit; box-sizing: border-box;
+  text-transform: uppercase; transition: border-color .2s;
+}
+.sf-input:focus { border-color: #c62828; outline: none; background: var(--card); }
+.sf-input::placeholder { text-transform: none; color: var(--text3); }
+textarea.sf-input { resize: vertical; min-height: 70px; touch-action: pan-y; }
+select.sf-input { text-transform: none; }
+.sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.sf-item {
+  background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25);
+  border-left: 4px solid #c62828; border-radius: 8px; padding: 12px 42px 12px 12px;
+  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
+}
+.sf-item-blue {
+  background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.25);
+  border-left: 4px solid #3b82f6; border-radius: 8px; padding: 12px 42px 12px 12px;
+  margin-bottom: 8px; position: relative; animation: fadeinUp .2s;
+}
+.sf-item-tit {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 8px;
+}
+.sf-item-blue .sf-item-tit { color: #60a5fa; }
+.sf-btnrem {
+  position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.18);
+  border: 1px solid rgba(239,68,68,0.35); border-radius: 6px; padding: 4px 8px;
+  color: #f87171; font-size: 11px; font-family: 'Rajdhani', sans-serif;
+  font-weight: 700; cursor: pointer; z-index: 2;
+}
+.sf-add-btn {
+  padding: 8px 14px; background: rgba(198,40,40,0.12);
+  border: 1px dashed rgba(198,40,40,0.4); border-radius: 8px; color: #ef4444;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
+}
+.sf-add-btn-blue {
+  padding: 8px 14px; background: rgba(59,130,246,0.1);
+  border: 1px dashed rgba(59,130,246,0.4); border-radius: 8px; color: #60a5fa;
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; cursor: pointer; margin-top: 4px;
+}
+.sf-ck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.sf-ck-item {
+  display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);
+  cursor: pointer; padding: 6px 8px; border-radius: 6px;
+  border: 1px solid var(--border); background: rgba(255,255,255,0.03);
+  transition: background .15s;
+}
+.sf-ck-item:has(input:checked) { background: rgba(198,40,40,0.12); border-color: rgba(198,40,40,0.4); }
+.sf-ck-item input[type="checkbox"] { accent-color: #c62828; width: 15px; height: 15px; flex-shrink: 0; }
+.sf-radio-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.sf-radio-label {
+  display: flex; align-items: center; gap: 5px; font-size: 13px; color: var(--text);
+  cursor: pointer; font-weight: normal;
+}
+.sf-radio-label input[type="radio"] { accent-color: #c62828; }
+.sf-char { font-size: 10px; color: var(--text3); text-align: right; margin-top: 2px; }
+/* Imagens */
+.sf-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 10px; }
+.sf-img-slot {
+  border: 2px dashed var(--border2); border-radius: 8px; padding: 10px;
+  text-align: center; background: var(--surface3); min-height: 150px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+}
+.sf-img-slot .sf-img-wrap {
+  width: 100%; height: 120px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.sf-img-slot img { max-width: 100%; max-height: 120px; border-radius: 4px; object-fit: contain; display: block; }
+.sf-img-slot button { margin: 2px 2px 0; font-size: 11px; padding: 5px 8px; }
+/* Subsecção de fatores */
+.sf-subsec {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid rgba(198,40,40,0.4); border-radius: 8px;
+  padding: 12px; margin-bottom: 10px;
+}
+.sf-subsec-tit {
+  font-size: 11px; font-weight: 700; letter-spacing: 1px; color: #ef4444;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+/* Fichas dos cartões na lista */
+.sf-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-left: 4px solid #c62828; border-radius: 10px; padding: 12px;
+  margin-bottom: 8px; transition: transform .15s;
+}
+.sf-card:active { transform: scale(0.99); }
+@keyframes fadeinUp { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+@media (max-width: 768px) {
+  .sf-row  { grid-template-columns: 1fr; }
+  .sf-row3 { grid-template-columns: 1fr 1fr; }
+  .sf-ck-grid { grid-template-columns: 1fr; }
+  .sf-img-grid { grid-template-columns: 1fr 1fr; }
+  .sf-add-btn, .sf-add-btn-blue { width: 100%; padding: 13px; font-size: 14px; margin-top: 6px; }
+  .sf-btnrem { padding: 8px 12px; font-size: 13px; }
+  .sf-item, .sf-item-blue { padding: 12px; margin-bottom: 10px; }
+  .sf-section { padding: 12px; }
+  .sf-section-title { font-size: 14px; }
+  .sf-subsec { padding: 10px; }
+  .sf-ck-item { padding: 10px 8px; font-size: 13px; }
+  #telaFatais { touch-action: pan-y; }
+  /* Garantir que cards filhos não bloqueiem scroll do modal no mobile */
+  #sfModalBox { touch-action: pan-y; }
+  #sfFormBody { touch-action: pan-y; }
+  .sf-item, .sf-item-blue, .sf-subsec, .sf-section { touch-action: pan-y; }
+}
+
+</style>
+
+<!-- ── TELA PRINCIPAL (LISTA) ── -->
+<div id="telaFatais" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);">
+  <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
+    <div class="toolbar-row1">
+      <button class="bnav" onclick="sfNavDate(-1)">‹</button>
+      <input type="date" class="date-sel" id="sfDateInput" onchange="sfOnDateChange()">
+      <button class="bnav" onclick="sfNavDate(1)">›</button>
+      <button class="bnav btoday" onclick="sfGoHoje()">Hoje</button>
+    </div>
+    <div class="toolbar-row2">
+      <button class="bref" id="sfBRef" onclick="sfCarregar(true)">↻</button>
+      <span class="refresh-info" id="sfRefreshInfo"></span>
+      <button id="sfBtnNovo" onclick="sfAbrirModal(null)" style="display:none;padding:9px 14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-plus"></i> Novo</button>
+      <button onclick="sfToggleBusca()" class="bnav btoday" style="font-size:14px;">🔍</button>
+    </div>
+  </div>
+  <!-- Bloco busca -->
+  <div id="sfBuscaBlock" style="display:none;padding:10px;background:var(--surface2);border-bottom:1px solid var(--border);">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#ef4444;text-transform:uppercase;margin-bottom:8px;">Buscar Sinistros</div>
+    <div class="sf-row" style="margin-bottom:8px;">
+      <div><label class="sf-label" style="border:none;padding:0;">De</label><input type="date" id="sfSrchDe" class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;"></div>
+      <div><label class="sf-label" style="border:none;padding:0;">Até</label><input type="date" id="sfSrchAte" class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;"></div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <input type="text" id="sfSrchTxt" placeholder="Local, vítima, tipo..." class="sf-input" style="min-height:unset;padding:8px 10px;font-size:13px;flex:1;">
+      <button onclick="sfExecutarBusca()" style="padding:8px 14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">Buscar</button>
+      <button onclick="sfLimparBusca()" style="padding:8px 10px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text3);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;">✕</button>
+    </div>
+    <div id="sfSearchInfo" style="display:none;font-size:11px;color:#ef4444;font-family:'Rajdhani',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:6px;"></div>
+  </div>
+  <div style="padding:10px;" id="sfListaWrap"><div id="sfLista"></div></div>
+</div>
+
+<!-- ── MODAL FORMULÁRIO COMPLETO ── -->
+<div id="sfModal" class="cov" style="z-index:870;align-items:flex-end;">
+ <div id="sfModalBox" style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;will-change:scroll-position;touch-action:pan-y;">
+
+    <!-- Cabeçalho -->
+    <div id="sfModalHeader" style="background:linear-gradient(135deg,#7f0000,#c62828);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0;margin:-0px;position:sticky;top:0;z-index:5;">
+      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:#fff;" id="sfModalTit">⚠ NOVO SINISTRO FATAL</div>
+      <button onclick="sfFecharModal()" style="background:rgba(255,255,255,0.15);border:none;border-radius:8px;width:36px;height:36px;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+    </div>
+
+   <div id="sfFormBody">
+
+      <!-- ══ 1. DADOS GERAIS ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-info-circle"></i> 1. Dados Gerais</div>
+        <div class="sf-row">
+          <div><label class="sf-label">Data *</label><input type="date" class="sf-input" id="sfData"></div>
+          <div><label class="sf-label">Hora *</label><input type="text" class="sf-input" id="sfHora" placeholder="HH:MM" maxlength="5" inputmode="numeric" oninput="sfMascaraHora(this)"></div>
+        </div>
+        <label class="sf-label">Tipo de Sinistro *</label>
+        <select class="sf-input" id="sfTipo" onchange="sfToggleOutroTipo()">
+          <option value="">Selecione...</option>
+          <option value="COLISÃO">Colisão</option>
+          <option value="ATROPELAMENTO">Atropelamento</option>
+          <option value="CAPOTAMENTO">Capotamento</option>
+          <option value="DESEQUILÍBRIO DE MOTO">Desequilíbrio de Moto</option>
+          <option value="CHOQUE COM POSTE">Choque com Poste</option>
+          <option value="CHOQUE COM ÁRVORE">Choque com Árvore</option>
+          <option value="OUTROS">Outros</option>
+        </select>
+        <div id="sfTipoOutroWrap" style="display:none;"><label class="sf-label">Especifique *</label><input type="text" class="sf-input" id="sfTipoOutro" placeholder="Tipo do sinistro"></div>
+        <label class="sf-label">Logradouro *</label>
+        <input type="text" class="sf-input" id="sfLogradouro" placeholder="AV. PRESIDENTE CASTELO BRANCO">
+        <div class="sf-row">
+          <div><label class="sf-label">Número / Referência</label><input type="text" class="sf-input" id="sfNumero" placeholder="2210"></div>
+          <div><label class="sf-label">Bairro *</label><input type="text" class="sf-input" id="sfBairro" placeholder="CARLITO PAMPLONA"></div>
+        </div>
+      </div>
+
+      <!-- ══ 2. VEÍCULOS ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-car-crash"></i> 2. Veículos Envolvidos</div>
+        <div id="sfVeiculosContainer"></div>
+        <button class="sf-add-btn" onclick="sfAddVeiculo()"><i class="fas fa-plus"></i> Adicionar Veículo</button>
+      </div>
+
+      <!-- ══ 3. ENVOLVIDOS ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-user-injured"></i> 3. Envolvidos</div>
+        <div id="sfEnvolvidosContainer"></div>
+        <button class="sf-add-btn" onclick="sfAddEnvolvido()"><i class="fas fa-user-plus"></i> Adicionar Envolvido</button>
+      </div>
+
+      <!-- ══ 4. DINÂMICA ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-route"></i> 4. Dinâmica do Sinistro</div>
+        <label class="sf-label">Descrição *</label>
+        <textarea class="sf-input" id="sfDinamica" rows="5" placeholder="DESCREVA DETALHADAMENTE COMO OCORREU O SINISTRO..." oninput="sfCharCount(this,'sfDinCount')"></textarea>
+        <div class="sf-char" id="sfDinCount">0 caracteres</div>
+      </div>
+
+      <!-- ══ 5. FATORES DE RISCO ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-exclamation-triangle"></i> 5. Fatores de Risco</div>
+
+        <!-- 5.1 Por envolvido (gerado dinamicamente) -->
+        <div id="sfFatoresContainer"></div>
+
+        <!-- 5.2 Pavimento -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-road"></i> Pavimento e Calçadas</div>
+          <div class="sf-ck-grid">
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkVestigios" onchange="sfToggleTipoVestigios()"> Vestígios no pavimento</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkPavimento"> Pavimento irregular/buracos</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkTampas"> Tampas/grelhas ausentes</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkCalcada"> Calçada deficiente</label>
+          </div>
+          <div id="sfTipoVestigiosWrap" style="display:none;margin-top:8px;">
+            <label class="sf-label" style="border:none;padding:0;">Tipo de vestígio:</label>
+            <div class="sf-radio-group">
+              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="AREIA"> Areia</label>
+              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="ÓLEO"> Óleo</label>
+              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="SUBSTÂNCIA DIVERSA"> Substância diversa</label>
+              <label class="sf-radio-label"><input type="radio" name="sfTipoVestigio" value="OUTRO"> Outro</label>
+            </div>
+            <input type="text" class="sf-input" id="sfVestigioOutro" placeholder="ESPECIFIQUE O VESTÍGIO" style="display:none;margin-top:6px;">
+          </div>
+          <label class="sf-label">Detalhes do Pavimento</label>
+          <textarea class="sf-input" id="sfDetPavimento" rows="2" oninput="sfCharCount(this,'sfPavCount')"></textarea>
+          <div class="sf-char" id="sfPavCount">0 caracteres</div>
+        </div>
+
+        <!-- 5.3 Sinalização -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-traffic-light"></i> Sinalização</div>
+          <div class="sf-ck-grid">
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkSinDef" onchange="sfToggleDetSin()"> Sinalização deficiente/inexistente</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkSemaforo"> Falha em semáforo</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkSinBom" onchange="sfToggleConservSin()"> Sinalização em bom estado</label>
+          </div>
+          <div id="sfConservSinWrap" style="display:none;margin-top:8px;">
+            <label class="sf-label" style="border:none;padding:0;">Tipo em bom estado:</label>
+            <div class="sf-radio-group">
+              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="VERTICAL"> Vertical</label>
+              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="HORIZONTAL"> Horizontal</label>
+              <label class="sf-radio-label"><input type="radio" name="sfTipoSinaliz" value="VERTICAL E HORIZONTAL" checked> Ambas</label>
+            </div>
+          </div>
+          <div id="sfDetSinWrap" style="display:none;">
+            <label class="sf-label">Descreva a sinalização deficiente:</label>
+            <textarea class="sf-input" id="sfDetSin" rows="2" oninput="sfCharCount(this,'sfSinCount')"></textarea>
+            <div class="sf-char" id="sfSinCount">0 caracteres</div>
+          </div>
+          <div class="sf-row" style="margin-top:8px;">
+            <div><label class="sf-label">Velocidade da Via (km/h)</label><input type="text" class="sf-input" id="sfVelocidade" placeholder="EX: 60 KM/H"></div>
+            <div>
+              <label class="sf-label">Radar Próximo</label>
+              <div class="sf-radio-group" style="margin-top:4px;">
+                <label class="sf-radio-label"><input type="radio" name="sfRadar" value="SIM"> Sim</label>
+                <label class="sf-radio-label"><input type="radio" name="sfRadar" value="NÃO" checked> Não</label>
+              </div>
+            </div>
+          </div>
+          <label class="sf-label">Excesso de Velocidade (qual veículo)</label>
+          <textarea class="sf-input" id="sfExcVel" rows="2" oninput="sfCharCount(this,'sfVelCount')"></textarea>
+          <div class="sf-char" id="sfVelCount">0 caracteres</div>
+        </div>
+
+        <!-- 5.4 Visibilidade -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-eye"></i> Visibilidade</div>
+          <div class="sf-ck-grid">
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkCurva"> Trecho em curva</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkVisib"> Dificuldade de visibilidade</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkIlum"> Iluminação deficiente</label>
+          </div>
+        </div>
+
+        <!-- 5.5 Câmeras -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-camera"></i> Câmeras no Local</div>
+          <div class="sf-radio-group">
+            <label class="sf-radio-label"><input type="radio" name="sfCameras" value="NÃO" id="sfCamerasNao" checked onchange="sfToggleCameraOrigem()"> Não</label>
+            <label class="sf-radio-label"><input type="radio" name="sfCameras" value="SIM" id="sfCamerasSim" onchange="sfToggleCameraOrigem()"> Sim</label>
+          </div>
+          <div id="sfCameraOrigemWrap" style="display:none;margin-top:8px;">
+            <input type="text" class="sf-input" id="sfCameraOrigem" placeholder="ORIGEM: AMC, SSPDS, RESIDENCIAL...">
+          </div>
+        </div>
+
+        <!-- 5.6 Condições dos Veículos (dinâmico) -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-car-crash"></i> Condições dos Veículos</div>
+          <div id="sfCondicoesVeicContainer"><p style="color:var(--text3);font-size:12px;margin:4px 0;">Adicione veículos na seção 2 para preencher as condições.</p></div>
+        </div>
+
+        <!-- 5.7 Outros -->
+        <div class="sf-subsec">
+          <div class="sf-subsec-tit"><i class="fas fa-clipboard-list"></i> Outros Fatores</div>
+          <textarea class="sf-input" id="sfOutrosFatores" rows="2" oninput="sfCharCount(this,'sfOutCount')"></textarea>
+          <div class="sf-char" id="sfOutCount">0 caracteres</div>
+        </div>
+      </div>
+
+      <!-- ══ 6. DOCUMENTAÇÃO ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-file-alt"></i> 6. Documentação</div>
+        <label class="sf-label">BOAT</label>
+        <input type="text" class="sf-input" id="sfBoat" placeholder="NÚMERO DO BOAT">
+        <div style="margin-top:10px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">DRV — Documentos de Remoção de Veículos</div>
+          <div id="sfDRVContainer"></div>
+          <button class="sf-add-btn" onclick="sfAddDRV()"><i class="fas fa-plus"></i> Adicionar DRV</button>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Testes de Alcoolemia</div>
+          <div id="sfTesteContainer"></div>
+          <button class="sf-add-btn" onclick="sfAddTeste()"><i class="fas fa-plus"></i> Adicionar Teste</button>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Outros Documentos</div>
+          <div id="sfDocContainer"></div>
+          <button class="sf-add-btn" onclick="sfAddDoc()"><i class="fas fa-plus"></i> Adicionar Documento</button>
+        </div>
+      </div>
+
+      <!-- ══ 7. ÓRGÃOS DE APOIO ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-shield-alt"></i> 7. Órgãos de Apoio</div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#ef4444;text-transform:uppercase;margin-bottom:4px;">AMC</div>
+        <div id="sfAmcContainer"></div>
+        <button class="sf-add-btn" id="sfBtnAMC" onclick="sfAddOrgao('amc')"><i class="fas fa-plus"></i> Adicionar AMC</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#a78bfa;text-transform:uppercase;margin:10px 0 4px;">PEFOCE</div>
+        <div id="sfPefoceContainer"></div>
+        <button class="sf-add-btn" id="sfBtnPEFOCE" onclick="sfAddOrgao('pefoce')"><i class="fas fa-plus"></i> Adicionar PEFOCE</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#34d399;text-transform:uppercase;margin:10px 0 4px;">Polícia Militar</div>
+        <div id="sfPmContainer"></div>
+        <button class="sf-add-btn" id="sfBtnPM" onclick="sfAddOrgao('pm')"><i class="fas fa-plus"></i> Adicionar PM</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#60a5fa;text-transform:uppercase;margin:10px 0 4px;">SAMU</div>
+        <div id="sfSamuContainer"></div>
+        <button class="sf-add-btn" id="sfBtnSAMU" onclick="sfAddOrgao('samu')"><i class="fas fa-plus"></i> Adicionar SAMU</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#fbbf24;text-transform:uppercase;margin:10px 0 4px;">Rabecão</div>
+        <div id="sfRabecaoContainer"></div>
+        <button class="sf-add-btn" id="sfBtnRabecao" onclick="sfAddOrgao('rabecao')"><i class="fas fa-plus"></i> Adicionar Rabecão</button>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin:10px 0 4px;">Outros</div>
+        <div id="sfOutrosContainer"></div>
+        <button class="sf-add-btn" id="sfBtnOutros" onclick="sfAddOrgao('outros')"><i class="fas fa-plus"></i> Adicionar Outro Órgão</button>
+      </div>
+
+      <!-- ══ 8. TESTEMUNHAS ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-user-friends"></i> 8. Testemunhas</div>
+        <div id="sfTestemunhasContainer"></div>
+        <button class="sf-add-btn-blue" id="sfBtnTestemunha" onclick="sfAddTestemunha()"><i class="fas fa-user-plus"></i> Adicionar Testemunha</button>
+      </div>
+
+      <!-- ══ 9. IMAGENS ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-images"></i> 9. Imagens do Local</div>
+        <p style="color:var(--text3);font-size:12px;margin:0 0 8px;">Adicione até 8 fotos do local. Fotos salvas no Google Drive.</p>
+        <div class="sf-img-grid" id="sfImgContainer"></div>
+      </div>
+
+      <!-- ══ 10. OBSERVAÇÕES ══ -->
+      <div class="sf-section">
+        <div class="sf-section-title"><i class="fas fa-sticky-note"></i> 10. Observações</div>
+        <textarea class="sf-input" id="sfObservacoes" rows="4" oninput="sfCharCount(this,'sfObsCount')"></textarea>
+        <div class="sf-char" id="sfObsCount">0 caracteres</div>
+      </div>
+
+          <!-- Botões de ação -->
+      <div style="padding:14px 16px 24px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="sfBtnSalvar" onclick="sfSalvar()" style="flex:2;min-width:140px;padding:14px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem</button>
+        <button id="sfBtnPDF" onclick="sfGerarPDF()" style="flex:1;min-width:90px;padding:14px;background:linear-gradient(135deg,#1d4ed8,#2563eb);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-pdf"></i> PDF</button>
+        <button onclick="sfFecharModal()" style="flex:1;min-width:70px;padding:14px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;cursor:pointer;">Cancelar</button>
+      </div>
+    </div><!-- /sfFormBody -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+
 
 <div id="adminImportModal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
   <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
