@@ -72,8 +72,8 @@ body.light-mode .fsec-title{color:#15803d;}
 body.light-mode .fsec-title::before{background:#15803d;}
 body.light-mode .item-row-badge{background:#c2410c;}
 /* Abas principais — corrigir cor hardcoded rgba(255,255,255,0.55) */
-body.light-mode #appTabs button{color:rgba(0,0,0,0.45)!important;}
-body.light-mode #appTabs button:hover{color:rgba(0,0,0,0.75)!important;}
+body.light-mode #appTabs button:not(.tab-ativa){color:rgba(0,0,0,0.45)!important;}
+body.light-mode #appTabs button:not(.tab-ativa):hover{color:rgba(0,0,0,0.75)!important;}
 /* Sub-abas Serviços */
 body.light-mode .srv-subtab{color:rgba(0,0,0,0.45);}
 body.light-mode .srv-subtab.active{color:var(--gold);}
@@ -247,7 +247,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .suggestions li:hover,.suggestions li.selected{background:var(--surface3);color:var(--verde3);}
 
 /* ── VISUALIZAÇÃO ── */
-#appTabs button:hover{color:rgba(255,255,255,0.85)!important;}
+#appTabs button:not(.tab-ativa):hover{color:rgba(255,255,255,0.85)!important;}
 .view-header{background:linear-gradient(135deg,var(--verde) 0%,var(--verde2) 100%);border-radius:10px;padding:16px 20px;margin-bottom:16px;}
 .view-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:20px;letter-spacing:2px;text-transform:uppercase;color:#fff;text-align:center;}
 .view-meta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-top:8px;}
@@ -735,6 +735,40 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 #updateBar{display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(135deg,#1e40af,#2563eb);color:#fff;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;padding:7px 16px;letter-spacing:1px;display:none;align-items:center;justify-content:center;gap:12px;}
 #updateBar button{background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);border-radius:6px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:4px 12px;cursor:pointer;text-transform:uppercase;}
 #updateBar button:hover{background:rgba(255,255,255,0.35);}
+/* Tab bar — esconder scrollbar e scroll suave */
+#appTabs::-webkit-scrollbar { display: none; }
+#appTabs { -ms-overflow-style: none; touch-action: pan-x; padding: 6px 6px 0; gap: 4px; display: flex; }
+/* Botões de aba — estilo base */
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 13px;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
+  border-bottom: none;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .2s, color .2s, border-color .2s;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+}
+.tab-btn[style*="display: none"], .tab-btn[style*="display:none"] { display: none !important; }
+/* Aba ativa — cor específica por aba */
+#tabEvt.tab-ativa,
+#tabRel.tab-ativa,
+#tabQrv.tab-ativa   { background: rgba(96,165,250,0.18) !important; color: #60a5fa !important; border-color: rgba(96,165,250,0.35) !important; }
+#tabVl.tab-ativa,
+#tabQrvVl.tab-ativa { background: rgba(251,146,60,0.18) !important; color: #fb923c !important; border-color: rgba(251,146,60,0.35) !important; }
+#tabAdmin.tab-ativa    { background: rgba(245,158,11,0.18) !important; color: #f59e0b !important; border-color: rgba(245,158,11,0.35) !important; }
+#tabServicos.tab-ativa { background: rgba(16,185,129,0.18) !important; color: #10b981 !important; border-color: rgba(16,185,129,0.35) !important; }
+#tabFatais.tab-ativa   { background: rgba(239,68,68,0.18) !important;  color: #ef4444 !important; border-color: rgba(239,68,68,0.35) !important; }
+
 </style>
 </head>
 
@@ -897,15 +931,15 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     </div>
   </div>
   <!-- ABAS DE NAVEGAÇÃO -->
-  <div id="appTabs" style="display:none;border-bottom:1px solid var(--border);padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;">
-    <button id="tabEvt"   onclick="trocarAba('evt')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid var(--accent2);color:var(--accent2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Evento</button>
-    <button id="tabRel"   onclick="trocarAba('rel')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Relatório AMC</button>
-    <button id="tabQrv"   onclick="trocarAba('qrv')"   style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV</button>
-    <button id="tabVl"    onclick="trocarAba('vl')"    style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Via Livre</button>
-    <button id="tabQrvVl" onclick="trocarAba('qrvvl')" style="padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">QRV VL</button>
-    <button id="tabAdmin" onclick="trocarAba('admin')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">⚙ Admin</button>
-    <button id="tabServicos" onclick="trocarAba('servicos')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">Serviços</button>
-    <button id="tabFatais" onclick="trocarAba('fatais')" style="display:none;padding:10px 16px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.75);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:color .2s;">⚠ Sinistros Fatais</button>
+  <div id="appTabs" style="display:none;border-bottom:1px solid var(--border);padding:0 6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;scroll-behavior:smooth;">
+    <button id="tabEvt"      class="tab-btn" onclick="trocarAba('evt')"     >Evento</button>
+    <button id="tabRel"      class="tab-btn" onclick="trocarAba('rel')"     >Relatório AMC</button>
+    <button id="tabQrv"      class="tab-btn" onclick="trocarAba('qrv')"     >QRV</button>
+    <button id="tabVl"       class="tab-btn" onclick="trocarAba('vl')"      >Via Livre</button>
+    <button id="tabQrvVl"    class="tab-btn" onclick="trocarAba('qrvvl')"   >QRV VL</button>
+    <button id="tabAdmin"    class="tab-btn" onclick="trocarAba('admin')"    style="display:none;">⚙ Admin</button>
+    <button id="tabServicos" class="tab-btn" onclick="trocarAba('servicos')" style="display:none;">Serviços</button>
+    <button id="tabFatais"   class="tab-btn" onclick="trocarAba('fatais')"   style="display:none;">⚠ Sinistros Fatais</button>
   </div>
 </div>
 
@@ -1912,7 +1946,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-18-v90'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-19-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -3756,14 +3790,7 @@ function toggleTheme() {
   var btn = document.getElementById('btnTheme');
   if (btn) btn.textContent = isLight ? '☀️' : '🌙';
   try { localStorage.setItem('amc_theme', isLight ? 'light' : 'dark'); } catch(e) {}
-  // Atualizar cor das abas inativas
-  var abaAtiva = document.querySelector('#appTabs button[style*="border-bottom-color: rgb"]');
-  if (abaAtiva) {
-    var inactiveColor = isLight ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)';
-    document.querySelectorAll('#appTabs button').forEach(function(b){
-      if (b.style.borderBottomColor === 'transparent') b.style.color = inactiveColor;
-    });
-  }
+  // Cor das abas controlada por CSS .tab-ativa — sem necessidade de atualização manual
 }
 
 function aplicarTemaSalvo() {
@@ -4064,15 +4091,18 @@ function initApp(){
   else G.turno='NOITE';
   document.getElementById('turnoInput').value=G.turno;
   configurarModo();
-  carregarRelatorio();
+  // Carregar relatório apenas para perfis que iniciam nessa aba
+  // Admin inicia no Admin, Supervisor em Eventos — não carregar relatório
+  // para evitar que o nome fique preso inadvertidamente
+  if(!['supervisor','admin'].includes(G.role)) carregarRelatorio();
   // Aba Admin: só para admin
   const tabAdminEl = document.getElementById('tabAdmin');
-  if (tabAdminEl) tabAdminEl.style.display = G.role === 'admin' ? 'inline-block' : 'none';
+  if (tabAdminEl) tabAdminEl.style.display = G.role === 'admin' ? '' : 'none';
   // Aba Serviços: admin, central, supervisor, chefia (não operadorvl)
   const tabServicosEl = document.getElementById('tabServicos');
-  if (tabServicosEl) tabServicosEl.style.display = ['admin','central','supervisor','chefia'].includes(G.role) ? 'inline-block' : 'none';
+  if (tabServicosEl) tabServicosEl.style.display = ['admin','central','supervisor','chefia'].includes(G.role) ? '' : 'none';
   const tabFataisEl = document.getElementById('tabFatais');
-  if (tabFataisEl) tabFataisEl.style.display = ['admin','supervisor','central','chefia'].includes(G.role) ? 'inline-block' : 'none';
+  if (tabFataisEl) tabFataisEl.style.display = ['admin','supervisor','central','chefia'].includes(G.role) ? '' : 'none';
   // Mostrar botão senhas só para admin
   const btnS = document.getElementById('btnSenhas');
   if (btnS) btnS.style.display = G.role === 'admin' ? 'inline-flex' : 'none';
@@ -4094,18 +4124,19 @@ function initApp(){
     if(tabRelEl) tabRelEl.style.display='none';
     if(tabEvtEl) tabEvtEl.style.display='none';
     if(tabQrvEl) tabQrvEl.style.display='none';
-    if(tabVlEl)  tabVlEl.style.display='inline-block';
-    if(tabVlEl){tabVlEl.style.borderBottomColor='#fb923c';tabVlEl.style.color='#fb923c';}
+    if(tabVlEl)  tabVlEl.style.display='';
     const tabQrvVlEl=document.getElementById('tabQrvVl');
-    if(tabQrvVlEl){tabQrvVlEl.style.display='inline-block';}
+    if(tabQrvVlEl) tabQrvVlEl.style.display='';
     trocarAba('vl');
   } else {
     // Via Livre: todos exceto operadorvl (já tratado acima) veem em leitura
-    if(tabVlEl) tabVlEl.style.display='inline-block';
+    if(tabVlEl) tabVlEl.style.display='';
     const tabQrvVlEl=document.getElementById('tabQrvVl');
-    if(tabQrvVlEl) tabQrvVlEl.style.display='inline-block';
-    trocarAba('rel'); // admin, central, chefia: iniciar no relatório
-    if(G.role==='supervisor') trocarAba('evt'); // supervisor: iniciar no evento
+    if(tabQrvVlEl) tabQrvVlEl.style.display='';
+    // Aba inicial por perfil
+    if(G.role==='admin')           trocarAba('admin');
+    else if(G.role==='supervisor') trocarAba('evt');
+    else                           trocarAba('rel'); // central, chefia: relatório (somente leitura)
   }
   // Aba Evento: visível para supervisor, admin, central, chefia
   // Botão Novo Evento: só para supervisores e admin
@@ -5367,12 +5398,11 @@ function trocarAba(aba){
   if(telaServicosEl) telaServicosEl.style.display=isServicos?'flex':'none';
   const telaFataisEl=document.getElementById('telaFatais');
   if(telaFataisEl) telaFataisEl.style.display=isFatais?'flex':'none';
+  const _tabIdMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais'};
   ['rel','vl','evt','qrv','qrvvl','admin','servicos','fatais'].forEach(t=>{
-    const idMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais'};
-    const btn=document.getElementById(idMap[t]);
-    const cor=(t==='vl'||t==='qrvvl')?'#fb923c':t==='admin'?'#f59e0b':t==='servicos'?'#10b981':t==='fatais'?'#ef4444':'var(--accent2)';
-    const inactiveColor = document.body.classList.contains('light-mode') ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.75)';
-    if(btn){btn.style.borderBottomColor=aba===t?cor:'transparent';btn.style.color=aba===t?cor:inactiveColor;}});
+    const btn=document.getElementById(_tabIdMap[t]);
+    if(btn){if(aba===t)btn.classList.add('tab-ativa');else btn.classList.remove('tab-ativa');}
+  });
   if(isQrv){
     qrvSincData();
     // Mostrar seta imediatamente
@@ -5436,6 +5466,9 @@ function trocarAba(aba){
   if(!isVl && vlTemAlteracao && (G.role==='operadorvl'||G.role==='admin')){
     vlSalvarSilencioso();
   }
+  // Rolar para deixar aba ativa visível no mobile
+  const _abaIdMap={rel:'tabRel',evt:'tabEvt',qrv:'tabQrv',vl:'tabVl',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais'};
+  if(_abaIdMap[aba]) sfRolarAbaAtiva(_abaIdMap[aba]);
   if(isQrvVl){
     qrvvlSincData();
     var bRefVl=document.getElementById('qrvvlBRef');
@@ -10679,6 +10712,17 @@ async function sfExecutarBusca(){
   }catch(e){toast('Erro na busca: '+e.message,'err');}
 }
 function sfLimparBusca(){sfSearchResults=[];sfSearchMode=false;['sfSrchDe','sfSrchAte','sfSrchTxt'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});const info=document.getElementById('sfSearchInfo');if(info)info.style.display='none';sfRenderLista();}
+
+// Rolar abas para deixar a aba ativa visível
+function sfRolarAbaAtiva(id){
+  const btn=document.getElementById(id);
+  const tabs=document.getElementById('appTabs');
+  if(btn&&tabs){
+    const bLeft=btn.offsetLeft, bW=btn.offsetWidth, tW=tabs.clientWidth, tScroll=tabs.scrollLeft;
+    if(bLeft<tScroll) tabs.scrollTo({left:bLeft-10,behavior:'smooth'});
+    else if(bLeft+bW>tScroll+tW) tabs.scrollTo({left:bLeft+bW-tW+10,behavior:'smooth'});
+  }
+}
 
 </script>
 <!-- TELA ADMIN -->
