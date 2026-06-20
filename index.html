@@ -1946,7 +1946,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-19-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-20-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -3363,8 +3363,16 @@ document.addEventListener('visibilitychange',()=>{
   });
 })();
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-// Boot
-if(boot()){initApp();}else{document.getElementById('loginScreen').style.display='flex';lembrarCpfInit();}
+// Boot — adiar até o DOM completo estar parseado (telaAdmin, telaFatais e telaServicos
+// estão mais abaixo no HTML e ainda não existiriam se chamássemos isso de forma síncrona aqui)
+function _bootApp(){
+  if(boot()){initApp();}else{document.getElementById('loginScreen').style.display='flex';lembrarCpfInit();}
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',_bootApp);
+}else{
+  _bootApp();
+}
 
 
 // ══════════════════════════════════════════════════════════════
