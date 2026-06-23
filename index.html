@@ -1946,7 +1946,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-22-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-23-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9525,7 +9525,7 @@ function sfRenderLista() {
         <div style="flex:1;min-width:0;">
           <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.tipo||'SEM TIPO'}</div>
           <div style="font-size:12px;color:#ef4444;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.hora||'--:--'} · ${s.logradouro||'—'}${s.numero?', '+s.numero:''}</div>
-          <div style="font-size:10px;color:var(--text3);">${s.bairro||'—'}${s.savedBy?' · por '+s.savedBy:''}</div>
+          <div style="font-size:10px;color:var(--text2);">${s.bairro||'—'}${s.responsavel?' · '+s.responsavel:s.savedBy?' · '+s.savedBy:''}</div>
         </div>
         <div style="flex-shrink:0;font-size:15px;color:var(--text3);transition:transform .25s;line-height:1;" id="sfCardArrow-${i}">▸</div>
       </div>
@@ -9688,7 +9688,7 @@ function sfFecharModal(force=false) {
 
 // ── Limpar form ───────────────────────────────────────────────
 function sfLimparForm() {
-  ['sfData','sfHora','sfLogradouro','sfNumero','sfBairro','sfDinamica',
+  ['sfData','sfHora','sfLogradouro','sfNumero','sfBairro','sfResponsavel','sfDinamica',
    'sfDetPavimento','sfDetSin','sfVelocidade','sfExcVel','sfOutrosFatores',
    'sfBoat','sfObservacoes','sfCameraOrigem','sfTipoOutro','sfVestigioOutro'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.value='';
@@ -9708,6 +9708,9 @@ function sfLimparForm() {
   sfCriarImgs();
   ['sfDinCount','sfPavCount','sfSinCount','sfVelCount','sfOutCount','sfObsCount'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0 caracteres';});
   document.getElementById('sfData').value=sfIso(new Date());
+  // Preencher responsável automaticamente com o usuário logado
+  const sfRespEl=document.getElementById('sfResponsavel');
+  if(sfRespEl&&G.name) sfRespEl.value=G.name;
 }
 
 // ── Preencher form ────────────────────────────────────────────
@@ -9718,7 +9721,7 @@ function sfPreencherForm(s) {
   if(tipos.includes(s.tipo||'')){document.getElementById('sfTipo').value=s.tipo||'';}
   else if(s.tipo){document.getElementById('sfTipo').value='OUTROS';document.getElementById('sfTipoOutroWrap').style.display='block';document.getElementById('sfTipoOutro').value=s.tipo;}
   ['sfLogradouro','sfNumero','sfBairro','sfDinamica','sfDetPavimento','sfDetSin','sfVelocidade','sfExcVel','sfOutrosFatores','sfBoat','sfObservacoes','sfCameraOrigem'].forEach(id=>{
-    const map={sfLogradouro:'logradouro',sfNumero:'numero',sfBairro:'bairro',sfDinamica:'dinamica',sfDetPavimento:'detPavimento',sfDetSin:'detSin',sfVelocidade:'velocidade',sfExcVel:'excVelocidade',sfOutrosFatores:'outrosFatores',sfBoat:'boat',sfObservacoes:'observacoes',sfCameraOrigem:'cameraOrigem'};
+    const map={sfLogradouro:'logradouro',sfNumero:'numero',sfBairro:'bairro',sfResponsavel:'responsavel',sfDinamica:'dinamica',sfDetPavimento:'detPavimento',sfDetSin:'detSin',sfVelocidade:'velocidade',sfExcVel:'excVelocidade',sfOutrosFatores:'outrosFatores',sfBoat:'boat',sfObservacoes:'observacoes',sfCameraOrigem:'cameraOrigem'};
     const el=document.getElementById(id); if(el&&s[map[id]]!==undefined)el.value=s[map[id]]||'';
   });
   const cks=s.checkboxes||{};
@@ -10379,6 +10382,7 @@ function sfColetarDados() {
 
   return{
     data:document.getElementById('sfData').value,
+    responsavel:document.getElementById('sfResponsavel')?.value?.trim()||G.name||'',
     hora:document.getElementById('sfHora').value,
     tipo:tipoFinal,
     logradouro:(document.getElementById('sfLogradouro').value||'').toUpperCase(),
@@ -10451,6 +10455,7 @@ async function sfGerarPDFDireto(s) {
   // Montar objeto dados equivalente ao sfColetarDados() mas direto do registro salvo
   const dados={
     data:s.data||'', hora:s.hora||'', tipo:s.tipo||'',
+    responsavel:s.responsavel||'',
     logradouro:s.logradouro||'', numero:s.numero||'', bairro:s.bairro||'',
     dinamica:s.dinamica||'', detPavimento:s.detPavimento||'',
     detSin:s.detSin||'', velocidade:s.velocidade||'',
@@ -10532,6 +10537,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   // 1
   addTit('1. Dados Gerais');
   addCampo('DATA',sfFmtBR(dados.data)); addCampo('HORA',dados.hora); addCampo('TIPO',dados.tipo);
+  if(dados.responsavel)addCampo('RESPONSÁVEL PELO REGISTRO',dados.responsavel);
   addCampo('LOCAL',dados.logradouro+(dados.numero?', '+dados.numero:'')); addCampo('BAIRRO',dados.bairro);
   y+=2;
   // 2
@@ -11166,6 +11172,8 @@ select.sf-input { text-transform: none; }
           <div><label class="sf-label">Número / Referência</label><input type="text" class="sf-input" id="sfNumero" placeholder="2210"></div>
           <div><label class="sf-label">Bairro *</label><input type="text" class="sf-input" id="sfBairro" placeholder="CARLITO PAMPLONA"></div>
         </div>
+        <label class="sf-label">Responsável pelo Registro <span style="font-size:10px;color:var(--text3);font-weight:400;">(preenchido automaticamente)</span></label>
+        <input type="text" class="sf-input" id="sfResponsavel" placeholder="Nome do responsável">
       </div>
 
       <!-- ══ 2. VEÍCULOS ══ -->
