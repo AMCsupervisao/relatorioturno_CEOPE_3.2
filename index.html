@@ -83,8 +83,51 @@ body.light-mode .etxt{color:var(--text2);}
 /* Botão toggle tema */
 .btn-theme{background:transparent;border:1px solid var(--border2);border-radius:6px;padding:6px 9px;color:var(--text2);font-size:16px;cursor:pointer;line-height:1;transition:all .2s;}
 .btn-theme:hover{border-color:var(--gold);color:var(--gold);}
+/* ══ OPERAÇÕES ESPECIAIS ══ */
+#tabOpsEsp.tab-ativa{background:rgba(167,139,250,0.18)!important;color:#a78bfa!important;border-color:rgba(167,139,250,0.35)!important;}
+.ops-panel{display:none;flex-direction:column;min-height:100vh;background:var(--navy);padding:14px 10px 60px;}
+.ops-filter-bar{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;}
+.ops-filter-bar label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);display:flex;flex-direction:column;gap:5px;flex:1;min-width:130px;}
+.ops-filter-bar input,.ops-filter-bar select{background:var(--surface3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:8px 10px;font-size:13px;font-family:'IBM Plex Sans',sans-serif;width:100%;}
+.ops-filter-bar input:focus,.ops-filter-bar select:focus{outline:none;border-color:#a78bfa;}
+.ops-btn-buscar{padding:10px 20px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;align-self:flex-end;}
+.ops-btn-buscar:active{filter:brightness(0.9);}
+.ops-summary{font-size:12px;color:var(--text3);margin-bottom:10px;padding:0 2px;}
+.ops-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+.ops-card-header{padding:12px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:8px;cursor:pointer;}
+.ops-card-badge{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;}
+.ops-badge-corredor{background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);}
+.ops-badge-turno{background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);}
+.ops-card-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text3);flex:1;}
+.ops-card-totais{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.ops-tot{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;font-family:'Rajdhani',sans-serif;letter-spacing:0.5px;}
+.ops-tot-aut{background:rgba(232,82,10,0.2);color:#f97316;}
+.ops-tot-nva{background:rgba(96,165,250,0.15);color:#60a5fa;}
+.ops-tot-suv{background:rgba(245,158,11,0.15);color:#f59e0b;}
+.ops-tot-rem{background:rgba(239,68,68,0.15);color:#ef4444;}
+.ops-tot-ori{background:rgba(16,185,129,0.15);color:#10b981;}
+.ops-card-body{display:none;padding:12px 14px;}
+.ops-card.open .ops-card-body{display:block;}
+.ops-card-chevron{font-size:14px;color:#a78bfa;transition:transform .2s;margin-left:auto;}
+.ops-card.open .ops-card-chevron{transform:rotate(180deg);}
+.ops-section-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin:12px 0 6px;border-top:1px solid var(--border);padding-top:10px;}
+.ops-item{background:var(--surface3);border-radius:8px;padding:10px;margin-bottom:8px;border-left:3px solid #a78bfa;}
+.ops-item-tipo{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a78bfa;margin-bottom:5px;}
+.ops-item-row{font-size:12px;color:var(--text2);margin:2px 0;line-height:1.4;}
+.ops-item-row span{color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:0.5px;margin-right:5px;}
+.ops-fotos-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.ops-foto{width:90px;height:90px;object-fit:cover;border-radius:7px;border:1px solid var(--border);cursor:pointer;transition:transform .15s;}
+.ops-foto:hover{transform:scale(1.04);}
+.ops-foto-err{width:90px;height:90px;background:var(--surface3);border-radius:7px;border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--text3);}
+.ops-lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;}
+.ops-lightbox img{max-width:95vw;max-height:92vh;border-radius:8px;object-fit:contain;}
+.ops-lightbox-close{position:absolute;top:16px;right:18px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;}
+.ops-obs{background:var(--surface3);border-radius:7px;padding:10px;font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5;white-space:pre-wrap;}
+.ops-loading{text-align:center;padding:40px;color:var(--text3);font-size:14px;}
+.ops-empty{text-align:center;padding:40px;color:var(--text3);font-size:13px;}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--text);min-height:100vh;overflow-x:hidden;overscroll-behavior-y:contain;}
+
 
 /* ── LOGIN ── */
 #loginScreen{position:fixed;inset:0;z-index:1000;background:#0b1120;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
@@ -940,6 +983,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
     <button id="tabAdmin"    class="tab-btn" onclick="trocarAba('admin')"    style="display:none;">⚙ Admin</button>
     <button id="tabServicos" class="tab-btn" onclick="trocarAba('servicos')" style="display:none;">Serviços</button>
     <button id="tabFatais"   class="tab-btn" onclick="trocarAba('fatais')"   style="display:none;">⚠ Sinistros Fatais</button>
+    <button id="tabOpsEsp"   class="tab-btn" onclick="trocarAba('ops')"      style="display:none;">🗂 Operações Especiais</button>
   </div>
 </div>
 
@@ -1946,7 +1990,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-23-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-06-24-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4111,6 +4155,9 @@ function initApp(){
   if (tabServicosEl) tabServicosEl.style.display = ['admin','central','supervisor','chefia'].includes(G.role) ? '' : 'none';
   const tabFataisEl = document.getElementById('tabFatais');
   if (tabFataisEl) tabFataisEl.style.display = ['admin','supervisor','central','chefia'].includes(G.role) ? '' : 'none';
+  // Aba Operações Especiais: todos exceto operadorvl (via livre)
+  const tabOpsEspEl = document.getElementById('tabOpsEsp');
+  if (tabOpsEspEl) tabOpsEspEl.style.display = G.role !== 'operadorvl' ? '' : 'none';
   // Mostrar botão senhas só para admin
   const btnS = document.getElementById('btnSenhas');
   if (btnS) btnS.style.display = G.role === 'admin' ? 'inline-flex' : 'none';
@@ -5392,7 +5439,7 @@ function qrvToggleForm(){
 }
 
 function trocarAba(aba){
-  const isQrv=aba==='qrv', isEvt=aba==='evt', isRel=aba==='rel', isVl=aba==='vl', isQrvVl=aba==='qrvvl', isAdmin=aba==='admin', isServicos=aba==='servicos', isFatais=aba==='fatais';
+  const isQrv=aba==='qrv', isEvt=aba==='evt', isRel=aba==='rel', isVl=aba==='vl', isQrvVl=aba==='qrvvl', isAdmin=aba==='admin', isServicos=aba==='servicos', isFatais=aba==='fatais', isOpsEsp=aba==='ops';
   document.getElementById('appConteudo').style.display=isRel?'block':'none';
   document.getElementById('telaQrv').style.display=isQrv?'flex':'none';
   document.getElementById('telaEvento').style.display=isEvt?'flex':'none';
@@ -5406,8 +5453,10 @@ function trocarAba(aba){
   if(telaServicosEl) telaServicosEl.style.display=isServicos?'flex':'none';
   const telaFataisEl=document.getElementById('telaFatais');
   if(telaFataisEl) telaFataisEl.style.display=isFatais?'flex':'none';
-  const _tabIdMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais'};
-  ['rel','vl','evt','qrv','qrvvl','admin','servicos','fatais'].forEach(t=>{
+  const telaOpsEspEl=document.getElementById('telaOpsEsp');
+  if(telaOpsEspEl) telaOpsEspEl.style.display=isOpsEsp?'flex':'none';
+  const _tabIdMap={rel:'tabRel',vl:'tabVl',evt:'tabEvt',qrv:'tabQrv',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais',ops:'tabOpsEsp'};
+  ['rel','vl','evt','qrv','qrvvl','admin','servicos','fatais','ops'].forEach(t=>{
     const btn=document.getElementById(_tabIdMap[t]);
     if(btn){if(aba===t)btn.classList.add('tab-ativa');else btn.classList.remove('tab-ativa');}
   });
@@ -5475,7 +5524,7 @@ function trocarAba(aba){
     vlSalvarSilencioso();
   }
   // Rolar para deixar aba ativa visível no mobile
-  const _abaIdMap={rel:'tabRel',evt:'tabEvt',qrv:'tabQrv',vl:'tabVl',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais'};
+  const _abaIdMap={rel:'tabRel',evt:'tabEvt',qrv:'tabQrv',vl:'tabVl',qrvvl:'tabQrvVl',admin:'tabAdmin',servicos:'tabServicos',fatais:'tabFatais',ops:'tabOpsEsp'};
   if(_abaIdMap[aba]) sfRolarAbaAtiva(_abaIdMap[aba]);
   if(isQrvVl){
     qrvvlSincData();
@@ -10734,6 +10783,108 @@ function sfRolarAbaAtiva(id){
   }
 }
 
+// ══════════════════════════════════════════════════════
+// OPERAÇÕES ESPECIAIS — Consulta de registros de campo
+// ══════════════════════════════════════════════════════
+const OPS_CAMPO_URL='https://script.google.com/macros/s/AKfycbzqopLFn8pl-P4r11TXAUgRB-Y-E9We9XnNv0xgaOXWTCsxHz3O5tOkslVLod3wa28F/exec';
+
+const OPS_TIPO_LABEL={
+  infracao:'Infração de Trânsito',suv:'SUV – Sem Utilização',nva:'NVA – Veículo Abandonado',
+  sinalizacao:'Ausência / Problema de Sinalização',infraestrutura:'Infraestrutura / Pavimento',
+  poda:'Poda / Vegetação',iluminacao:'Iluminação Pública',
+  abordagem:'Abordagem / Ocorrência',outros:'Outros Registros'
+};
+
+function opsEspBuscar(){
+  const dataIni=document.getElementById('opsDataIni').value;
+  const dataFim=document.getElementById('opsDataFim').value;
+  const corredor=(document.getElementById('opsCorredor').value||'').trim();
+  const agente=(document.getElementById('opsAgente').value||'').trim();
+  if(!dataIni&&!dataFim){toast('Informe pelo menos uma data para consultar.','err');return;}
+  const efDataFim=dataFim||dataIni;
+  const efDataIni=dataIni||dataFim;
+  document.getElementById('ops-results').innerHTML='<div class="ops-loading">⏳ Buscando registros...</div>';
+  document.getElementById('ops-summary').textContent='';
+  const params=new URLSearchParams({action:'getRelatorios',dataIni:efDataIni,dataFim:efDataFim});
+  if(corredor)params.append('corredor',corredor);
+  if(agente)params.append('agente',agente);
+  fetch(OPS_CAMPO_URL+'?'+params.toString())
+    .then(r=>r.json())
+    .then(res=>{
+      if(!res.ok)throw new Error(res.error||'Erro desconhecido');
+      opsEspRender(res.relatorios||[]);
+    })
+    .catch(err=>{
+      document.getElementById('ops-results').innerHTML='<div class="ops-empty">❌ Erro ao buscar dados: '+err.message+'</div>';
+    });
+}
+
+function opsEspRender(lista){
+  const res=document.getElementById('ops-results');
+  const sumEl=document.getElementById('ops-summary');
+  if(!lista.length){
+    res.innerHTML='<div class="ops-empty">📭 Nenhum registro encontrado para os filtros selecionados.</div>';
+    sumEl.textContent='';return;
+  }
+  sumEl.textContent=lista.length+' relatório(s) encontrado(s)';
+  res.innerHTML=lista.map((r,i)=>opsEspCardHTML(r,i)).join('');
+}
+
+function opsEspCardHTML(r,i){
+  const dataFmt=(r.data||'').split('-').reverse().join('/');
+  const periodo=(r.horaIni||'--')+'–'+(r.horaFim||'--');
+  const equipe=r.equipeResumo||r.viaturaPrefixo||'—';
+  const totHtml=[
+    r.cntAut&&r.cntAut!=='0'?`<span class="ops-tot ops-tot-aut">✎ ${r.cntAut} AUT</span>`:'',
+    r.cntNva&&r.cntNva!=='0'?`<span class="ops-tot ops-tot-nva">🚗 ${r.cntNva} NVA</span>`:'',
+    r.cntSuv&&r.cntSuv!=='0'?`<span class="ops-tot ops-tot-suv">📦 ${r.cntSuv} SUV</span>`:'',
+    r.cntRem&&r.cntRem!=='0'?`<span class="ops-tot ops-tot-rem">🚚 ${r.cntRem} REM</span>`:'',
+    r.cntOri&&r.cntOri!=='0'?`<span class="ops-tot ops-tot-ori">📢 ${r.cntOri} ORI</span>`:''
+  ].join('');
+  const itensHtml=(r.itens||[]).map(item=>{
+    const campos=(item.campos||[]).map(c=>`<div class="ops-item-row"><span>${c.lbl}:</span>${c.val}</div>`).join('');
+    const fotosHtml=item.fotos&&item.fotos.length
+      ?'<div class="ops-fotos-grid">'+item.fotos.map(url=>
+          `<img class="ops-foto" src="${url}" loading="lazy" alt="foto" onerror="this.outerHTML='<div class=ops-foto-err>📷</div>'" onclick="opsLightbox('${url}')">`
+        ).join('')+'</div>'
+      :'';
+    return`<div class="ops-item"><div class="ops-item-tipo">${OPS_TIPO_LABEL[item.tipo]||item.tipo}</div>${campos}${fotosHtml}</div>`;
+  }).join('');
+  const obsHtml=r.obsGerais?`<div class="ops-section-title">OBSERVAÇÕES GERAIS</div><div class="ops-obs">${r.obsGerais}</div>`:'';
+  const relId=r.reportId||('rel-'+i);
+  return`<div class="ops-card" id="opscard-${relId}">
+    <div class="ops-card-header" onclick="opsToggleCard('${relId}')">
+      <span class="ops-card-badge ops-badge-corredor">📍 ${r.corredor||'—'}</span>
+      <span class="ops-card-badge ops-badge-turno">🕐 ${r.turno||'—'}</span>
+      <div class="ops-card-meta" style="width:100%;margin-top:4px;">
+        <b style="color:var(--text);font-size:13px;">${r.nome||'—'}</b>
+        <span style="margin:0 6px;color:var(--border2);">·</span>${dataFmt} ${periodo}
+        <span style="margin:0 6px;color:var(--border2);">·</span>${equipe}
+        ${r.programa&&r.programa!=='—'?`<span style="margin:0 6px;color:var(--border2);">·</span><span style="color:#a78bfa">${r.programa}</span>`:''}
+        <div class="ops-card-totais">${totHtml}</div>
+      </div>
+      <span class="ops-card-chevron">▾</span>
+    </div>
+    <div class="ops-card-body">
+      ${(r.itens||[]).length?`<div class="ops-section-title">REGISTROS DETALHADOS (${r.itens.length})</div>${itensHtml}`:'<div style="color:var(--text3);font-size:12px;padding:6px 0;">Nenhum registro detalhado.</div>'}
+      ${obsHtml}
+    </div>
+  </div>`;
+}
+
+function opsToggleCard(id){
+  const el=document.getElementById('opscard-'+id);
+  if(el)el.classList.toggle('open');
+}
+
+function opsLightbox(url){
+  const lb=document.createElement('div');
+  lb.className='ops-lightbox';
+  lb.innerHTML=`<button class="ops-lightbox-close" onclick="this.parentElement.remove()">✕</button><img src="${url}" alt="foto">`;
+  lb.addEventListener('click',e=>{if(e.target===lb)lb.remove();});
+  document.body.appendChild(lb);
+}
+
 </script>
 <!-- TELA ADMIN -->
 <div id="telaAdmin" style="display:none;flex-direction:column;min-height:100vh;background:var(--navy);padding:12px 10px 40px;">
@@ -11375,6 +11526,28 @@ select.sf-input { text-transform: none; }
       </div>
     </div><!-- /sfFormBody -->
   </div>
+</div>
+
+<!-- ══ TELA OPERAÇÕES ESPECIAIS ══ -->
+<div id="telaOpsEsp" class="ops-panel">
+  <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#a78bfa;margin-bottom:12px;">🗂 Operações Especiais — Consulta de Campo</div>
+  <div class="ops-filter-bar">
+    <label>Data inicial
+      <input type="date" id="opsDataIni">
+    </label>
+    <label>Data final
+      <input type="date" id="opsDataFim">
+    </label>
+    <label>Corredor / Via
+      <input type="text" id="opsCorredor" placeholder="Ex: AV. JOVITA FEITOSA...">
+    </label>
+    <label>Coordenador / Agente
+      <input type="text" id="opsAgente" placeholder="Nome do agente...">
+    </label>
+    <button class="ops-btn-buscar" onclick="opsEspBuscar()">🔍 Consultar</button>
+  </div>
+  <div class="ops-summary" id="ops-summary"></div>
+  <div id="ops-results"><div class="ops-empty">Use os filtros acima para consultar registros de campo.</div></div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════ -->
