@@ -1990,7 +1990,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-06-24-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-08-05-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4316,7 +4316,8 @@ function onTurnoChange(){
 // ══════════════════════════════════════════════
 // API
 // ══════════════════════════════════════════════
-async function api(action,payload){
+async function api(action,payload,_tentativa){
+  const tentativa=_tentativa||0;
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),20000); // 20s timeout
   try{
@@ -4325,6 +4326,11 @@ async function api(action,payload){
     const d=await r.json();if(d.error)throw new Error(d.error);return d;
   }catch(ex){
     clearTimeout(timer);
+    // Retry automático (até 2x) para falhas intermitentes do Apps Script (resposta expirada, JSON inválido, timeout)
+    if(tentativa<2 && ex.name!=='AbortError'){
+      await new Promise(res=>setTimeout(res,800*(tentativa+1)));
+      return api(action,payload,tentativa+1);
+    }
     if(ex.name==='AbortError') throw new Error('Tempo esgotado — verifique sua conexão');
     throw ex;
   }
@@ -5492,25 +5498,25 @@ function trocarAba(aba){
         }).catch(()=>{})
       ]);
       await qrvCarregar(false,true);
-    },30000);
+    },45000);
   }else{if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}}
   if(isEvt){
     evtSincData();evtCarregar();
     if(evtAutoTimer)clearInterval(evtAutoTimer);
-    evtAutoTimer=setInterval(()=>evtCarregar(true),30000);
+    evtAutoTimer=setInterval(()=>evtCarregar(true),45000);
   }else{if(evtAutoTimer){clearInterval(evtAutoTimer);evtAutoTimer=null;}}
   if(isVl){
     vlSincData();vlCarregar();
     if(vlAutoTimer)clearInterval(vlAutoTimer);
-    vlAutoTimer=setInterval(()=>vlCarregar(false),30000);
+    vlAutoTimer=setInterval(()=>vlCarregar(false),45000);
   }else{if(vlAutoTimer){clearInterval(vlAutoTimer);vlAutoTimer=null;}}
   if(isAdmin){ adminCarregar(); }
   if(isServicos){
     srvInit();
     if(srvAutoTimer) clearInterval(srvAutoTimer);
-    srvAutoTimer=setInterval(function(){srvLoadRecords(false,true);srvLoadRenditions(false,true);},60000);
+    srvAutoTimer=setInterval(function(){srvLoadRecords(false,true);setTimeout(function(){srvLoadRenditions(false,true);},3000);},90000);
   }else{ if(srvAutoTimer&&!isServicos){clearInterval(srvAutoTimer);srvAutoTimer=null;} }
-  if(isFatais){ sfInit(); if(sfAutoTimer)clearInterval(sfAutoTimer); sfAutoTimer=setInterval(()=>sfCarregar(false),60000); }else{ if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;} }
+  if(isFatais){ sfInit(); if(sfAutoTimer)clearInterval(sfAutoTimer); sfAutoTimer=setInterval(()=>sfCarregar(false),90000); }else{ if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;} }
   if(isRel){
     // Recarregar relatório ao voltar para a aba (mostra seta)
     carregarRelatorio(false,false);
@@ -8745,11 +8751,21 @@ var srvSearchMode=false, srvSearchResults=null;
 var srvAutoTimer=null, srvEA=null, srvER=null, srvSelT=null, srvDates=[];
 
 // API separada para a ferramenta Serviços
-async function apiSrv(action, payload) {
-  const r = await fetch(SRV_URL+'?action='+action, {method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain'}});
-  const d = await r.json();
-  if (d.error) throw new Error(d.error);
-  return d;
+async function apiSrv(action, payload, _tentativa) {
+  const tentativa = _tentativa || 0;
+  try {
+    const r = await fetch(SRV_URL+'?action='+action, {method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain'}});
+    const d = await r.json();
+    if (d.error) throw new Error(d.error);
+    return d;
+  } catch(ex) {
+    // Retry automático (até 2x) para falhas intermitentes do Apps Script
+    if (tentativa < 2) {
+      await new Promise(res=>setTimeout(res, 800*(tentativa+1)));
+      return apiSrv(action, payload, tentativa+1);
+    }
+    throw ex;
+  }
 }
 
 function srvIso(d) { const dt=new Date(d); return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
@@ -8770,12 +8786,12 @@ function srvInit() {
   if (bna) bna.style.display = srvPodeEditar() ? 'inline-block' : 'none';
   if (bnr) bnr.style.display = srvPodeEditar() ? 'inline-block' : 'none';
   srvLoadRecords();
-  srvLoadRenditions();
+  setTimeout(function(){ srvLoadRenditions(); }, 1500);
   if (srvAutoTimer) clearInterval(srvAutoTimer);
   srvAutoTimer = setInterval(function() {
     srvLoadRecords(false, true);
-    srvLoadRenditions(false, true);
-  }, 60000);
+    setTimeout(function(){ srvLoadRenditions(false, true); }, 3000);
+  }, 90000);
 }
 
 // ── Sub-abas ────────────────────────────────────────────────────
@@ -9465,7 +9481,8 @@ document.addEventListener('change', function(e){
 });
 
 // ── API ───────────────────────────────────────────────────────
-async function apiFatais(action, payload) {
+async function apiFatais(action, payload, _tentativa) {
+  const tentativa = _tentativa || 0;
   const url = SF_URL + '?action=' + encodeURIComponent(action);
   let r;
   try {
@@ -9486,12 +9503,17 @@ async function apiFatais(action, payload) {
     });
   }
   const text = await r.text();
-  console.log('[SF] apiFatais raw response ('+action+'):', text.substring(0,500));
   const clean = text.replace(/^[\s﻿​]+/, '').trim();
   let d;
   try { d = JSON.parse(clean); }
   catch(e) {
-    console.error('[SF] JSON parse falhou. Resposta bruta:', text.substring(0,500));
+    // Resposta não-JSON (ex: página "não encontrada" do redirect do Apps Script expirando) — retry automático
+    if (tentativa < 2) {
+      console.warn('[SF] Resposta inválida em '+action+', tentando novamente ('+(tentativa+1)+'/2)...');
+      await new Promise(res=>setTimeout(res, 1000*(tentativa+1)));
+      return apiFatais(action, payload, tentativa+1);
+    }
+    console.error('[SF] JSON parse falhou após tentativas. Resposta bruta:', text.substring(0,500));
     throw new Error('Resposta inesperada. Veja o console F12.');
   }
   if (d && d.error) throw new Error(d.error);
