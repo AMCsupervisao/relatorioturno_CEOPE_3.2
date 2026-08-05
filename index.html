@@ -1990,7 +1990,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-08-05-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-08-05-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5519,8 +5519,7 @@ function trocarAba(aba){
     // Espera 400ms antes de carregar — se o usuário já trocou de aba de novo, cancela (evita rajada de chamadas ao navegar rápido)
     setTimeout(function(){
       if(G._navToken!==_meuToken) return;
-      srvInit();
-      srvAutoTimer=setInterval(function(){srvLoadRecords(false,true);setTimeout(function(){srvLoadRenditions(false,true);},3000);},90000);
+      srvInit(); // srvInit() já cria e guarda o timer automático de 90s sozinho — não recriar aqui (evita 2 timers rodando ao mesmo tempo)
     },400);
   }else{ if(srvAutoTimer&&!isServicos){clearInterval(srvAutoTimer);srvAutoTimer=null;} }
   if(isFatais){
