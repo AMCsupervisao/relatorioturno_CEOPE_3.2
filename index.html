@@ -1990,7 +1990,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-08-05-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-08-06-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4121,6 +4121,13 @@ function doLogout(){
   document.getElementById('loginScreen').style.display='flex';
   lembrarCpfInit();
   if(G.autoTimer)clearInterval(G.autoTimer);
+  // Limpar TODOS os temporizadores automáticos das abas — sem isso, ficam rodando escondidos mesmo após logout
+  if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}
+  if(evtAutoTimer){clearInterval(evtAutoTimer);evtAutoTimer=null;}
+  if(vlAutoTimer){clearInterval(vlAutoTimer);vlAutoTimer=null;}
+  if(typeof qrvvlAutoTimer!=='undefined' && qrvvlAutoTimer){clearInterval(qrvvlAutoTimer);qrvvlAutoTimer=null;}
+  if(srvAutoTimer){clearInterval(srvAutoTimer);srvAutoTimer=null;}
+  if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;}
 }
 
 // ══════════════════════════════════════════════
@@ -9538,9 +9545,9 @@ async function apiFatais(action, payload, _tentativa) {
   try { d = JSON.parse(clean); }
   catch(e) {
     // Resposta não-JSON (ex: página "não encontrada" do redirect do Apps Script expirando) — retry automático só em leituras
-    if (ehLeitura && tentativa < 2) {
-      console.warn('[SF] Resposta inválida em '+action+', tentando novamente ('+(tentativa+1)+'/2)...');
-      await new Promise(res=>setTimeout(res, 1000*(tentativa+1)));
+    if (ehLeitura && tentativa < 4) {
+      console.warn('[SF] Resposta inválida em '+action+', tentando novamente ('+(tentativa+1)+'/4)...');
+      await new Promise(res=>setTimeout(res, 1200*(tentativa+1)));
       return apiFatais(action, payload, tentativa+1);
     }
     console.error('[SF] JSON parse falhou após tentativas. Resposta bruta:', text.substring(0,500));
