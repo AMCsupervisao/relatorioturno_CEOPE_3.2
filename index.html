@@ -1990,7 +1990,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-08-06-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-08-07-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5530,12 +5530,11 @@ function trocarAba(aba){
     },400);
   }else{ if(srvAutoTimer&&!isServicos){clearInterval(srvAutoTimer);srvAutoTimer=null;} }
   if(isFatais){
-    if(sfAutoTimer)clearInterval(sfAutoTimer);
-    // Mesma proteção de debounce para a aba Fatais
+    if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;} // Fatais não tem mais auto-refresh — só carrega sob demanda
+    // Espera 400ms antes de inicializar — se o usuário já trocou de aba de novo, cancela
     setTimeout(function(){
       if(G._navToken!==_meuToken) return;
       sfInit();
-      sfAutoTimer=setInterval(()=>sfCarregar(false),90000);
     },400);
   }else{ if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;} }
   if(isRel){
@@ -9478,6 +9477,7 @@ var SF_URL = localStorage.getItem('sfScriptUrl') || 'https://script.google.com/m
 
 // ── Estado ────────────────────────────────────────────────────
 var sfListaData = [];
+var sfNuncaCarregado = true; // true até o usuário clicar em consultar pela primeira vez
 var sfCurrentDate = new Date();
 var sfEditandoId = null;
 var sfPdfGerado = false; // rastreia se PDF foi gerado no registro atual
@@ -9570,7 +9570,7 @@ function sfInit() {
   document.getElementById('sfDateInput').value=sfIso(sfCurrentDate);
   const btnN=document.getElementById('sfBtnNovo');
   if(btnN) btnN.style.display=sfPodeEditar()?'inline-block':'none';
-  sfCarregar();
+  sfRenderLista(); // mostra o estado "clique para consultar" — não busca dados sozinho
 }
 
 // ── Carregar lista ────────────────────────────────────────────
@@ -9580,6 +9580,7 @@ async function sfCarregar(manual=false) {
   if(!document.getElementById('sfLista')) return;
   if(_sfCarregando && !manual) return; // evitar chamadas simultâneas
   _sfCarregando = true;
+  sfNuncaCarregado = false;
   const bref=document.getElementById('sfBRef'); if(bref)bref.classList.add('spin');
   const info=document.getElementById('sfRefreshInfo');
   try {
@@ -9603,6 +9604,10 @@ function sfRenderLista() {
   const c=document.getElementById('sfLista'); if(!c)return;
   const lista=sfSearchMode?sfSearchResults:sfListaData;
   if(!lista.length){
+    if(sfNuncaCarregado && !sfSearchMode){
+      c.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:32px;margin-bottom:10px;">🔍</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">Clique em ↻ para consultar os registros</div></div>';
+      return;
+    }
     c.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:32px;margin-bottom:10px;">📋</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">'+(sfSearchMode?'Nenhum resultado encontrado':'Nenhum sinistro registrado')+'</div></div>';
     return;
   }
