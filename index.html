@@ -2031,7 +2031,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-09-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-10-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4697,7 +4697,7 @@ function coletarDados(){
     coer:vf('coer'),
     videomonitoramento:vf('videomonitoramento'),
     observacoes:vf('observacoes'),
-    rotas:coletarContainer('rotasContainer','rota'),
+    rotas:coletarRotas(),
     apoioCtafor:coletarComLocal('apoioCtaforContainer'),
     rendicaoVl:coletarRendicao(),
     afericao:coletarComLocalChefe('afericaoContainer'),
@@ -4736,6 +4736,14 @@ function coletarFiscalizacao(){
     const outroInp=el.querySelector('.fisc-comp-outro');
     const composicaoOutro=(tipoComposicao==='OUTROS'&&outroInp)?outroInp.value.trim().toUpperCase():'';
     return{rota:rota,veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.campo-agentes')?.value||'',tipoComposicao:tipoComposicao,composicaoOutro:composicaoOutro};
+  });
+}
+function coletarRotas(){
+  return Array.from(document.getElementById('rotasContainer').children).map(el=>{
+    const rotaEl=el.querySelector('.seletor-rota');
+    const rota=rotaEl?rotaEl.value:'';
+    const missaoInp=el.querySelector('.campo-missao-turno');
+    return{rota:rota,veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.campo-agentes')?.value||'',missaoDuranteTurno:missaoInp?missaoInp.value.trim().toUpperCase():''};
   });
 }
 function coletarViaturas(id){
@@ -4787,6 +4795,7 @@ function coletarMissao(){
     evento:el.querySelector('input[placeholder="Digite missão ou evento"]')?.value||'',
     local:el.querySelector('input[placeholder="Digite o local"]')?.value||'',
     chefe:el.querySelector('input[placeholder="Digite o chefe da missão"]')?.value||'',
+    rotaAposMissao:el.querySelector('.campo-rota-apos-missao')?.value||'',
     viaturas:Array.from(el.querySelector('.viaturasContainer').children).map(v=>({
       veiculo:v.querySelector('.vt-input')?.value||'',
       agentes:v.querySelector("input[placeholder='Digite os nomes dos agentes']")?.value||'',
@@ -4820,7 +4829,7 @@ function preencherFormulario(d){
     // Limpar e recriar containers
     const containers=['rotasContainer','apoioCtaforContainer','rendicaoVlContainer','afericaoContainer','apoioEtuforContainer','zonaAzulContainer','apoioAeroportoContainer','fiscNvaContainer','fiscAetContainer','fiscalizacaoContainer','comandoContainer','missaoContainer','supervisaoContainer'];
     containers.forEach(id=>document.getElementById(id).innerHTML='');
-    (d.rotas||[]).forEach(r=>{adicionarRota();const el=document.getElementById('rotasContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';});
+    (d.rotas||[]).forEach(r=>{adicionarRota();const el=document.getElementById('rotasContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';const mI=el.querySelector('.campo-missao-turno');if(mI)mI.value=r.missaoDuranteTurno||'';});
     (d.apoioCtafor||[]).forEach(r=>{addComLocal('apoioCtaforContainer');const el=document.getElementById('apoioCtaforContainer').lastElementChild;el.querySelector('input[placeholder="Digite o local"]').value=r.local||'';(r.viaturas||[]).forEach(v=>{const div=criarViaturaSimples();const vtI=div.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=div.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';el.querySelector('.viaturasContainer').appendChild(div);});});
     (d.rendicaoVl||[]).forEach(r=>{addRendicao(r);});
     (d.afericao||[]).forEach(r=>{addComLocalChefe('afericaoContainer');const el=document.getElementById('afericaoContainer').lastElementChild;el.querySelector('input[placeholder="Digite o local"]').value=r.local||'';el.querySelector('input[placeholder="Digite o chefe da missão"]').value=r.chefe||'';(r.viaturas||[]).forEach(v=>{const div=criarViaturaSimples();const vtI=div.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=div.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';el.querySelector('.viaturasContainer').appendChild(div);});});
@@ -4831,7 +4840,7 @@ function preencherFormulario(d){
     (d.apoioAeroporto||[]).forEach(r=>{addAeroporto();const el=document.getElementById('apoioAeroportoContainer').lastElementChild;const _v=el.querySelector('.vt-input');if(_v)_v.value=r.veiculo||'';const _p=el.querySelector('.seletor-plataforma');if(_p)_p.value=r.plataforma||'';const _a=el.querySelector('input[placeholder="Digite os nomes dos agentes"]');if(_a)_a.value=r.agentes||'';});
     (d.fiscalizacao||[]).forEach(r=>{addFiscalizacao();const el=document.getElementById('fiscalizacaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';if(r.tipoComposicao){const cb=el.querySelector('.fisc-comp-btn[data-comp="'+r.tipoComposicao+'"]');if(cb){cb.classList.add('active');if(r.tipoComposicao==='OUTROS'){const oi=el.querySelector('.fisc-comp-outro');if(oi){oi.style.display='inline-block';oi.value=r.composicaoOutro||'';}}}}});
     (d.comando||[]).forEach(r=>{addComando();const el=document.getElementById('comandoContainer').lastElementChild;const lInp=el.querySelector('input[placeholder="Digite o local"]');if(lInp)lInp.value=r.local||'';const cInp=el.querySelector('input[placeholder="Digite o coordenador responsável"]');if(cInp)cInp.value=r.coordenador||'';(r.viaturas||[]).forEach(v=>{const vtDiv=criarViaturaSimples();el.querySelector('.viaturasContainer').appendChild(vtDiv);const vtI=vtDiv.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=vtDiv.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';});});
-    (d.missao||[]).forEach(r=>{addMissao();const el=document.getElementById('missaoContainer').lastElementChild;const eInp=el.querySelector('input[placeholder="Digite missão ou evento"]');if(eInp)eInp.value=r.evento||'';const lInp=el.querySelector('input[placeholder="Digite o local"]');if(lInp)lInp.value=r.local||'';const cInp=el.querySelector('input[placeholder="Digite o chefe da missão"]');if(cInp)cInp.value=r.chefe||'';(r.viaturas||[]).forEach(v=>{const vtDiv=criarViaturaMissao();el.querySelector('.viaturasContainer').appendChild(vtDiv);const vtI=vtDiv.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=vtDiv.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';const pbI=vtDiv.querySelector('input[placeholder="Digite o Posto Base"]');if(pbI)pbI.value=v.postoBase||'';});});
+    (d.missao||[]).forEach(r=>{addMissao();const el=document.getElementById('missaoContainer').lastElementChild;const eInp=el.querySelector('input[placeholder="Digite missão ou evento"]');if(eInp)eInp.value=r.evento||'';const lInp=el.querySelector('input[placeholder="Digite o local"]');if(lInp)lInp.value=r.local||'';const cInp=el.querySelector('input[placeholder="Digite o chefe da missão"]');if(cInp)cInp.value=r.chefe||'';const rInp=el.querySelector('.campo-rota-apos-missao');if(rInp)rInp.value=r.rotaAposMissao||'';(r.viaturas||[]).forEach(v=>{const vtDiv=criarViaturaMissao();el.querySelector('.viaturasContainer').appendChild(vtDiv);const vtI=vtDiv.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=vtDiv.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';const pbI=vtDiv.querySelector('input[placeholder="Digite o Posto Base"]');if(pbI)pbI.value=v.postoBase||'';});});
     (d.supervisao||[]).forEach(r=>{addSupervisao();const el=document.getElementById('supervisaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';if(el.querySelector('.campo-agentes'))el.querySelector('.campo-agentes').value=r.agentes||'';});
     ausCarregar(d.ausencias||[]);
     atualizarContagem();
@@ -5085,6 +5094,10 @@ function adicionarRota(){
   const agDiv=document.createElement('div');agDiv.className='input-wrap';
   agDiv.innerHTML=`<input type="text" class="campo-agentes finput finput-agentes" placeholder="Digite os nomes dos agentes" autocomplete="off">`;
   div.appendChild(agDiv);
+  const missaoDiv=document.createElement('div');missaoDiv.className='rota-missao-wrap';missaoDiv.style.cssText='width:100%;margin-top:4px;';
+  missaoDiv.innerHTML=`<input type="text" class="finput campo-missao-turno" placeholder="Missão durante o turno (opcional) — ex: Colégio Ari de Sá — Início" style="text-transform:uppercase;font-size:12px;" autocomplete="off">`;
+  div.appendChild(missaoDiv);
+  missaoDiv.querySelector('input').addEventListener('input',agendarAutoSave);
   const btnR=document.createElement('button');btnR.type='button';btnR.className='btnrem';btnR.innerHTML='<i class="fas fa-trash"></i> Remover';
   btnR.addEventListener('click',(e)=>{e.stopPropagation();e.preventDefault();const p=div.parentElement;div.remove();atualizarContagem();atualizarBadgesViatura(p);agendarAutoSave();});div.appendChild(btnR);
   addEventosAgentes(agDiv.querySelector('input'));
@@ -5228,7 +5241,8 @@ function addComando(){
 function addMissao(){
   const div=document.createElement('div');div.className='card-complexo';
   div.style.borderTopColor='var(--orange2)';
-  div.innerHTML=`<input type="text" class="finput" placeholder="Digite missão ou evento" style="margin-bottom:6px;"><input type="text" class="finput" placeholder="Digite o local" style="margin-bottom:6px;"><input type="text" class="finput" placeholder="Digite o chefe da missão" style="margin-bottom:6px;"><div class="viaturas-sub">Viaturas/Motos</div><div class="viaturasContainer"></div>`;
+  div.innerHTML=`<input type="text" class="finput" placeholder="Digite missão ou evento" style="margin-bottom:6px;"><input type="text" class="finput" placeholder="Digite o local" style="margin-bottom:6px;"><input type="text" class="finput" placeholder="Digite o chefe da missão" style="margin-bottom:6px;"><input type="text" class="finput campo-rota-apos-missao" placeholder="Rota após a missão (opcional)" style="margin-bottom:6px;text-transform:uppercase;"><div class="viaturas-sub">Viaturas/Motos</div><div class="viaturasContainer"></div>`;
+  div.querySelector('.campo-rota-apos-missao').addEventListener('input',agendarAutoSave);
   const btnAdd=document.createElement('button');btnAdd.type='button';btnAdd.className='btnadd';btnAdd.innerHTML='<i class="fas fa-plus"></i> Viatura/Moto';
   btnAdd.addEventListener('click',()=>{const c=div.querySelector('.viaturasContainer');c.appendChild(criarViaturaMissao());atualizarBadgesViatura(c);atualizarContagem();});
   div.appendChild(btnAdd);
@@ -5408,6 +5422,7 @@ function renderVisualizacao(d){
       if(c==='Veículo (Plataforma)')return`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
       if(c==='Rota após rendição')return(r.rota||'').toUpperCase();
       if(c==='Composição')return r.tipoComposicao?(r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao):'';
+      if(c==='Missão no Turno')return r.missaoDuranteTurno||'';
       return'';
     };
     const dataCols=cols.filter(c=>c!=='#');
@@ -5433,7 +5448,7 @@ function renderVisualizacao(d){
     ${sec('04. CIVFOR',campo('Agentes',d.cccf)||'<span class="view-empty">Nenhum dado informado</span>')}
     ${sec('05. COER',campo('Agentes',d.coer)||'<span class="view-empty">Nenhum dado informado</span>')}
     ${sec('06. SEFE',campo('Agentes',d.videomonitoramento)||'<span class="view-empty">Nenhum dado informado</span>')}
-    ${sec('07. Rotas',tabela(d.rotas,['#','Rota','Veículo','Agentes']))}
+    ${sec('07. Rotas',tabela(d.rotas,['#','Rota','Veículo','Agentes','Missão no Turno']))}
     ${sec('08. Apoio CTAFOR',fmtArr(d.apoioCtafor,[{label:'Local',key:'local'}]))}
     ${sec('09. Rendições',(function(){
       if(!d.rendicaoVl||!d.rendicaoVl.length) return '<div style="color:var(--text3);font-size:13px;font-style:italic;">Nenhum dado informado</div>';
@@ -5470,7 +5485,7 @@ function renderVisualizacao(d){
     ${(d.apoioAeroporto&&d.apoioAeroporto.length)?sec('Apoio Aeroporto (hist.)',tabela(d.apoioAeroporto,['#','Veículo (Plataforma)','Agentes'])):''}
     ${sec('15. Fiscalização Volante',tabela(d.fiscalizacao,['#','Rota','Veículo','Agentes','Composição']))}
     ${sec('16. Comando',fmtArr(d.comando,[{label:'Local',key:'local'},{label:'Coordenador',key:'coordenador'}]))}
-    ${sec('17. Outras Missões',fmtArr(d.missao,[{label:'Missão/Evento',key:'evento'},{label:'Local',key:'local'},{label:'Chefe da Missão',key:'chefe'}]))}
+    ${sec('17. Outras Missões',fmtArr(d.missao,[{label:'Missão/Evento',key:'evento'},{label:'Local',key:'local'},{label:'Chefe da Missão',key:'chefe'},{label:'Rota após a Missão',key:'rotaAposMissao'}]))}
     ${sec('18. Supervisão',tabela(d.supervisao,['#','Rota','Veículo','Agentes']))}
     ${sec('19. Ausências',(d.ausencias&&d.ausencias.length)?('<div style="display:flex;flex-wrap:wrap;gap:6px;">'+d.ausencias.map(a=>'<span class="vl-aus-chip">'+(a.situacao?a.situacao+' — ':'')+a.nome+(a.obs?' <span style="color:var(--text2);font-size:10px;">('+a.obs+')</span>':'')+'</span>').join('')+'</div>'):'<span class="view-empty">Nenhuma ausência registrada</span>')}
     ${sec('20. Observações',d.observacoes?`<div class="view-field">${d.observacoes.toUpperCase()}</div>`:'<span class="view-empty">Nenhum dado informado</span>')}    ${d.savedBy?`<div style="font-size:11px;color:var(--text3);text-align:right;margin-top:8px;font-family:'IBM Plex Mono',monospace;">Salvo por ${d.savedBy} · ${d.savedAt?new Date(d.savedAt).toLocaleString('pt-BR'):''}</div>`:''}
@@ -5527,10 +5542,13 @@ async function gerarPDF(){
         const comp=r.tipoComposicao?(r.tipoComposicao==='OUTROS'?U(r.composicaoOutro||'OUTROS'):r.tipoComposicao):'';
         return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),comp];
       }
+      if(titulo.includes('07. Rotas')){
+        return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),U(r.missaoDuranteTurno||'')];
+      }
       if(hasRota)return[i+1,U(r.rota),U(r.veiculo),U(r.agentes)];
       return[i+1,U(r.veiculo),U(r.agentes)];
     });
-    await addTabela(td,titulo.includes('Fiscalização Volante')?['#','Rota','Veículo','Agentes','Composição']:cols,y);await addDiv();
+    await addTabela(td,titulo.includes('Fiscalização Volante')?['#','Rota','Veículo','Agentes','Composição']:(titulo.includes('07. Rotas')?['#','Rota','Veículo','Agentes','Missão no Turno']:cols),y);await addDiv();
   }
   async function procComLocal(arr,titulo){
     if(!arr||!arr.length)return;
@@ -5556,7 +5574,7 @@ async function gerarPDF(){
     if(!arr||!arr.length)return;
     await checkPage(50);
     let cnt=1;await addTxt('17. Outras Missões',12,mL,true,[46,94,86]);
-    for(const item of arr){await addBadge(cnt);await addCard([{rotulo:'Missão/Evento: ',valor:(item.evento||'').toUpperCase()},{rotulo:'Local: ',valor:(item.local||'').toUpperCase()},{rotulo:'Chefe da Missão: ',valor:(item.chefe||'').toUpperCase()}]);if(item.viaturas?.length){await checkPage(25);addSubViaturas();const td=item.viaturas.map(v=>['', (v.veiculo||'').toUpperCase(),(v.agentes||'').toUpperCase(),(v.postoBase||'').toUpperCase()]);await addTabela(td,['','Veículo','Agentes','Posto Base'],y);}cnt++;}
+    for(const item of arr){await addBadge(cnt);const camposMissao=[{rotulo:'Missão/Evento: ',valor:(item.evento||'').toUpperCase()},{rotulo:'Local: ',valor:(item.local||'').toUpperCase()},{rotulo:'Chefe da Missão: ',valor:(item.chefe||'').toUpperCase()}];if(item.rotaAposMissao)camposMissao.push({rotulo:'Rota após a Missão: ',valor:item.rotaAposMissao.toUpperCase()});await addCard(camposMissao);if(item.viaturas?.length){await checkPage(25);addSubViaturas();const td=item.viaturas.map(v=>['', (v.veiculo||'').toUpperCase(),(v.agentes||'').toUpperCase(),(v.postoBase||'').toUpperCase()]);await addTabela(td,['','Veículo','Agentes','Posto Base'],y);}cnt++;}
     await addDiv();
   }
 
@@ -6209,7 +6227,15 @@ function qrvPrePopular(d){
   };
 
   // Sequência idêntica ao relatório do supervisor, com origem para sub-cabeçalho
-  (d.rotas||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'principal','07. Rotas'));
+  (d.rotas||[]).forEach(r=>{
+    addVt(r.veiculo,r.agentes,r.rota,'principal','07. Rotas');
+    if(r.missaoDuranteTurno){
+      const chave=(r.veiculo||'').trim().toUpperCase()||(r.agentes||'').split(',')[0].trim().toUpperCase();
+      const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
+      const reg=novas.find(x=>x.id===idEstavel)||qrvRegistros.find(x=>x.id===idEstavel);
+      if(reg) reg.missaoDuranteTurno=r.missaoDuranteTurno;
+    }
+  });
   (d.apoioCtafor||[]).forEach(item=>{
     (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','08. Apoio CTAFOR'));
   });
@@ -6235,13 +6261,29 @@ function qrvPrePopular(d){
   (d.fiscAet||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','14. Fiscalização AET'));
   (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','12. Zona Azul'));
   (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais','Apoio Aeroporto'));
-  (d.fiscalizacao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','15. Fiscalização Volante',r.tipoComposicao,r.composicaoOutro));
+  (d.fiscalizacao||[]).forEach(r=>{
+    addVt(r.veiculo,r.agentes,r.rota,'demais','15. Fiscalização Volante');
+    if(r.tipoComposicao){
+      const chave=(r.veiculo||'').trim().toUpperCase()||(r.agentes||'').split(',')[0].trim().toUpperCase();
+      const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
+      const reg=novas.find(x=>x.id===idEstavel)||qrvRegistros.find(x=>x.id===idEstavel);
+      if(reg){reg.tipoComposicao=r.tipoComposicao;reg.composicaoOutro=r.composicaoOutro||'';}
+    }
+  });
   (d.comando||[]).forEach(item=>{
     (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','16. Comando'));
   });
   (d.missao||[]).forEach(item=>{
     const rotaMissao=[item.evento,item.local].filter(Boolean).join(' — ');
-    (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,rotaMissao,'demais','17. Missão'));
+    (item.viaturas||[]).forEach(v=>{
+      addVt(v.veiculo,v.agentes,rotaMissao,'demais','17. Missão');
+      if(item.rotaAposMissao){
+        const chave=(v.veiculo||'').trim().toUpperCase()||(v.agentes||'').split(',')[0].trim().toUpperCase();
+        const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
+        const reg=novas.find(x=>x.id===idEstavel)||qrvRegistros.find(x=>x.id===idEstavel);
+        if(reg) reg.rotaAposMissao=item.rotaAposMissao.toUpperCase();
+      }
+    });
   });
   (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão'));
 
@@ -6533,8 +6575,9 @@ function qrvRenderRow(r,podeEditar){
         ${r.saida?`<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#60a5fa;font-weight:700;">▶ ${r.saida}</span>`:''}
         <div style="flex:1;min-width:140px;">
           <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">${nomes||'—'}</div>
-          ${r.rota?`<div style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">${r.rota}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}</div>`:''}
-          ${isRen&&r.localRendicao?`<div style="font-size:10px;color:#fb923c;font-family:'IBM Plex Mono',monospace;">↩ Rendição: ${r.localRendicao}</div>`:''}
+          ${r.rota?`<div style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">${r.rota}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+          ${isRen&&r.localRendicao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rendição: ${r.localRendicao}</div>`:''}
+          ${r.rotaAposMissao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rota após Missão: ${r.rotaAposMissao}</div>`:''}
         </div>
       </div>
       ${r.obs?`<div style="padding:0 12px 8px;font-size:12px;color:#94a3b8;font-style:italic;">${r.obs}</div>`:''}
@@ -6550,7 +6593,7 @@ function qrvRenderRow(r,podeEditar){
       ${badgeHtml}
       <div class="qrv-row-info">
         <div class="qrv-row-nomes">${nomes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>'}</div>
-        ${r.rota?`<div class="qrv-row-rota">${r.rota}${isRen&&r.localRendicao?` <span style="font-size:9px;color:#fb923c;">↩ ${r.localRendicao}</span>`:''}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}</div>`:''}
+        ${r.rota?`<div class="qrv-row-rota">${r.rota}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
       </div>
       ${qrvGetStatusPills(r)}
       <input type="time" class="qrv-saida-input" value="${r.saida||''}" title="Hora de saída"
