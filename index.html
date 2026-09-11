@@ -207,6 +207,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--navy);color:var(--t
 .bref.spin{animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .refresh-info{font-size:11px;color:var(--text2);font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;font-weight:500;padding-left:4px;}
+.refresh-info-live{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;background:var(--surface3);border:1px solid var(--border2);border-radius:20px;padding:8px 14px;cursor:pointer;user-select:none;transition:background .15s,border-color .15s;}
+.refresh-info-live:active{background:var(--surface2);border-color:var(--accent2);}
+.refresh-info-live .ri-time{font-size:11px;color:var(--text2);font-weight:500;}
+.refresh-info-live .ri-action{font-size:11px;color:var(--accent2);font-weight:700;}
 .save-info{font-size:11px;color:var(--green2);font-family:'IBM Plex Mono',monospace;letter-spacing:0.5px;font-weight:500;}
 .bpdf{display:flex;align-items:center;gap:5px;background:#b71c1c;border:none;border-radius:8px;padding:8px 12px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .bsalvar{display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--verde2),var(--verde));border:none;border-radius:8px;padding:8px 12px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
@@ -2031,7 +2035,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-10-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-11-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9103,7 +9107,7 @@ function srvInit() {
   srvAutoTimer = setInterval(function() {
     srvLoadRecords(false, true);
     setTimeout(function(){ srvLoadRenditions(false, true); }, 3000);
-  }, 90000);
+  }, 240000); // 4 minutos (antes: 90s) — reduzir concorrência com o standalone no mesmo script
 }
 
 // ── Sub-abas ────────────────────────────────────────────────────
@@ -9175,7 +9179,7 @@ async function srvLoadRecords(manual, silent, _semDesconfiar) {
     else srvRenderAuth();
     if (manual) toast('Autorizações atualizadas ✓','ok');
     var el = document.getElementById('srvAuthRefreshInfo');
-    if (el) el.textContent = 'Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if (el) el.innerHTML='<span class="ri-time">Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span class="ri-action">↻ Atualizar</span>';
   } catch(ex) { if(!silent) toast('Erro Serviços: '+ex.message,'err'); }
   if (!silent && b) b.classList.remove('spin');
 }
@@ -9195,7 +9199,7 @@ async function srvLoadRenditions(manual, silent, _semDesconfiar) {
     srvRenderRend();
     if (manual) toast('Rendições atualizadas ✓','ok');
     var el = document.getElementById('srvRendRefreshInfo');
-    if (el) el.textContent = 'Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if (el) el.innerHTML='<span class="ri-time">Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span class="ri-action">↻ Atualizar</span>';
   } catch(ex) { if(!silent) toast('Erro Serviços: '+ex.message,'err'); }
   if (!silent && b) b.classList.remove('spin');
 }
@@ -9558,7 +9562,7 @@ function srvSetRendSF(sf) {
 
 
 // ── Modal Autorização ───────────────────────────────────────────
-function srvOpenAuthModal(id) {
+async function srvOpenAuthModal(id) {
   srvEA = id||null; srvSelT = null; srvDates = [];
   document.getElementById('srvMAuthTit').textContent = id ? 'Editar Registro' : 'Novo Registro';
   var body = document.getElementById('srvMAuthBody');
@@ -9584,6 +9588,19 @@ function srvOpenAuthModal(id) {
     +'<div id="srvDCont" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>'
     +'</div></div>';
   if (id) {
+    // Buscar dado atual do servidor antes de editar — evita sobrescrever uma edição
+    // feita por outra pessoa nesse meio tempo com dado desatualizado da tela
+    try {
+      var freshResp = await apiSrv('getRecords', {});
+      var freshList = freshResp && freshResp.data;
+      if (Array.isArray(freshList)) {
+        var freshRec = freshList.find(function(r){return r.id===id;});
+        if (freshRec) {
+          var idx = srvRecords.findIndex(function(r){return r.id===id;});
+          if (idx>=0) srvRecords[idx]=freshRec; else srvRecords.push(freshRec);
+        }
+      }
+    } catch(ex) { /* se falhar, segue com o dado local mesmo — não bloqueia a edição */ }
     var rec = srvRecords.find(function(r){return r.id===id;});
     if (rec) {
       srvSelT=rec.type; srvDates=(rec.dates||[]).slice();
@@ -9699,10 +9716,22 @@ function srvDelAuth(id) {
 }
 
 // ── Modal Rendição ───────────────────────────────────────────────
-function srvOpenRendModal(id) {
+async function srvOpenRendModal(id) {
   srvER = id||null;
   document.getElementById('srvMRendTit').textContent = id ? 'Editar Rendição' : 'Nova Rendição';
   if (id) {
+    // Buscar dado atual do servidor antes de editar — mesma proteção aplicada em Autorizações
+    try {
+      var freshResp = await apiSrv('getRenditions', {});
+      var freshList = freshResp && freshResp.data;
+      if (Array.isArray(freshList)) {
+        var freshRec = freshList.find(function(r){return r.id===id;});
+        if (freshRec) {
+          var idx = srvRends.findIndex(function(r){return r.id===id;});
+          if (idx>=0) srvRends[idx]=freshRec; else srvRends.push(freshRec);
+        }
+      }
+    } catch(ex) { /* se falhar, segue com o dado local mesmo — não bloqueia a edição */ }
     var rec=srvRends.find(function(r){return r.id===id;});
     if (rec) {
       var d=String(rec.date||'').trim();
@@ -11384,7 +11413,7 @@ function opsLightbox(url){
       </div>
       <div class="toolbar-row2">
         <button class="bref" id="srvBRefA" onclick="srvLoadRecords(true)">↻</button>
-        <span class="refresh-info" id="srvAuthRefreshInfo"></span>
+        <span class="refresh-info-live" id="srvAuthRefreshInfo" onclick="srvLoadRecords(true)"></span>
         <button class="bnav btoday" id="srvBtnBusca" onclick="srvToggleBusca()" style="font-size:14px;">🔍</button>
         <button id="srvBtnNA" onclick="srvOpenAuthModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Novo</button>
       </div>
@@ -11424,7 +11453,7 @@ function opsLightbox(url){
       </div>
       <div class="toolbar-row2">
         <button class="bref" id="srvBRefR" onclick="srvLoadRenditions(true)">↻</button>
-        <span class="refresh-info" id="srvRendRefreshInfo"></span>
+        <span class="refresh-info-live" id="srvRendRefreshInfo" onclick="srvLoadRenditions(true)"></span>
         <button id="srvBtnNR" onclick="srvOpenRendModal()" style="display:none;padding:9px 14px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">＋ Rendição</button>
       </div>
     </div>
