@@ -2045,7 +2045,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-12-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-12-v4'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4276,7 +4276,7 @@ function initApp(){
   // Carregar eventos para injetar na aba QRV
   evtCarregar(true);
   if(G.autoTimer)clearInterval(G.autoTimer);
-  G.autoTimer=setInterval(()=>carregarRelatorio(false,true),30000);
+  G.autoTimer=setInterval(()=>carregarRelatorio(false,true),65000);
   // Configurar autocomplete nos campos internos
   ['central','ciops','sevim','sevimOperadores','cccf','coer','videomonitoramento'].forEach(id=>{
     const el=document.getElementById(id);
@@ -5813,17 +5813,17 @@ function trocarAba(aba){
         }).catch(()=>{})
       ]);
       await qrvCarregar(false,true);
-    },45000);
+    },70000);
   }else{if(qrvAutoTimer){clearInterval(qrvAutoTimer);qrvAutoTimer=null;}}
   if(isEvt){
     evtSincData();evtCarregar();
     if(evtAutoTimer)clearInterval(evtAutoTimer);
-    evtAutoTimer=setInterval(()=>evtCarregar(true),45000);
+    evtAutoTimer=setInterval(()=>evtCarregar(true),75000);
   }else{if(evtAutoTimer){clearInterval(evtAutoTimer);evtAutoTimer=null;}}
   if(isVl){
     vlSincData();vlCarregar();
     if(vlAutoTimer)clearInterval(vlAutoTimer);
-    vlAutoTimer=setInterval(()=>vlCarregar(false),45000);
+    vlAutoTimer=setInterval(()=>vlCarregar(false),80000);
   }else{if(vlAutoTimer){clearInterval(vlAutoTimer);vlAutoTimer=null;}}
   if(isAdmin){ adminCarregar(); }
   if(isServicos){
@@ -5874,7 +5874,7 @@ function trocarAba(aba){
       if(b) b.classList.add('spin');
       await qrvvlCarregar();
       if(b) b.classList.remove('spin');
-    },30000);
+    },85000);
   }else{if(qrvvlAutoTimer){clearInterval(qrvvlAutoTimer);qrvvlAutoTimer=null;}}
 }
 
