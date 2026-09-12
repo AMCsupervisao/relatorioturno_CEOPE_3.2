@@ -2045,7 +2045,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-12-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-12-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5516,25 +5516,35 @@ function renderVisualizacao(d){
 // GERAR PDF (mesmo padrão do original)
 // ══════════════════════════════════════════════
 async function gerarPDF(){
-  // Salvar o que está na tela antes de gerar — garante que o PDF sempre reflete os dados atuais,
-  // não uma versão anterior que possa estar desatualizada. ID é fixo por data+turno, então isso
-  // nunca cria registro duplicado, só sobrescreve o mesmo, igual o botão Salvar normal.
-  toast('Salvando antes de gerar...','');
-  const dados=coletarDados();
-  if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
-  if(!dados.supervisor){toast('Preencha os dados antes de gerar o PDF.','err');return;}
-  try{
-    await api('saveRelatorio',dados);
-    G.relatorio=dados; G.temAlteracaoLocal=false;
-    const bSalvar=document.querySelector('.bsalvar');
-    if(bSalvar){bSalvar.style.boxShadow='';bSalvar.title='';delete bSalvar.dataset.original;}
-    const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    const saveInfoEl=document.getElementById('saveInfo');
-    if(saveInfoEl) saveInfoEl.textContent='💾 Salvo às '+now;
-  }catch(ex){
-    toast('Aviso: não foi possível salvar antes de gerar. Gerando com os dados locais mesmo assim.','err');
-    const bar=document.getElementById('pdfNotSavedBar');
-    if(bar) bar.style.display='flex';
+  // Só existe "dado não salvo" em modo edição — em modo leitura, o que já está
+  // carregado (G.relatorio) já É a versão salva, então nem precisa salvar nem reconsultar.
+  const emEdicao = document.getElementById('modoEditar').style.display !== 'none';
+  let dados;
+  if(emEdicao){
+    toast('Salvando antes de gerar...','');
+    dados=coletarDados();
+    if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
+    if(!dados.supervisor){toast('Preencha os dados antes de gerar o PDF.','err');return;}
+    try{
+      await api('saveRelatorio',dados);
+      G.relatorio=dados; G.temAlteracaoLocal=false;
+      const bSalvar=document.querySelector('.bsalvar');
+      if(bSalvar){bSalvar.style.boxShadow='';bSalvar.title='';delete bSalvar.dataset.original;}
+      const barPdfOk=document.getElementById('pdfNotSavedBar');
+      if(barPdfOk) barPdfOk.style.display='none';
+      const now=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const saveInfoEl=document.getElementById('saveInfo');
+      if(saveInfoEl) saveInfoEl.textContent='💾 Salvo às '+now;
+    }catch(ex){
+      toast('Aviso: não foi possível salvar antes de gerar. Gerando com os dados locais mesmo assim.','err');
+      const bar=document.getElementById('pdfNotSavedBar');
+      if(bar) bar.style.display='flex';
+    }
+  }else{
+    // Modo leitura: usar o relatório já carregado, sem gravar nem consultar de novo
+    dados=G.relatorio||coletarDados();
+    if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
+    if(!dados.supervisor){toast('Nenhum relatório carregado para gerar o PDF.','err');return;}
   }
   const geradoPor=G.name;
   const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
