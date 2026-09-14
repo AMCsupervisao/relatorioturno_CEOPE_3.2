@@ -1326,6 +1326,11 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
         </div>
         <div id="cmdVtContainer"></div>
       </div>
+      <div class="fsec" style="margin-bottom:14px;">
+        <span class="flabel" style="color:#f59e0b;">Ausências</span>
+        <textarea id="cmdAusencias" class="finput" placeholder="Nome dos agentes ausentes..." style="width:100%;box-sizing:border-box;min-height:44px;resize:none;overflow:hidden;text-transform:uppercase;margin-top:6px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
+        <button type="button" onclick="cmdExportarAusencias()" style="margin-top:8px;padding:7px 12px;background:#25D366;border:none;border-radius:8px;color:#062f16;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fab fa-whatsapp"></i> Exportar Ausências</button>
+      </div>
       <button onclick="cmdSalvar()" id="cmdBtnSalvar" style="width:100%;padding:14px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-save"></i> Salvar Comando</button>
     </div>
   </div>
@@ -1380,6 +1385,11 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
           <button onclick="evtAdicionarSupervisao()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
         </div>
         <div id="evtSupervisaoContainer"></div>
+      </div>
+      <div class="fsec" style="margin-bottom:14px;">
+        <span class="flabel" style="color:#f59e0b;">Ausências</span>
+        <textarea id="evtAusencias" class="finput" placeholder="Nome dos agentes ausentes..." style="width:100%;box-sizing:border-box;min-height:44px;resize:none;overflow:hidden;text-transform:uppercase;margin-top:6px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>
+        <button type="button" onclick="evtExportarAusencias()" style="margin-top:8px;padding:7px 12px;background:#25D366;border:none;border-radius:8px;color:#062f16;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fab fa-whatsapp"></i> Exportar Ausências</button>
       </div>
       <button onclick="evtSalvar()" id="evtBtnSalvar" style="width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#b45309);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-save"></i> Salvar Evento</button>
     </div>
@@ -2045,7 +2055,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-12-v4'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-14-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -2604,6 +2614,7 @@ function cmdLimparForm(){
   document.getElementById('cmdLocal').value='';
   document.getElementById('cmdHora').value='';
   document.getElementById('cmdCoordenador').value=G.name||'';
+  { const el=document.getElementById('cmdAusencias'); if(el){el.value='';el.style.height='auto';} }
   document.getElementById('cmdVtContainer').innerHTML='';
   document.getElementById('cmdBtnSalvar').innerHTML='<i class="fas fa-save"></i> Salvar Comando';
 }
@@ -2623,6 +2634,20 @@ async function cmdCarregar(silent=false,turnoParam){
   if(!silent){const b=document.getElementById('evtBRef');if(b)b.classList.remove('spin');}
 }
 
+function cmdExportarAusencias(){
+  const texto=(document.getElementById('cmdAusencias').value||'').trim();
+  if(!texto){toast('Nenhuma ausência informada.','err');return;}
+  const local=(document.getElementById('cmdLocal').value||'').trim().toUpperCase();
+  const cabecalho='*AUSÊNCIAS — COMANDO'+(local?' — '+local:'')+' — '+fmtData(G.data)+' — '+(evtTurno||'').toUpperCase()+'*\n\n';
+  const full=cabecalho+texto;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(full).then(()=>{
+      toast('Ausências copiadas! Cole no WhatsApp.','ok');
+    }).catch(()=>evtCopiarFallback(full));
+  }else{
+    evtCopiarFallback(full);
+  }
+}
 async function cmdSalvar(){
   const local=(document.getElementById('cmdLocal').value||'').trim().toUpperCase();
   if(!local){toast('Informe o local do comando.','err');return;}
@@ -2634,6 +2659,7 @@ async function cmdSalvar(){
     id:cmdEditId||('cmd_'+Date.now()),
     local,hora:(document.getElementById('cmdHora').value||''),
     coordenador:(document.getElementById('cmdCoordenador').value||'').trim().toUpperCase(),
+    ausencias:(document.getElementById('cmdAusencias').value||'').trim().toUpperCase(),
     viaturas:vts,data:isoData(G.data),turno:evtTurno,
     criadoPor:(cmdEditId&&G.role==='admin')?(()=>{const o=cmdLista.find(c=>c.id===cmdEditId);return(o&&o.criadoPor)?o.criadoPor:G.name;})():G.name,
     criadoEm:(()=>{const o=cmdLista.find(c=>c.id===cmdEditId);return(o&&o.criadoEm)?o.criadoEm:new Date().toISOString();})(),
@@ -2689,6 +2715,7 @@ function cmdRenderLista(){
             <span style="color:var(--text1);font-size:13px;">${v.agentes||'—'}</span>
           </div>
         </div>`).join('')}
+      ${cmd.ausencias?`<div class="evt-apoio" style="border-left:3px solid #f59e0b;color:var(--text);white-space:pre-wrap;"><strong style="color:#f59e0b;">AUSÊNCIAS:</strong> ${cmd.ausencias}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -2699,6 +2726,7 @@ function cmdEditar(id){
   document.getElementById('cmdLocal').value=cmd.local||'';
   document.getElementById('cmdHora').value=cmd.hora||'';
   document.getElementById('cmdCoordenador').value=cmd.coordenador||'';
+  { const el=document.getElementById('cmdAusencias'); if(el){el.value=cmd.ausencias||'';el.style.height='auto';el.style.height=el.scrollHeight+'px';} }
   document.getElementById('cmdVtContainer').innerHTML='';
   (cmd.viaturas||[]).forEach(v=>{
     cmdAdicionarVt();
@@ -2777,6 +2805,14 @@ async function cmdGerarPDF(){
     if(cmd.coordenador){
       doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80,60,130);
       doc.text('COORDENADOR: '+cmd.coordenador,mL,y);y+=6;
+    }
+    if(cmd.ausencias){
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(180,83,9);
+      doc.text('AUSÊNCIAS:',mL,y);y+=5;
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(0,0,0);
+      const linhasAus=doc.splitTextToSize(cmd.ausencias.toUpperCase(),lMax-4);
+      await checkPage(linhasAus.length*4+4);
+      doc.text(linhasAus,mL,y);y+=linhasAus.length*4+3;
     }
     if((cmd.viaturas||[]).length){
       const rows=(cmd.viaturas||[]).map(v=>[v.vt||'—',v.agentes||'—']);
@@ -3058,6 +3094,7 @@ function evtLimparForm(){
   document.getElementById('evtNome').value='';
   document.getElementById('evtHora').value='';
   document.getElementById('evtApoio').value=G.name||'';
+  { const el=document.getElementById('evtAusencias'); if(el){el.value='';el.style.height='auto';} }
   document.getElementById('evtPostosContainer').innerHTML='';
   const sc=document.getElementById('evtSupervisaoContainer');
   if(sc) sc.innerHTML='';
@@ -3065,6 +3102,44 @@ function evtLimparForm(){
   document.getElementById('evtBtnSalvar').textContent='Salvar Evento';
 }
 
+function evtExportarAusencias(){
+  const texto=(document.getElementById('evtAusencias').value||'').trim();
+  if(!texto){toast('Nenhuma ausência informada.','err');return;}
+  const nomeEvt=(document.getElementById('evtNome').value||'').trim().toUpperCase();
+  const cabecalho='*AUSÊNCIAS'+(nomeEvt?' — '+nomeEvt:'')+' — '+fmtData(G.data)+' — '+(evtTurno||'').toUpperCase()+'*\n\n';
+  const full=cabecalho+texto;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(full).then(()=>{
+      toast('Ausências copiadas! Cole no WhatsApp.','ok');
+    }).catch(()=>evtCopiarFallback(full));
+  }else{
+    evtCopiarFallback(full);
+  }
+}
+function evtCopiarFallback(texto){
+  try{
+    var ta=document.createElement('textarea');
+    ta.value=texto;
+    ta.style.position='fixed';ta.style.top='-9999px';ta.style.left='-9999px';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    var ok=document.execCommand('copy');
+    document.body.removeChild(ta);
+    if(ok){toast('Ausências copiadas! Cole no WhatsApp.','ok');return;}
+  }catch(e){}
+  var overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.innerHTML='<div style="background:var(--navy2);border:1px solid var(--border2);border-radius:12px;padding:16px;max-width:420px;width:100%;">'
+    +'<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:10px;">📋 Toque e segure o texto abaixo, depois "Copiar tudo":</div>'
+    +'<textarea readonly style="width:100%;height:180px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text);padding:10px;font-size:13px;font-family:monospace;box-sizing:border-box;"></textarea>'
+    +'<button type="button" class="evtFecharManualBtn" style="margin-top:10px;width:100%;padding:10px;background:var(--accent);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Fechar</button>'
+    +'</div>';
+  document.body.appendChild(overlay);
+  var ta2=overlay.querySelector('textarea');
+  ta2.value=texto;
+  overlay.querySelector('.evtFecharManualBtn').addEventListener('click',()=>overlay.remove());
+  ta2.focus();ta2.select();
+}
 async function evtSalvar(){
   const hoje=isoData(new Date());
   if(G.role!=='admin'&&isoData(G.data)>hoje){toast('Não é possível criar eventos para datas futuras.','err');return;}
@@ -3082,6 +3157,7 @@ async function evtSalvar(){
     data:isoData(G.data),
     turno:evtTurno,
     apoio:(document.getElementById('evtApoio').value||'').trim().toUpperCase(),
+    ausencias:(document.getElementById('evtAusencias').value||'').trim().toUpperCase(),
     postos,
     supervisao:supervisao.length?supervisao:null,
     // Preservar criadoPor original se admin editando evento de outro supervisor
@@ -3123,6 +3199,8 @@ function evtEditar(id){
   document.getElementById('evtNome').value=evt.nome||'';
   document.getElementById('evtHora').value=evt.hora||'';
   document.getElementById('evtApoio').value=evt.apoio||'';
+  const evtAusEl=document.getElementById('evtAusencias');
+  if(evtAusEl){evtAusEl.value=evt.ausencias||'';evtAusEl.style.height='auto';evtAusEl.style.height=evtAusEl.scrollHeight+'px';}
   document.getElementById('evtPostosContainer').innerHTML='';
   const sc2=document.getElementById('evtSupervisaoContainer');
   if(sc2) sc2.innerHTML='';
@@ -3233,6 +3311,7 @@ function evtRenderLista(){
       ${postoHtml}
       ${supHtml}
       ${evt.apoio?`<div class="evt-apoio"><strong>APOIO:</strong> ${evt.apoio}</div>`:''}
+      ${evt.ausencias?`<div class="evt-apoio" style="border-left:3px solid #f59e0b;color:var(--text);white-space:pre-wrap;"><strong style="color:#f59e0b;">AUSÊNCIAS:</strong> ${evt.ausencias}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -3339,6 +3418,7 @@ async function evtGerarPDF(){
     const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[];
     supArr.forEach(s=>{rows.push([s.vt||'—', s.agentes||'—', 'SUPERVISÃO']);});
     if(evt.apoio) rows.push(['—', evt.apoio, 'APOIO GERAL']);
+    if(evt.ausencias) rows.push(['—', evt.ausencias, 'AUSÊNCIAS']);
     if(!rows.length) rows.push(['—','—','—']);
     const secY=doc.lastAutoTable?doc.lastAutoTable.finalY+5:y;
     if(secY>hPag-hRod-30){await addRod();doc.addPage();await addCab();}
@@ -3466,6 +3546,10 @@ document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='
 // estão mais abaixo no HTML e ainda não existiriam se chamássemos isso de forma síncrona aqui)
 function _bootApp(){
   if(boot()){initApp();}else{document.getElementById('loginScreen').style.display='flex';lembrarCpfInit();}
+  const evtAusEl=document.getElementById('evtAusencias');
+  if(evtAusEl) addEventosAgentes(evtAusEl);
+  const cmdAusEl=document.getElementById('cmdAusencias');
+  if(cmdAusEl) addEventosAgentes(cmdAusEl);
 }
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',_bootApp);
@@ -4747,15 +4831,24 @@ function coletarContainer(id,tipo){
     return{veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.finput-agentes')?.value||''};
   });
 }
+function fmtComposicao(r){
+  // Compatibilidade com registros salvos antes da mudança (quando existia botão "Outros"):
+  // tratam-se como observação livre, sem nenhum botão marcado.
+  const tipo = r.tipoComposicao==='OUTROS' ? '' : (r.tipoComposicao||'');
+  const obs = r.tipoComposicao==='OUTROS' ? (r.composicaoOutro||'') : (r.composicaoObs||'');
+  if(tipo && obs) return tipo+' — '+obs;
+  if(tipo) return tipo;
+  return obs||'';
+}
 function coletarFiscalizacao(){
   return Array.from(document.getElementById('fiscalizacaoContainer').children).map(el=>{
     const rotaEl=el.querySelector('.seletor-rota');
     const rota=rotaEl?rotaEl.value:'';
     const compBtn=el.querySelector('.fisc-comp-btn.active');
     const tipoComposicao=compBtn?compBtn.dataset.comp:'';
-    const outroInp=el.querySelector('.fisc-comp-outro');
-    const composicaoOutro=(tipoComposicao==='OUTROS'&&outroInp)?outroInp.value.trim().toUpperCase():'';
-    return{rota:rota,veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.campo-agentes')?.value||'',tipoComposicao:tipoComposicao,composicaoOutro:composicaoOutro};
+    const obsInp=el.querySelector('.fisc-comp-obs');
+    const composicaoObs=obsInp?obsInp.value.trim().toUpperCase():'';
+    return{rota:rota,veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.campo-agentes')?.value||'',tipoComposicao:tipoComposicao,composicaoObs:composicaoObs};
   });
 }
 function coletarRotas(){
@@ -4858,7 +4951,16 @@ function preencherFormulario(d){
     (d.fiscAet||[]).forEach(r=>{addViatura('fiscAetContainer');const el=document.getElementById('fiscAetContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';});
     (d.zonaAzul||[]).forEach(r=>{addZonaAzul();const el=document.getElementById('zonaAzulContainer').lastElementChild;const _r=el.querySelector('.seletor-rota');if(_r)_r.value=r.rota||'';const _v=el.querySelector('.vt-input');if(_v)_v.value=r.veiculo||'';const _t=el.querySelector('.seletor-tipo');if(_t)_t.value=r.tipo||'';const _a=el.querySelector('input[placeholder="Digite os nomes dos agentes"]');if(_a)_a.value=r.agentes||'';});
     (d.apoioAeroporto||[]).forEach(r=>{addAeroporto();const el=document.getElementById('apoioAeroportoContainer').lastElementChild;const _v=el.querySelector('.vt-input');if(_v)_v.value=r.veiculo||'';const _p=el.querySelector('.seletor-plataforma');if(_p)_p.value=r.plataforma||'';const _a=el.querySelector('input[placeholder="Digite os nomes dos agentes"]');if(_a)_a.value=r.agentes||'';});
-    (d.fiscalizacao||[]).forEach(r=>{addFiscalizacao();const el=document.getElementById('fiscalizacaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';if(r.tipoComposicao){const cb=el.querySelector('.fisc-comp-btn[data-comp="'+r.tipoComposicao+'"]');if(cb){cb.classList.add('active');if(r.tipoComposicao==='OUTROS'){const oi=el.querySelector('.fisc-comp-outro');if(oi){oi.style.display='inline-block';oi.value=r.composicaoOutro||'';}}}}});
+    (d.fiscalizacao||[]).forEach(r=>{addFiscalizacao();const el=document.getElementById('fiscalizacaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';
+      const obsEl=el.querySelector('.fisc-comp-obs');
+      if(r.tipoComposicao==='OUTROS'){
+        if(obsEl) obsEl.value=r.composicaoOutro||'';
+      } else {
+        if(r.tipoComposicao){const cb=el.querySelector('.fisc-comp-btn[data-comp="'+r.tipoComposicao+'"]');if(cb)cb.classList.add('active');}
+        if(obsEl) obsEl.value=r.composicaoObs||'';
+      }
+      if(obsEl){obsEl.style.height='auto';obsEl.style.height=obsEl.scrollHeight+'px';}
+    });
     (d.comando||[]).forEach(r=>{addComando();const el=document.getElementById('comandoContainer').lastElementChild;const lInp=el.querySelector('input[placeholder="Digite o local"]');if(lInp)lInp.value=r.local||'';const cInp=el.querySelector('input[placeholder="Digite o coordenador responsável"]');if(cInp)cInp.value=r.coordenador||'';(r.viaturas||[]).forEach(v=>{const vtDiv=criarViaturaSimples();el.querySelector('.viaturasContainer').appendChild(vtDiv);const vtI=vtDiv.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=vtDiv.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';});});
     (d.missao||[]).forEach(r=>{addMissao();const el=document.getElementById('missaoContainer').lastElementChild;const eInp=el.querySelector('input[placeholder="Digite missão ou evento"]');if(eInp)eInp.value=r.evento||'';const lInp=el.querySelector('input[placeholder="Digite o local"]');if(lInp)lInp.value=r.local||'';const cInp=el.querySelector('input[placeholder="Digite o chefe da missão"]');if(cInp)cInp.value=r.chefe||'';const rInp=el.querySelector('.campo-rota-apos-missao');if(rInp)rInp.value=r.rotaAposMissao||'';(r.viaturas||[]).forEach(v=>{const vtDiv=criarViaturaMissao();el.querySelector('.viaturasContainer').appendChild(vtDiv);const vtI=vtDiv.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=vtDiv.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';const pbI=vtDiv.querySelector('input[placeholder="Digite o Posto Base"]');if(pbI)pbI.value=v.postoBase||'';});});
     (d.supervisao||[]).forEach(r=>{addSupervisao();const el=document.getElementById('supervisaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';if(el.querySelector('.campo-agentes'))el.querySelector('.campo-agentes').value=r.agentes||'';});
@@ -5197,26 +5299,24 @@ function addFiscalizacao(){
   const vtWrap=criarVtInput('');vtWrap.className='vt-wrap seletor-veiculo-wrap';div.appendChild(vtWrap);
   const agDiv=document.createElement('div');agDiv.className='input-wrap';
   agDiv.innerHTML=`<input type="text" class="campo-agentes finput finput-agentes" placeholder="Digite os nomes dos agentes" autocomplete="off">`;div.appendChild(agDiv);
-  // Composição da equipe: HEP / BH / Outros (sem marcação = Turno Normal)
+  // Composição da equipe: HEP / BH / Turno (sem marcação = não informado) + Observação sempre disponível
   const compWrap=document.createElement('div');compWrap.className='fisc-comp-wrap';
   compWrap.innerHTML=`<span class="fisc-comp-label">Composição:</span>
     <button type="button" class="fisc-comp-btn" data-comp="HEP" title="Hora Extra Paga">HEP</button>
     <button type="button" class="fisc-comp-btn" data-comp="BH" title="Hora Extra Banco de Horas">BH</button>
-    <button type="button" class="fisc-comp-btn" data-comp="OUTROS" title="Outros">OUTROS</button>
-    <input type="text" class="finput fisc-comp-outro" placeholder="Descreva..." style="display:none;text-transform:uppercase;">`;
+    <button type="button" class="fisc-comp-btn" data-comp="TURNO" title="Turno">TURNO</button>
+    <textarea class="finput fisc-comp-obs" placeholder="Observação (opcional)..." style="width:100%;box-sizing:border-box;min-height:36px;resize:none;overflow:hidden;text-transform:uppercase;margin-top:6px;" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';"></textarea>`;
   div.appendChild(compWrap);
   compWrap.querySelectorAll('.fisc-comp-btn').forEach(b=>{
     b.addEventListener('click',(e)=>{
       e.stopPropagation();e.preventDefault();
-      const outroInp=compWrap.querySelector('.fisc-comp-outro');
       const jaAtiva=b.classList.contains('active');
       compWrap.querySelectorAll('.fisc-comp-btn').forEach(x=>x.classList.remove('active'));
-      if(jaAtiva){ outroInp.style.display='none'; outroInp.value=''; }
-      else{ b.classList.add('active'); outroInp.style.display=(b.dataset.comp==='OUTROS')?'inline-block':'none'; if(b.dataset.comp!=='OUTROS')outroInp.value=''; }
+      if(!jaAtiva) b.classList.add('active');
       agendarAutoSave();
     });
   });
-  compWrap.querySelector('.fisc-comp-outro').addEventListener('input',agendarAutoSave);
+  compWrap.querySelector('.fisc-comp-obs').addEventListener('input',agendarAutoSave);
   const btnR=document.createElement('button');btnR.type='button';btnR.className='btnrem';btnR.innerHTML='<i class="fas fa-trash"></i> Remover';
   btnR.addEventListener('click',(e)=>{e.stopPropagation();e.preventDefault();const p=div.parentElement;div.remove();atualizarContagem();atualizarBadgesViatura(p);agendarAutoSave();});div.appendChild(btnR);
   addEventosAgentes(agDiv.querySelector('input'));
@@ -5441,7 +5541,7 @@ function renderVisualizacao(d){
       if(c==='Veículo (Tipo)')return`${(r.veiculo||'').toUpperCase()}${r.tipo?' ('+r.tipo.toUpperCase()+')':''}`;
       if(c==='Veículo (Plataforma)')return`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
       if(c==='Rota após rendição')return(r.rota||'').toUpperCase();
-      if(c==='Composição')return r.tipoComposicao?(r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao):'';
+      if(c==='Composição')return fmtComposicao(r);
       if(c==='Missão no Turno')return r.missaoDuranteTurno||'';
       return'';
     };
@@ -5580,7 +5680,7 @@ async function gerarPDF(){
       if(titulo.includes('Aeroporto'))return[i+1,`${U(r.veiculo)} (${U(r.plataforma)})`,U(r.agentes)];
       if(titulo.includes('NVA')||titulo.includes('AET'))return[i+1,U(r.veiculo),U(r.agentes)];
       if(titulo.includes('Fiscalização Volante')){
-        const comp=r.tipoComposicao?(r.tipoComposicao==='OUTROS'?U(r.composicaoOutro||'OUTROS'):r.tipoComposicao):'';
+        const comp=U(fmtComposicao(r));
         return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),comp];
       }
       if(titulo.includes('07. Rotas')){
@@ -6304,11 +6404,11 @@ function qrvPrePopular(d){
   (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais','Apoio Aeroporto'));
   (d.fiscalizacao||[]).forEach(r=>{
     addVt(r.veiculo,r.agentes,r.rota,'demais','15. Fiscalização Volante');
-    if(r.tipoComposicao){
+    if(r.tipoComposicao||r.composicaoObs){
       const chave=(r.veiculo||'').trim().toUpperCase()||(r.agentes||'').split(',')[0].trim().toUpperCase();
       const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
       const reg=novas.find(x=>x.id===idEstavel)||qrvRegistros.find(x=>x.id===idEstavel);
-      if(reg){reg.tipoComposicao=r.tipoComposicao;reg.composicaoOutro=r.composicaoOutro||'';}
+      if(reg){reg.tipoComposicao=r.tipoComposicao||'';reg.composicaoObs=r.composicaoObs||'';reg.composicaoOutro='';}
     }
   });
   (d.comando||[]).forEach(item=>{
@@ -6616,7 +6716,7 @@ function qrvRenderRow(r,podeEditar){
         ${r.saida?`<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#60a5fa;font-weight:700;">▶ ${r.saida}</span>`:''}
         <div style="flex:1;min-width:140px;">
           <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">${nomes||'—'}</div>
-          ${r.rota?`<div style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">${r.rota}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+          ${r.rota?`<div style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">${r.rota}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
           ${isRen&&r.localRendicao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rendição: ${r.localRendicao}</div>`:''}
           ${r.rotaAposMissao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rota após Missão: ${r.rotaAposMissao}</div>`:''}
         </div>
@@ -6634,7 +6734,7 @@ function qrvRenderRow(r,podeEditar){
       ${badgeHtml}
       <div class="qrv-row-info">
         <div class="qrv-row-nomes">${nomes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>'}</div>
-        ${r.rota?`<div class="qrv-row-rota">${r.rota}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${r.tipoComposicao?` <span style="color:#f97316;font-weight:700;">[${r.tipoComposicao==='OUTROS'?(r.composicaoOutro||'OUTROS'):r.tipoComposicao}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+        ${r.rota?`<div class="qrv-row-rota">${r.rota}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
       </div>
       ${qrvGetStatusPills(r)}
       <input type="time" class="qrv-saida-input" value="${r.saida||''}" title="Hora de saída"
