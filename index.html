@@ -11,6 +11,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js" defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 :root{
   --navy:#07111f;--navy2:#0c1a2e;--accent:#2563eb;--accent2:#60a5fa;
@@ -370,6 +372,13 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 .srv-subbar::-webkit-scrollbar{display:none;}
 .srv-subtab{padding:9px 16px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.45);border-bottom:2px solid transparent;cursor:pointer;transition:color .2s,border-color .2s;white-space:nowrap;}
 .srv-subtab.active{color:var(--gold);border-bottom-color:var(--gold);}
+.srv-postos-mapa{height:280px;border-radius:10px;overflow:hidden;margin-bottom:10px;background:var(--surface3);position:sticky;top:110px;z-index:60;box-shadow:0 4px 12px rgba(0,0,0,0.3);}
+.srv-postos-mapa.srv-mapa-fs{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;height:auto!important;margin:0!important;border-radius:0!important;z-index:840!important;box-shadow:none!important;}
+body.srv-mapa-fs-aberto{overflow:hidden;}
+.srv-postos-barra{display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;align-items:center;position:sticky;top:400px;z-index:55;background:var(--navy);padding:8px 0;}
+.srv-postos-barra input{flex:1;min-width:0;box-sizing:border-box;padding:12px;background:var(--surface3);border:1.5px solid var(--accent2);border-radius:8px;color:var(--text);font-size:14px;}
+.srv-postos-barra input::placeholder{color:var(--text2);opacity:1;}
+.srv-postos-barra button{padding:12px 16px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;white-space:nowrap;cursor:pointer;}
 .srv-pane{display:none;padding:10px 10px 24px;}
 .srv-pane.active{display:block;}
 /* Cards autorizações */
@@ -2055,7 +2064,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-30-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-30-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9246,13 +9255,182 @@ function srvInit() {
 }
 
 // ── Sub-abas ────────────────────────────────────────────────────
+// ── POSTOS (Serviços) ───────────────────────────────────────────
+// Usa o mesmo script de Serviços (SRV_URL): o que o Admin altera no sistema secundário aparece aqui.
+var srvPostosLista=[], srvPostosCarregadoEm=0, srvPostosMapa=null, srvPostosMarkers=[], srvPostosUserMarker=null, srvPostosFs=false, srvPostosBtnFs=null;
+
+function srvNorm(s){ return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim(); }
+
+function srvPostosAjustarSticky(){
+  var hdr=document.querySelector('.aph'), sub=document.querySelector('.srv-subbar');
+  var h=hdr?hdr.offsetHeight:0, s=sub?sub.offsetHeight:0;
+  var base=Math.max(h,48+s)+4;
+  var mapa=document.getElementById('srvPostosMapa'), barra=document.getElementById('srvPostosBarra');
+  if(mapa) mapa.style.top=base+'px';
+  if(barra) barra.style.top=(base+(mapa?mapa.offsetHeight:280)+8)+'px';
+}
+
+function srvPostosInitMapa(){
+  if(srvPostosMapa || typeof L==='undefined') return;
+  srvPostosMapa=L.map('srvPostosMapa').setView([-3.7327,-38.5267],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(srvPostosMapa);
+  var Loc=L.Control.extend({options:{position:'topright'},onAdd:function(){
+    var b=L.DomUtil.create('button'); b.innerHTML='🎯'; b.title='Minha localização';
+    b.style.cssText='width:34px;height:34px;background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:6px;font-size:16px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.4);';
+    L.DomEvent.disableClickPropagation(b); b.onclick=function(){ srvPostosLocalizar(true); }; return b; }});
+  srvPostosMapa.addControl(new Loc());
+  var Fs=L.Control.extend({options:{position:'topright'},onAdd:function(){
+    var b=L.DomUtil.create('button'); b.innerHTML='⛶'; b.title='Tela cheia';
+    b.style.cssText='width:34px;height:34px;background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:6px;font-size:18px;line-height:1;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.4);color:#222;';
+    L.DomEvent.disableClickPropagation(b); b.onclick=function(){ srvPostosTelaCheia(); }; srvPostosBtnFs=b; return b; }});
+  srvPostosMapa.addControl(new Fs());
+  srvPostosLocalizar(false);
+}
+
+function srvPostosTelaCheia(forcar){
+  var el=document.getElementById('srvPostosMapa'); if(!el) return;
+  var abrir=(typeof forcar==='boolean')?forcar:!srvPostosFs;
+  if(abrir===srvPostosFs) return;
+  srvPostosFs=abrir;
+  el.classList.toggle('srv-mapa-fs',abrir);
+  document.body.classList.toggle('srv-mapa-fs-aberto',abrir);
+  if(srvPostosBtnFs){ srvPostosBtnFs.innerHTML=abrir?'✕':'⛶'; srvPostosBtnFs.title=abrir?'Sair da tela cheia':'Tela cheia'; }
+  try{
+    if(abrir){ history.pushState({srvMapaFs:1},''); }
+    else if(history.state&&history.state.srvMapaFs){ history.back(); }
+  }catch(e){}
+  setTimeout(function(){ if(srvPostosMapa) srvPostosMapa.invalidateSize(); },80);
+}
+window.addEventListener('popstate',function(){ if(srvPostosFs) srvPostosTelaCheia(false); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&srvPostosFs) srvPostosTelaCheia(false); });
+
+function srvPostosLocalizar(centralizar){
+  if(!navigator.geolocation){ if(centralizar) toast('Seu navegador não suporta localização.','err'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos){
+    if(!srvPostosMapa) return;
+    var ll=[pos.coords.latitude,pos.coords.longitude];
+    if(srvPostosUserMarker) srvPostosMapa.removeLayer(srvPostosUserMarker);
+    srvPostosUserMarker=L.circleMarker(ll,{radius:8,color:'#2563eb',fillColor:'#60a5fa',fillOpacity:0.9,weight:2}).addTo(srvPostosMapa);
+    srvPostosUserMarker.bindPopup('Você está aqui');
+    if(centralizar){ srvPostosMapa.setView(ll,15); srvPostosUserMarker.openPopup(); }
+  },function(err){
+    if(!centralizar) return;
+    if(err&&err.code===1) toast('Localização negada. Habilite nas configurações do site.','err');
+    else toast('Não foi possível obter sua localização agora.','err');
+  },{timeout:8000});
+}
+
+function srvAbrirRotaPosto(lat,lng){ window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng,'_blank'); }
+
+function srvPostosPlotar(lista){
+  if(!srvPostosMapa) return;
+  srvPostosMarkers.forEach(function(m){ srvPostosMapa.removeLayer(m); });
+  srvPostosMarkers=[];
+  var bounds=[];
+  lista.forEach(function(p){
+    if(!p.latitude||!p.longitude) return;
+    var m=L.marker([p.latitude,p.longitude]).addTo(srvPostosMapa);
+    var pop=document.createElement('div'); pop.style.cssText='font-family:sans-serif;min-width:160px;';
+    var st=document.createElement('strong'); st.textContent=(p.nome||'').toUpperCase(); pop.appendChild(st); pop.appendChild(document.createElement('br'));
+    var sp=document.createElement('span'); sp.style.cssText='font-size:12px;color:#555;'; sp.textContent=(p.endereco||'')+(p.bairro?' — '+p.bairro:''); pop.appendChild(sp); pop.appendChild(document.createElement('br'));
+    var bt=document.createElement('button'); bt.textContent='📍 Como Chegar';
+    bt.style.cssText='margin-top:6px;padding:6px 10px;background:#2563eb;border:none;border-radius:6px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;';
+    bt.onclick=function(){ srvAbrirRotaPosto(p.latitude,p.longitude); }; pop.appendChild(bt);
+    m.bindPopup(pop);
+    srvPostosMarkers.push(m); bounds.push([p.latitude,p.longitude]);
+  });
+  if(bounds.length) srvPostosMapa.fitBounds(bounds,{padding:[30,30],maxZoom:15});
+}
+
+function srvPostosFocar(lat,lng){
+  if(!srvPostosMapa) return;
+  srvPostosMapa.setView([lat,lng],16);
+  var m=srvPostosMarkers.find(function(mk){ var ll=mk.getLatLng(); return ll.lat===lat&&ll.lng===lng; });
+  if(m) m.openPopup();
+}
+
+function srvRenderPostos(){
+  var el=document.getElementById('srvPostosList'); if(!el) return;
+  var termo=srvNorm((document.getElementById('srvPostoBusca')||{}).value||'').trim();
+  var filtrados=termo?srvPostosLista.filter(function(p){
+    return srvNorm(p.nome).indexOf(termo)>=0||srvNorm(p.bairro).indexOf(termo)>=0||srvNorm(p.endereco).indexOf(termo)>=0;
+  }):srvPostosLista;
+  srvPostosPlotar(filtrados);
+  if(!filtrados.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2);">Nenhum posto encontrado.</div>'; return; }
+  el.innerHTML=filtrados.map(function(p){
+    return '<div style="background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;margin-bottom:8px;">'
+      +'<div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:2px;">'+srvEsc(p.nome).toUpperCase()+'</div>'
+      +'<div style="font-size:12px;color:var(--text2);margin-bottom:10px;">'+srvEsc(p.endereco)+(p.bairro?' — '+srvEsc(p.bairro):'')+'</div>'
+      +'<div style="display:flex;gap:8px;">'
+      +'<button onclick="srvAbrirRotaPosto('+p.latitude+','+p.longitude+')" style="flex:1;padding:9px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">📍 Como Chegar</button>'
+      +'<button onclick="srvPostosFocar('+p.latitude+','+p.longitude+')" style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;" title="Ver no mapa">🗺️</button>'
+      +'<button onclick="srvReportarPosto(\''+srvEsc(p.id)+'\')" style="padding:9px 12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-size:12px;cursor:pointer;" title="Reportar problema">⚠️</button>'
+      +'</div></div>';
+  }).join('');
+}
+function srvEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+function srvVerTodosPostos(){ var i=document.getElementById('srvPostoBusca'); if(i) i.value=''; srvRenderPostos(); }
+
+async function srvCarregarPostos(manual, silent){
+  var el=document.getElementById('srvPostosList');
+  if(!srvPostosLista.length && el && !silent) el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text2);">Carregando postos...</div>';
+  try{
+    var r=await apiSrv('getPostos',{});
+    srvPostosLista=(r.data||[]).filter(function(p){ return p.ativo; });
+    srvPostosCarregadoEm=Date.now();
+    srvRenderPostos();
+    var info=document.getElementById('srvPostosRefreshInfo');
+    if(info) info.innerHTML='<span class="ri-time">Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span class="ri-action">↻ Atualizar</span>';
+    if(manual) toast('Postos atualizados ✓','ok');
+  }catch(ex){
+    if(!silent) toast('Erro Postos: '+ex.message,'err');
+    if(!srvPostosLista.length && el) el.innerHTML='<div style="text-align:center;padding:20px;color:#ef4444;">Não foi possível carregar os postos. Toque em ↻ Atualizar.</div>';
+  }
+}
+
+function srvReportarPosto(id){
+  var p=srvPostosLista.find(function(x){ return String(x.id)===String(id); }); if(!p) return;
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9990;display:flex;align-items:center;justify-content:center;padding:20px;';
+  ov.innerHTML='<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:18px;max-width:420px;width:100%;">'
+    +'<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:16px;color:var(--text);margin-bottom:4px;">Reportar Problema</div>'
+    +'<div class="srvRepNome" style="font-size:13px;color:var(--text2);margin-bottom:10px;"></div>'
+    +'<textarea class="srvRepMotivo" rows="3" placeholder="Ex: fechado, endereço errado, não existe mais..." style="width:100%;box-sizing:border-box;padding:10px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:14px;text-transform:uppercase;resize:none;"></textarea>'
+    +'<div style="display:flex;gap:8px;margin-top:12px;">'
+    +'<button class="srvRepCancelar" style="flex:1;padding:11px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-weight:700;cursor:pointer;">Cancelar</button>'
+    +'<button class="srvRepEnviar" style="flex:2;padding:11px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer;">Enviar</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('.srvRepNome').textContent=p.nome||'';
+  var ta=ov.querySelector('.srvRepMotivo'); ta.focus();
+  ov.querySelector('.srvRepCancelar').onclick=function(){ ov.remove(); };
+  var bEnv=ov.querySelector('.srvRepEnviar');
+  bEnv.onclick=async function(){
+    var motivo=(ta.value||'').trim();
+    if(!motivo){ toast('Descreva o problema.','err'); return; }
+    bEnv.disabled=true; bEnv.textContent='Enviando...';
+    try{
+      await apiSrv('reportarPosto',{postoId:p.id,postoNome:p.nome,motivo:motivo.toUpperCase(),reportadoPor:G.name,dataHora:new Date().toLocaleString('pt-BR',{timeZone:'America/Fortaleza'})});
+      toast('Problema reportado! Obrigado.','ok'); ov.remove();
+    }catch(ex){ toast('Erro ao enviar reporte.','err'); bEnv.disabled=false; bEnv.textContent='Enviar'; }
+  };
+}
+
 function srvSwitchTab(t) {
-  ['auth','rend'].forEach(function(x) {
+  ['auth','rend','postos'].forEach(function(x) {
     var tab=document.getElementById('srvTab'+x.charAt(0).toUpperCase()+x.slice(1));
     var pane=document.getElementById('srvPane'+x.charAt(0).toUpperCase()+x.slice(1));
     if(tab)  tab.classList.toggle('active', x===t);
     if(pane) pane.classList.toggle('active', x===t);
   });
+  if (t==='postos') {
+    srvPostosInitMapa();
+    srvPostosAjustarSticky();
+    if (!srvPostosLista.length || Date.now()-srvPostosCarregadoEm>300000) srvCarregarPostos(false,false);
+    else srvRenderPostos();
+    setTimeout(function(){ if(srvPostosMapa) srvPostosMapa.invalidateSize(); },120);
+  }
 }
 
 // ── Navegação datas ─────────────────────────────────────────────
@@ -11553,6 +11731,7 @@ function opsLightbox(url){
   <div class="srv-subbar">
     <div class="srv-subtab active" id="srvTabAuth" onclick="srvSwitchTab('auth')">📋 Autorizações</div>
     <div class="srv-subtab" id="srvTabRend" onclick="srvSwitchTab('rend')">🔄 Rendições</div>
+    <div class="srv-subtab" id="srvTabPostos" onclick="srvSwitchTab('postos')">⛽ Postos</div>
   </div>
   <div class="srv-pane active" id="srvPaneAuth">
     <div class="toolbar" style="padding:8px 10px;background:var(--surface2);border-bottom:1px solid var(--border);">
@@ -11624,6 +11803,15 @@ function opsLightbox(url){
       </div>
       <div id="srvRendList"></div>
     </div>
+  </div>
+  <div class="srv-pane" id="srvPanePostos">
+    <div id="srvPostosMapa" class="srv-postos-mapa"></div>
+    <div id="srvPostosBarra" class="srv-postos-barra">
+      <input type="text" id="srvPostoBusca" placeholder="Buscar por nome, bairro ou rua..." oninput="srvRenderPostos()" autocomplete="off">
+      <button onclick="srvVerTodosPostos()" title="Ver todos os postos no mapa">🔍 Todos</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin:4px 0 8px;"><span class="refresh-info-live" id="srvPostosRefreshInfo" onclick="srvCarregarPostos(true)"></span></div>
+    <div id="srvPostosList"></div>
   </div>
 </div>
 
