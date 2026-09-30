@@ -2055,7 +2055,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-30-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-30-v2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9303,14 +9303,14 @@ async function srvLoadRecords(manual, silent) {
     if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
     var novosDados = r.data || [];
     // Confirma antes de aceitar "sem registros" — a entrega da resposta do Google às vezes falha
-    // de forma silenciosa (não lança erro, só entrega algo incompleto). Uma segunda consulta rápida
-    // evita mostrar "nenhum registro" quando na verdade existe, só a entrega falhou dessa vez.
-    if (novosDados.length === 0) {
+    // de forma silenciosa (não lança erro, só entrega algo incompleto), e em momentos ruins pode
+    // falhar mais de uma vez seguida. Até 2 confirmações antes de aceitar vazio como definitivo.
+    for (var tentConf1 = 0; novosDados.length === 0 && tentConf1 < 2; tentConf1++) {
       await new Promise(function(res){ setTimeout(res, 800); });
       if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
-      var r2 = await apiSrv('getRecords', {data: minhaDataAlvo});
+      var rConf1 = await apiSrv('getRecords', {data: minhaDataAlvo});
       if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
-      novosDados = r2.data || [];
+      novosDados = rConf1.data || [];
     }
     srvRecords = novosDados;
     if (srvSearchMode && srvSearchResults !== null) {}
@@ -9336,12 +9336,12 @@ async function srvLoadRenditions(manual, silent) {
     if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
     var novosDados = r.data || [];
     // Mesma confirmação: evita aceitar "sem registros" quando foi só a entrega que falhou.
-    if (novosDados.length === 0) {
+    for (var tentConf2 = 0; novosDados.length === 0 && tentConf2 < 2; tentConf2++) {
       await new Promise(function(res){ setTimeout(res, 800); });
       if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
-      var r2 = await apiSrv('getRenditions', {data: minhaDataAlvo});
+      var rConf2 = await apiSrv('getRenditions', {data: minhaDataAlvo});
       if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
-      novosDados = r2.data || [];
+      novosDados = rConf2.data || [];
     }
     srvRends = novosDados;
     srvRenderRend();
