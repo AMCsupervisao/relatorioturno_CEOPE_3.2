@@ -2055,7 +2055,7 @@ body.light-mode .fisc-comp-btn.active{background:rgba(249,115,22,0.15);border-co
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-14-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-09-30-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5931,7 +5931,7 @@ function trocarAba(aba){
     // Espera 400ms antes de carregar — se o usuário já trocou de aba de novo, cancela (evita rajada de chamadas ao navegar rápido)
     setTimeout(function(){
       if(G._navToken!==_meuToken) return;
-      srvInit(); // srvInit() já cria e guarda o timer automático de 90s sozinho — não recriar aqui (evita 2 timers rodando ao mesmo tempo)
+      srvInit(); // Serviços não tem mais timer automático — só carrega uma vez ao abrir e sob demanda (↻, ou antes de Editar/Novo Registro)
     },400);
   }else{ if(srvAutoTimer&&!isServicos){clearInterval(srvAutoTimer);srvAutoTimer=null;} }
   if(isFatais){
@@ -9191,7 +9191,7 @@ function vlSincData() {
 // ══════════════════════════════════════════════════════════════
 // ▶ SERVIÇOS — Autorizações e Rendições (integração ferramenta)
 // ══════════════════════════════════════════════════════════════
-const SRV_URL = 'https://script.google.com/macros/s/AKfycbyxZ5A7uvubdUBsmfLfEsqQScsz6T-Rlr2juTaxNaDsuMfUbeGEkkTeWJrjfaRak3hQSg/exec';
+const SRV_URL = 'https://script.google.com/macros/s/AKfycbw0I7gsKYrSE4dKAOzl-LQyrywIXhOX20fRc4sMMzO6lIEH_7pCUMDJFfEAyXsELoYCnQ/exec';
 const SRV_TL = {qru:'QRU / CONHECIMENTO',interdicao:'AUTORIZAÇÃO INTERDIÇÃO',circulacao:'LIBERAÇÃO CIRCULAÇÃO',estacionamento:'LIBERAÇÃO ESTACIONAMENTO',fato:'FATO / OCORRÊNCIA'};
 const SRV_TRN = {madrugada:'MADRUGADA',manha:'MANHÃ',tarde:'TARDE',noite:'NOITE'};
 const SRV_TRC = {madrugada:'s-tma',manha:'s-tm',tarde:'s-tt',noite:'s-tn'};
@@ -9240,11 +9240,9 @@ function srvInit() {
   if (bnr) bnr.style.display = srvPodeEditar() ? 'inline-block' : 'none';
   srvLoadRecords();
   setTimeout(function(){ srvLoadRenditions(); }, 1500);
-  if (srvAutoTimer) clearInterval(srvAutoTimer);
-  srvAutoTimer = setInterval(function() {
-    srvLoadRecords(false, true);
-    setTimeout(function(){ srvLoadRenditions(false, true); }, 3000);
-  }, 240000); // 4 minutos (antes: 90s) — reduzir concorrência com o standalone no mesmo script
+  // Sem timer automático: a aba Serviços só atualiza sob demanda (botão ↻) ou
+  // automaticamente antes de Editar/Novo Registro, para reduzir chamadas na conta compartilhada.
+  if (srvAutoTimer) { clearInterval(srvAutoTimer); srvAutoTimer = null; }
 }
 
 // ── Sub-abas ────────────────────────────────────────────────────
@@ -9261,18 +9259,16 @@ function srvSwitchTab(t) {
 function srvNavDate(d) {
   srvAD = new Date(srvAD); srvAD.setDate(srvAD.getDate()+d);
   srvSetDI('srvAuthDate', srvAD);
-  var b = document.getElementById('srvBRefA');
-  if (b) { b.classList.add('spin'); setTimeout(function(){ srvRenderAuth(); b.classList.remove('spin'); }, 300); }
-  else { srvRenderAuth(); }
+  // A partir de agora o servidor já filtra por data — trocar de data precisa consultar de novo,
+  // não dá mais pra só re-filtrar o que já estava em memória (que agora é só de 1 dia).
+  srvLoadRecords();
 }
 function srvNavRD(d) {
   srvRD = new Date(srvRD); srvRD.setDate(srvRD.getDate()+d);
   var hoje = srvIso(new Date());
   if (srvIso(srvRD) > hoje) { srvRD.setDate(srvRD.getDate()-d); toast('Não é possível navegar para datas futuras.','err'); return; }
   srvSetDI('srvRendDate', srvRD);
-  var b = document.getElementById('srvBRefR');
-  if (b) { b.classList.add('spin'); setTimeout(function(){ srvRenderRend(); b.classList.remove('spin'); }, 300); }
-  else { srvRenderRend(); }
+  srvLoadRenditions();
 }
 function srvGoToday(w) {
   if (w==='auth') { srvAD=new Date(); srvSetDI('srvAuthDate',srvAD); srvLoadRecords(); }
@@ -9282,9 +9278,7 @@ function srvOnAuthDateChange() {
   var v = document.getElementById('srvAuthDate').value;
   if (!v) return;
   srvAD = srvLocalDate(v);
-  var b = document.getElementById('srvBRefA');
-  if (b) { b.classList.add('spin'); setTimeout(function(){ srvRenderAuth(); b.classList.remove('spin'); }, 300); }
-  else { srvRenderAuth(); }
+  srvLoadRecords();
 }
 function srvOnRendDateChange() {
   var v = document.getElementById('srvRendDate').value;
@@ -9292,24 +9286,31 @@ function srvOnRendDateChange() {
   var hoje = srvIso(new Date());
   if (v > hoje) { document.getElementById('srvRendDate').value = hoje; v = hoje; }
   srvRD = srvLocalDate(v);
-  var b = document.getElementById('srvBRefR');
-  if (b) { b.classList.add('spin'); setTimeout(function(){ srvRenderRend(); b.classList.remove('spin'); }, 300); }
-  else { srvRenderRend(); }
+  srvLoadRenditions();
 }
 
 // ── Carregar dados ──────────────────────────────────────────────
-async function srvLoadRecords(manual, silent, _semDesconfiar) {
+var srvReqAuthSeq = 0;
+async function srvLoadRecords(manual, silent) {
   var b = document.getElementById('srvBRefA');
   if (!silent && b) b.classList.add('spin');
+  var minhaDataAlvo = srvIso(srvAD);
+  var meuNumero = ++srvReqAuthSeq; // se outra troca de data disparar antes desta terminar, o número dela fica maior
   try {
-    var r = await apiSrv('getRecords', {});
+    var r = await apiSrv('getRecords', {data: minhaDataAlvo});
+    // Descarta se: (a) chegou uma busca mais nova depois desta, ou (b) a data na tela já mudou
+    // enquanto esperava — evita que uma resposta atrasada de uma data antiga sobrescreva a atual.
+    if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
     var novosDados = r.data || [];
-    // Proteção: resposta vazia após já termos dados carregados é mais provável ser leitura
-    // incompleta do Apps Script do que os dados terem realmente sumido. Confirma antes de aceitar.
-    if (novosDados.length===0 && srvRecords.length>0 && !_semDesconfiar) {
-      await new Promise(function(res){ setTimeout(res,1500); });
-      if (!silent && b) b.classList.remove('spin');
-      return srvLoadRecords(manual, silent, true);
+    // Confirma antes de aceitar "sem registros" — a entrega da resposta do Google às vezes falha
+    // de forma silenciosa (não lança erro, só entrega algo incompleto). Uma segunda consulta rápida
+    // evita mostrar "nenhum registro" quando na verdade existe, só a entrega falhou dessa vez.
+    if (novosDados.length === 0) {
+      await new Promise(function(res){ setTimeout(res, 800); });
+      if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
+      var r2 = await apiSrv('getRecords', {data: minhaDataAlvo});
+      if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return;
+      novosDados = r2.data || [];
     }
     srvRecords = novosDados;
     if (srvSearchMode && srvSearchResults !== null) {}
@@ -9317,28 +9318,41 @@ async function srvLoadRecords(manual, silent, _semDesconfiar) {
     if (manual) toast('Autorizações atualizadas ✓','ok');
     var el = document.getElementById('srvAuthRefreshInfo');
     if (el) el.innerHTML='<span class="ri-time">Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span class="ri-action">↻ Atualizar</span>';
-  } catch(ex) { if(!silent) toast('Erro Serviços: '+ex.message,'err'); }
-  if (!silent && b) b.classList.remove('spin');
+  } catch(ex) {
+    if (meuNumero !== srvReqAuthSeq || srvIso(srvAD) !== minhaDataAlvo) return; // erro de uma busca já obsoleta — ignora
+    if(!silent) toast('Erro Serviços: '+ex.message,'err');
+  }
+  if (meuNumero === srvReqAuthSeq && !silent && b) b.classList.remove('spin');
 }
 
-async function srvLoadRenditions(manual, silent, _semDesconfiar) {
+var srvReqRendSeq = 0;
+async function srvLoadRenditions(manual, silent) {
   var b = document.getElementById('srvBRefR');
   if (!silent && b) b.classList.add('spin');
+  var minhaDataAlvo = srvIso(srvRD);
+  var meuNumero = ++srvReqRendSeq;
   try {
-    var r = await apiSrv('getRenditions', {});
+    var r = await apiSrv('getRenditions', {data: minhaDataAlvo});
+    if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
     var novosDados = r.data || [];
-    if (novosDados.length===0 && srvRends.length>0 && !_semDesconfiar) {
-      await new Promise(function(res){ setTimeout(res,1500); });
-      if (!silent && b) b.classList.remove('spin');
-      return srvLoadRenditions(manual, silent, true);
+    // Mesma confirmação: evita aceitar "sem registros" quando foi só a entrega que falhou.
+    if (novosDados.length === 0) {
+      await new Promise(function(res){ setTimeout(res, 800); });
+      if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
+      var r2 = await apiSrv('getRenditions', {data: minhaDataAlvo});
+      if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
+      novosDados = r2.data || [];
     }
     srvRends = novosDados;
     srvRenderRend();
     if (manual) toast('Rendições atualizadas ✓','ok');
     var el = document.getElementById('srvRendRefreshInfo');
     if (el) el.innerHTML='<span class="ri-time">Atualizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+'</span><span class="ri-action">↻ Atualizar</span>';
-  } catch(ex) { if(!silent) toast('Erro Serviços: '+ex.message,'err'); }
-  if (!silent && b) b.classList.remove('spin');
+  } catch(ex) {
+    if (meuNumero !== srvReqRendSeq || srvIso(srvRD) !== minhaDataAlvo) return;
+    if(!silent) toast('Erro Serviços: '+ex.message,'err');
+  }
+  if (meuNumero === srvReqRendSeq && !silent && b) b.classList.remove('spin');
 }
 
 // ── Filtros Autorizações ────────────────────────────────────────
@@ -9353,21 +9367,22 @@ function srvToggleBusca() {
   document.getElementById('srvBtnBusca').style.background = srvSearchMode ? 'rgba(37,99,235,0.3)' : '';
   if (!srvSearchMode) srvLimparBusca();
 }
-function srvExecutarBusca() {
+async function srvExecutarBusca() {
   var local = (document.getElementById('srvSrchLocal').value||'').trim().toUpperCase();
   var de = document.getElementById('srvSrchDe').value;
   var ate = document.getElementById('srvSrchAte').value;
   if (!local) { toast('Digite um local para buscar.','err'); return; }
-  srvSearchResults = srvRecords.filter(function(r) {
-    var campos = [r.local||'',r.area||'',r.descricao||'',r.evento||''].join(' ').toUpperCase();
-    if (!campos.includes(local)) return false;
-    if (!de && !ate) return true;
-    return (r.dates||[]).some(function(d){ return (!de||d>=de) && (!ate||d<=ate); });
-  });
-  var info = document.getElementById('srvSearchResultInfo');
-  info.style.display = 'block';
-  info.textContent = srvSearchResults.length+' registro(s) encontrado(s) para "'+local+'"';
-  srvRenderAuthList(srvSearchResults);
+  var btn = document.getElementById('srvBtnExecBusca');
+  if (btn) { btn.disabled = true; btn.textContent = 'Buscando...'; }
+  try {
+    var r = await apiSrv('searchRecords', {termo: local, de: de, ate: ate});
+    srvSearchResults = r.data || [];
+    var info = document.getElementById('srvSearchResultInfo');
+    info.style.display = 'block';
+    info.textContent = srvSearchResults.length+' registro(s) encontrado(s) para "'+local+'"';
+    srvRenderAuthList(srvSearchResults);
+  } catch(ex) { toast('Erro na busca: '+ex.message,'err'); }
+  if (btn) { btn.disabled = false; btn.textContent = 'Buscar'; }
 }
 function srvLimparBusca() {
   srvSearchResults = null;
@@ -9728,14 +9743,11 @@ async function srvOpenAuthModal(id) {
     // Buscar dado atual do servidor antes de editar — evita sobrescrever uma edição
     // feita por outra pessoa nesse meio tempo com dado desatualizado da tela
     try {
-      var freshResp = await apiSrv('getRecords', {});
-      var freshList = freshResp && freshResp.data;
-      if (Array.isArray(freshList)) {
-        var freshRec = freshList.find(function(r){return r.id===id;});
-        if (freshRec) {
-          var idx = srvRecords.findIndex(function(r){return r.id===id;});
-          if (idx>=0) srvRecords[idx]=freshRec; else srvRecords.push(freshRec);
-        }
+      var freshResp = await apiSrv('getRecords', {id: id});
+      var freshRec = freshResp && freshResp.data && freshResp.data[0];
+      if (freshRec) {
+        var idx = srvRecords.findIndex(function(r){return r.id===id;});
+        if (idx>=0) srvRecords[idx]=freshRec; else srvRecords.push(freshRec);
       }
     } catch(ex) { /* se falhar, segue com o dado local mesmo — não bloqueia a edição */ }
     var rec = srvRecords.find(function(r){return r.id===id;});
@@ -9749,6 +9761,9 @@ async function srvOpenAuthModal(id) {
         document.getElementById('srvDatesS').style.display='block';
       },50);
     }
+  } else {
+    // Novo Registro: atualiza a lista antes de abrir, para checar contexto/duplicidade com dado atual
+    try { await srvLoadRecords(false, false); } catch(ex) { /* se falhar, segue mesmo assim — não bloqueia a criação */ }
   }
   document.getElementById('srvMAuth').classList.add('open');
 }
@@ -9859,14 +9874,11 @@ async function srvOpenRendModal(id) {
   if (id) {
     // Buscar dado atual do servidor antes de editar — mesma proteção aplicada em Autorizações
     try {
-      var freshResp = await apiSrv('getRenditions', {});
-      var freshList = freshResp && freshResp.data;
-      if (Array.isArray(freshList)) {
-        var freshRec = freshList.find(function(r){return r.id===id;});
-        if (freshRec) {
-          var idx = srvRends.findIndex(function(r){return r.id===id;});
-          if (idx>=0) srvRends[idx]=freshRec; else srvRends.push(freshRec);
-        }
+      var freshResp = await apiSrv('getRenditions', {id: id});
+      var freshRec = freshResp && freshResp.data && freshResp.data[0];
+      if (freshRec) {
+        var idx = srvRends.findIndex(function(r){return r.id===id;});
+        if (idx>=0) srvRends[idx]=freshRec; else srvRends.push(freshRec);
       }
     } catch(ex) { /* se falhar, segue com o dado local mesmo — não bloqueia a edição */ }
     var rec=srvRends.find(function(r){return r.id===id;});
@@ -9883,6 +9895,8 @@ async function srvOpenRendModal(id) {
     ['srvFRReg','srvFRL','srvFRA','srvFRM','srvFRS'].forEach(function(fid){var el=document.getElementById(fid);if(el)el.value='';});
     document.getElementById('srvFRD').value = srvIso(srvRD);
     document.getElementById('srvFRT').value = srvRendTab;
+    // Nova Rendição: atualiza a lista antes de abrir, mesma proteção aplicada em Autorizações
+    try { await srvLoadRenditions(false, false); } catch(ex) { /* se falhar, segue mesmo assim — não bloqueia a criação */ }
   }
   document.getElementById('srvMRend').classList.add('open');
 }
@@ -11564,7 +11578,7 @@ function opsLightbox(url){
         </div>
         <div class="s-sinput-row">
           <input type="text" id="srvSrchLocal" placeholder="Digite o local ou via...">
-          <button class="s-btn-buscar" onclick="srvExecutarBusca()">Buscar</button>
+          <button class="s-btn-buscar" id="srvBtnExecBusca" onclick="srvExecutarBusca()">Buscar</button>
           <button class="s-btn-limpar" onclick="srvLimparBusca()">✕</button>
         </div>
       </div>
