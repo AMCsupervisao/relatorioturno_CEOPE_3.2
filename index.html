@@ -412,7 +412,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 .s-ndcard-head{padding:11px 13px;}
 .s-ndcard-l1{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;}
 .s-ndcard-l2{display:flex;align-items:baseline;gap:6px;overflow:hidden;}
-.s-ndcard-reg{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#fcd34d;white-space:nowrap;flex-shrink:0;}
+.s-ndcard-reg{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold2);white-space:nowrap;flex-shrink:0;}
 .s-ndcard-local{font-size:13px;color:#fff;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .s-ndcard-chevron{color:var(--text3);font-size:11px;transition:transform .2s;flex-shrink:0;}
 .s-ndcard.expanded .s-ndcard-chevron{transform:rotate(180deg);}
@@ -2064,7 +2064,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-09-30-v3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-03-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9273,7 +9273,14 @@ function srvPostosAjustarSticky(){
 function srvPostosInitMapa(){
   if(srvPostosMapa || typeof L==='undefined') return;
   srvPostosMapa=L.map('srvPostosMapa').setView([-3.7327,-38.5267],12);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(srvPostosMapa);
+  var srvPostosTileLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(srvPostosMapa);
+  // Se um "quadradinho" do mapa falhar (instabilidade de rede), tenta uma vez num servidor
+  // alternativo (Esri), só aquele quadradinho — não troca o mapa inteiro, nem repete pra sempre.
+  srvPostosTileLayer.on('tileerror', function(e){
+    if (e.tile.dataset.srvFallback) return;
+    e.tile.dataset.srvFallback = '1';
+    e.tile.src = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/'+e.coords.z+'/'+e.coords.y+'/'+e.coords.x;
+  });
   var Loc=L.Control.extend({options:{position:'topright'},onAdd:function(){
     var b=L.DomUtil.create('button'); b.innerHTML='🎯'; b.title='Minha localização';
     b.style.cssText='width:34px;height:34px;background:#fff;border:2px solid rgba(0,0,0,0.2);border-radius:6px;font-size:16px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.4);';
@@ -9718,6 +9725,7 @@ function srvRenderRend() {
       +'<span class="s-ndcard-local">'+(r.agente||'—')+'</span>'
       +'</div>'
       +(r.local?'<div style="font-size:12px;color:var(--text2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.local+'</div>':'')
+      +(r.motivo?'<div style="font-size:12px;color:var(--gold2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.motivo+'</div>':'')
       +'</div>'
       +'<div class="s-ndcard-detail"><div class="s-ndcard-detail-inner">'
       + srvNdRow('Agente(s)', r.agente)
@@ -11217,7 +11225,32 @@ async function sfSalvar() {
     btn.style.background='linear-gradient(135deg,#15803d,#166534)';
     setTimeout(()=>{ btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem'; btn.style.background='linear-gradient(135deg,#c62828,#7f0000)'; btn.disabled=false; },3000);
   } catch(e){
-    toast('Erro ao salvar: '+e.message,'err');
+    // A tela pode mostrar erro mesmo quando o salvamento realmente aconteceu no servidor
+    // (falha só na confirmação de volta — o mesmo problema de entrega que já vimos em outras
+    // partes do sistema). Antes de liberar pra tentar de novo, confere se já foi salvo de
+    // verdade: se achar, assume esse registro para edição — assim, clicar Salvar de novo
+    // ATUALIZA o mesmo registro, em vez de criar outro.
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Verificando...';
+    try{
+      await sfCarregar();
+      const provavel=(sfListaData||[]).find(function(r){
+        if(!r)return false;
+        return String(r.data||'')===String(dados.data||'')
+          && String(r.hora||'')===String(dados.hora||'')
+          && String(r.tipo||'')===String(dados.tipo||'')
+          && String(r.logradouro||'').trim().toUpperCase()===String(dados.logradouro||'').trim().toUpperCase()
+          && String(r.responsavel||'').trim().toUpperCase()===String(dados.responsavel||'').trim().toUpperCase();
+      });
+      if(provavel && !sfEditandoId){
+        sfEditandoId=provavel.id;
+        document.getElementById('sfModalTit').textContent='✏ EDITAR SINISTRO FATAL';
+        toast('O salvamento já tinha ido pro servidor, apesar do erro na tela. Assumido para edição — salvar de novo agora atualiza o mesmo registro.','ok');
+      } else {
+        toast('Erro ao salvar: '+e.message,'err');
+      }
+    }catch(e2){
+      toast('Erro ao salvar: '+e.message,'err');
+    }
     btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
   }
 }
@@ -11315,7 +11348,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   function addSubTit(txt){verificar(8);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(127,0,0);doc.text(txt.toUpperCase(),mE,y);y+=6;doc.setTextColor(0,0,0);}
   function addCampoSub(rot,val){if(!val||!String(val).trim())return;verificar(6);doc.setFontSize(8.5);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(100,30,30);doc.text(rot+':',mE+6,y);doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-8);doc.text(ls,mE+6+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
   function addCampo(rot,val,indent=2){if(!val||!String(val).trim())return;verificar(5);doc.setFontSize(10);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(127,0,0);doc.text(rot+':',mE+indent,y);doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-indent-2);doc.text(ls,mE+indent+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
-  function addCaixa(txt){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';const pad=4;const xT=mE+3+pad;const lT=lMax-3-(2*pad)-2;doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lT);const eL=5.2;const aT=ls.length*eL;const h=aT+(2*pad)+2;verificar(h+6);doc.setFillColor(248,248,248);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.roundedRect(mE,y,lMax,h,2,2,'FD');doc.setFillColor(127,0,0);doc.rect(mE,y,3,h,'F');doc.setTextColor(0,0,0);const yB=y+pad+3.5;ls.forEach((l,i)=>doc.text(l,xT,yB+(i*eL)));y+=h+5;}
+  function addCaixa(txt,rotulo){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';const pad=4;const xT=mE+3+pad;const lT=lMax-3-(2*pad)-2;doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lT);const eL=5.2;const aT=ls.length*eL;const h=aT+(2*pad)+2;const hR=rotulo?5:0;verificar(h+6+hR);/* checa rótulo+caixa juntos, antes de desenhar qualquer um — nunca separa um do outro entre páginas */if(rotulo){doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);doc.text(rotulo,mE+2,y);y+=4;doc.setTextColor(0,0,0);}doc.setFillColor(248,248,248);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.roundedRect(mE,y,lMax,h,2,2,'FD');doc.setFillColor(127,0,0);doc.rect(mE,y,3,h,'F');doc.setTextColor(0,0,0);const yB=y+pad+3.5;ls.forEach((l,i)=>doc.text(l,xT,yB+(i*eL)));y+=h+5;}
   function addChecklist(items){const colW=lMax/2;let col=0,maxL=1;doc.setFontSize(10);const its=items.map(it=>({...it,label:it.label.toUpperCase(),linhas:doc.splitTextToSize(it.label.toUpperCase(),colW-12)}));verificar(Math.ceil(its.length/2)*6+4);its.forEach((item,idx)=>{const x=mE+(col*colW);if(item.checked){doc.setFillColor(127,0,0);doc.rect(x,y-3.5,4,4,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('X',x+0.8,y-0.5);}else{doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);doc.rect(x,y-3.5,4,4,'D');}doc.setFontSize(10);doc.setFont('helvetica',item.checked?'bold':'normal');doc.setTextColor(item.checked?40:150,item.checked?10:100,item.checked?10:100);doc.text(item.linhas,x+6,y);maxL=Math.max(maxL,item.linhas.length);col++;if(col>=2){col=0;y+=maxL*5.5+1;maxL=1;}});if(col!==0)y+=maxL*5.5+1;y+=2;}
 
   addCab();
@@ -11342,6 +11375,12 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
     y+=2;verificar(0);
   });
   // 4
+  {
+    const t4=dados.dinamica?.trim()?dados.dinamica.toUpperCase():'NENHUM DADO INFORMADO';
+    const ls4=doc.splitTextToSize(t4,lMax-3-8-2);
+    const h4=(ls4.length*5.2)+10;
+    verificar(12+h4+6); // reserva título+caixa juntos — se não couber, pula os dois pra próxima página
+  }
   addTit('4. Dinâmica do Sinistro'); addCaixa(dados.dinamica); y+=2;
   // 5
   addTit('5. Fatores de Risco');
@@ -11371,9 +11410,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   addChecklist([{label:'Vestígios no pavimento',checked:cks.ck_vestigios},{label:'Pavimento irregular/buracos',checked:cks.ck_pavimento_irregular},{label:'Tampas/grelhas ausentes',checked:cks.ck_tampas_grelhas},{label:'Calçada deficiente',checked:cks.ck_calcada_deficiente}]);
   if(dados.tipoVestigio){addCampoSub('TIPO DE VESTÍGIO NO PAVIMENTO',dados.tipoVestigio+(dados.tipoVestigio==='OUTRO'?': '+dados.vestigioOutro:''));}
   if(dados.detPavimento){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Descrição do pavimento:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.detPavimento);
+    addCaixa(dados.detPavimento,'Descrição do pavimento:');
   }
   y+=2;
 
@@ -11385,9 +11422,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   if(cks.ck_sinalizacao_bom_estado&&dados.tipoSinaliz){addCampoSub('TIPO DE SINALIZAÇÃO EM BOM ESTADO',dados.tipoSinaliz);}
   if(!cks.ck_sinalizacao_bom_estado&&dados.tipoSinaliz){addCampoSub('TIPO DE SINALIZAÇÃO DEFICIENTE/INEXISTENTE',dados.tipoSinaliz);}
   if(dados.detSin){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Descrição da sinalização:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.detSin);
+    addCaixa(dados.detSin,'Descrição da sinalização:');
   }
   y+=2;
 
@@ -11396,9 +11431,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   addCampo('VELOCIDADE DA VIA',dados.velocidade?(dados.velocidade+' km/h'):'NÃO INFORMADO');
   addCampo('RADAR PRÓXIMO',dados.radar||'NÃO');
   if(dados.excVelocidade){
-    doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);
-    verificar(5);doc.text('Observações sobre excesso de velocidade:',mE+2,y);y+=4;doc.setTextColor(0,0,0);
-    addCaixa(dados.excVelocidade);
+    addCaixa(dados.excVelocidade,'Observações sobre excesso de velocidade:');
   }
   y+=2;
 
@@ -11434,10 +11467,20 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   // 7
   addTit('7. Órgãos de Apoio');
   const orgNomes={amc:'AMC',pefoce:'PEFOCE',pm:'POLÍCIA MILITAR',samu:'SAMU',rabecao:'RABECÃO',outros:'OUTROS'};
-  Object.entries(dados.orgaos||{}).forEach(([tipo,arr])=>{if(!arr||!arr.length)return;addSubTit(orgNomes[tipo]||tipo.toUpperCase());arr.forEach(o=>{if(tipo==='pefoce')addCampo('VTR '+(o.vtr||'—'),'PERITO: '+(o.perito||'—')+' | MOTORISTA: '+(o.motorista||'—'));else if(tipo==='samu')addCampo('VTR '+(o.vtr||'—'),'MÉDICO: '+(o.medico||'—')+' | ENF: '+(o.enfermeiro||'—')+' | MOT: '+(o.motorista||'—'));else if(tipo==='rabecao')addCampo('VTR '+(o.vtr||'—'),'MOTORISTA: '+(o.motorista||'—')+' | AUXILIAR: '+(o.auxiliar||'—'));else if(tipo==='outros')addCampo(o.orgao||'—',o.info||'');else addCampo('VTR '+(o.vtr||'—'),o.agentes||o.equipe||'—');});});
+  Object.entries(dados.orgaos||{}).forEach(([tipo,arr])=>{if(!arr||!arr.length)return;addSubTit(orgNomes[tipo]||tipo.toUpperCase());arr.forEach(o=>{if(tipo==='pefoce')addCampo('VTR '+(o.vtr||'—'),'PERITO: '+(o.perito||'—')+' | MOTORISTA: '+(o.motorista||'—'));else if(tipo==='samu')addCampo('VTR '+(o.vtr||'—'),'MÉDICO: '+(o.medico||'—')+' | ENF: '+(o.enfermeiro||'—')+' | MOT: '+(o.motorista||'—'));else if(tipo==='rabecao')addCampo('VTR '+(o.vtr||'—'),'MOTORISTA: '+(o.motorista||'—')+' | AUXILIAR: '+(o.auxiliar||'—'));else if(tipo==='outros')addCampo(o.orgao||'—',o.info||'');else addCampo('VTR '+(o.vtr||'—'),(o.agentes||o.equipe||'—').replace(/[,;\s]+$/,''));});});
   y+=2;
   // 8
-  if(dados.testemunhas&&dados.testemunhas.length){addTit('8. Testemunhas');dados.testemunhas.forEach((t,i)=>{addSubTit('Testemunha '+(i+1));addCampo('NOME',t.nome||'—');if(t.telefone)addCampo('TELEFONE',t.telefone);if(t.doc)addCampo('RG/CPF',t.doc);if(t.declaracao)addCaixa(t.declaracao);});y+=2;}
+  if(!dados.testemunhas||!dados.testemunhas.length){
+    const t8=doc.splitTextToSize('NENHUMA TESTEMUNHA REGISTRADA',lMax-3-8-2);
+    verificar(12+(t8.length*5.2)+10+6); // título + caixa juntos, mesma proteção do item 4
+  }
+  addTit('8. Testemunhas');
+  if(dados.testemunhas&&dados.testemunhas.length){
+    dados.testemunhas.forEach((t,i)=>{addSubTit('Testemunha '+(i+1));addCampo('NOME',t.nome||'—');if(t.telefone)addCampo('TELEFONE',t.telefone);if(t.doc)addCampo('RG/CPF',t.doc);if(t.declaracao)addCaixa(t.declaracao);});
+  } else {
+    addCaixa('NENHUMA TESTEMUNHA REGISTRADA');
+  }
+  y+=2;
   // 9 Imagens
   const imgsUrl=(dados.imagens||[]).filter(u=>u&&!u.startsWith('data:'));
   const imgsB64=(dados.imagens||[]).filter(u=>u&&u.startsWith('data:'));
@@ -11449,7 +11492,9 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
       if(cnt>=8)break; cnt++;
       verificar(95);
       try{
-        const iW=140,iH=85;const iX=mE+(lMax-iW)/2;
+        // Tamanho máximo disponível — a foto é encaixada dentro desse espaço MANTENDO a
+        // proporção original (nunca esticada/espremida), e fica centralizada.
+        const maxW=140,maxH=85;let iW=maxW,iH=maxH*0.72;
         doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(127,0,0);
         doc.text('FOTO '+cnt+':',mE,y);y+=4;
         if(imgSrc.startsWith('data:')){
@@ -11457,11 +11502,19 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
           const match=imgSrc.match(/^data:image\/([\w]+);base64,(.+)$/);
           if(match){
             const fmt=match[1].toUpperCase()==='JPG'?'JPEG':match[1].toUpperCase()==='PNG'?'PNG':'JPEG';
-            doc.addImage(match[2],fmt,iX,y,iW,iH);
+            try{
+              const dims=await new Promise(function(res){const im=new Image();im.onload=function(){res({w:im.naturalWidth||im.width,h:im.naturalHeight||im.height});};im.onerror=function(){res(null);};im.src=imgSrc;});
+              if(dims&&dims.w&&dims.h){const r=dims.w/dims.h;if(maxW/maxH>r){iH=maxH;iW=maxH*r;}else{iW=maxW;iH=maxW/r;}}
+            }catch(eDim){}
+            const iX2=mE+(lMax-iW)/2;
+            doc.addImage(match[2],fmt,iX2,y,iW,iH);
           } else {
             const imgEl=new Image();imgEl.src=imgSrc;
             await new Promise(r=>{imgEl.onload=r;imgEl.onerror=r;});
-            doc.addImage(imgEl,'JPEG',iX,y,iW,iH);
+            const w2=imgEl.naturalWidth||imgEl.width,h2=imgEl.naturalHeight||imgEl.height;
+            if(w2&&h2){const r=w2/h2;if(maxW/maxH>r){iH=maxH;iW=maxH*r;}else{iW=maxW;iH=maxW/r;}}
+            const iX2=mE+(lMax-iW)/2;
+            doc.addImage(imgEl,'JPEG',iX2,y,iW,iH);
           }
         } else {
           // URL do Drive: bloqueado por CORS para extração de bytes (fetch e canvas)
