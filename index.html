@@ -65,6 +65,10 @@ body.light-mode .qrv-saida-input::-webkit-datetime-edit-hour-field,
 body.light-mode .qrv-saida-input::-webkit-datetime-edit-minute-field,
 body.light-mode .qrv-saida-input::-webkit-datetime-edit-text{color:#1e293b;}
 body.light-mode .qrv-saida-input::-webkit-calendar-picker-indicator{filter:invert(1) brightness(0.3);}
+/* Ícone do seletor de data/hora: no tema escuro o ícone nativo é preto e some no fundo — aqui ele é clareado.
+   No tema claro volta a ser desenhado como o navegador faz. */
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(1) brightness(1.15);opacity:.9;cursor:pointer;}
+body.light-mode input[type="date"]::-webkit-calendar-picker-indicator,body.light-mode input[type="time"]::-webkit-calendar-picker-indicator{filter:none;opacity:.75;}
 body.light-mode .qrv-row-nomes{color:#1e293b;}
 body.light-mode .qrv-row-rota{color:#475569;}
 body.light-mode input[type=date]{background:#ffffff;color:#b45309;}
@@ -643,7 +647,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 /* sfModal — padrão próprio igual ao bib-painel */
 /* sf-no-scroll usado pelo sfModal */
 @media(max-width:768px){
-  #sfModalBox{max-width:100%;max-height:90vh;border-radius:16px 16px 0 0;}
+  #sfModalBox{max-width:100%;max-height:90vh;max-height:min(90vh,100%);border-radius:16px 16px 0 0;}
   #sfModalBox input,#sfModalBox select,#sfModalBox textarea{font-size:16px;}
 }
 .cbox{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:320px;text-align:center;}
@@ -2064,7 +2068,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-03-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-06-v4'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4276,6 +4280,7 @@ function doLogout(){
   if(typeof qrvvlAutoTimer!=='undefined' && qrvvlAutoTimer){clearInterval(qrvvlAutoTimer);qrvvlAutoTimer=null;}
   if(srvAutoTimer){clearInterval(srvAutoTimer);srvAutoTimer=null;}
   if(sfAutoTimer){clearInterval(sfAutoTimer);sfAutoTimer=null;}
+  try{ sfResetEstado(); }catch(e){} // não deixa a lista/busca do perfil que saiu para o próximo perfil
 }
 
 // ══════════════════════════════════════════════
@@ -10182,25 +10187,43 @@ async function apiFatais(action, payload, _tentativa) {
   const tentativa = _tentativa || 0;
   const ehLeitura = /^(get|search)/i.test(action); // nunca re-tenta sozinho ações de gravação (evita duplicar sinistros)
   const url = SF_URL + '?action=' + encodeURIComponent(action);
-  let r;
+  let text;
+  // Leituras têm tempo limite (antes uma consulta travada deixava a tela sem responder para sempre)
+  const ctrl = (ehLeitura && typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 30000) : null;
   try {
-    r = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      redirect: 'follow',
-      mode: 'cors'
-    });
-  } catch(fetchErr) {
-    // Fallback: tentar sem mode cors (file://)
-    r = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      redirect: 'follow'
-    });
-  }
-  const text = await r.text();
+    let r;
+    try {
+      r = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        mode: 'cors',
+        signal: ctrl ? ctrl.signal : undefined
+      });
+    } catch(fetchErr) {
+      if (fetchErr && fetchErr.name === 'AbortError') throw fetchErr;
+      // Fallback: tentar sem mode cors (file://)
+      r = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        redirect: 'follow',
+        signal: ctrl ? ctrl.signal : undefined
+      });
+    }
+    text = await r.text();
+  } catch(netErr) {
+    // Falha de rede ou tempo esgotado: só LEITURAS tentam de novo sozinhas (gravar duas vezes duplicaria o registro)
+    if (ehLeitura && tentativa < 2) {
+      console.warn('[SF] Falha de rede em '+action+', tentando novamente ('+(tentativa+1)+'/2)...');
+      await new Promise(res=>setTimeout(res, 1200*(tentativa+1)));
+      return apiFatais(action, payload, tentativa+1);
+    }
+    if (netErr && netErr.name === 'AbortError') throw new Error('O servidor demorou demais para responder. Tente novamente.');
+    throw netErr;
+  } finally { if (timer) clearTimeout(timer); }
   const clean = text.replace(/^[\s﻿​]+/, '').trim();
   let d;
   try { d = JSON.parse(clean); }
@@ -10212,7 +10235,7 @@ async function apiFatais(action, payload, _tentativa) {
       return apiFatais(action, payload, tentativa+1);
     }
     console.error('[SF] JSON parse falhou após tentativas. Resposta bruta:', text.substring(0,500));
-    throw new Error('Resposta inesperada. Veja o console F12.');
+    throw new Error('O servidor não respondeu corretamente. Toque em ↻ para tentar de novo.');
   }
   if (d && d.error) throw new Error(d.error);
   return d;
@@ -10231,34 +10254,66 @@ function sfInit() {
   document.getElementById('sfDateInput').value=sfIso(sfCurrentDate);
   const btnN=document.getElementById('sfBtnNovo');
   if(btnN) btnN.style.display=sfPodeEditar()?'inline-block':'none';
+  sfErroLista='';
+  // Se a lista guardada não é do perfil ou da data mostrados agora, não a exibe como se fosse o
+  // resultado desta consulta: volta ao estado "Clique em ↻ para consultar".
+  if(sfListaIso!==sfIso(sfCurrentDate) || sfListaPerfil!==(G.role+'|'+G.name)){ sfListaData=[]; sfListaIso=''; sfListaPerfil=''; sfNuncaCarregado=true; }
   sfRenderLista(); // mostra o estado "clique para consultar" — não busca dados sozinho
 }
 
 // ── Carregar lista ────────────────────────────────────────────
-var _sfCarregando = false;
-async function sfCarregar(manual=false) {
+var _sfReqSeq = 0;     // o pedido mais recente vence: resposta atrasada de outra data é descartada
+var sfListaIso = '';   // data a que se refere o conteúdo atual de sfListaData
+var sfListaPerfil = '';// perfil (papel|nome) que fez a consulta guardada em sfListaData
+var sfErroLista = '';  // mensagem da última consulta que falhou (vazia = deu certo)
+async function sfCarregar(manual=false, rapido=false) {
   // Guard: abortar se DOM da aba fatal não estiver presente
   if(!document.getElementById('sfLista')) return;
-  if(_sfCarregando && !manual) return; // evitar chamadas simultâneas
-  _sfCarregando = true;
-  sfNuncaCarregado = false;
+  const meuNumero = ++_sfReqSeq;
+  const isoAlvo = sfIso(sfCurrentDate);
+  const atual = function(){ return meuNumero===_sfReqSeq && sfIso(sfCurrentDate)===isoAlvo; };
   const bref=document.getElementById('sfBRef'); if(bref)bref.classList.add('spin');
   const info=document.getElementById('sfRefreshInfo');
   if(info) info.textContent='Buscando...';
   try {
-    const iso=sfIso(sfCurrentDate);
-    const filtro = G.role==='supervisor' ? {data:iso, savedBy:G.name} : {data:iso};
-    const r = await apiFatais('getSinistrosFatais', filtro);
+    const filtro = {data:isoAlvo}; // todos os perfis veem todos os registros; editar/excluir/PDF segue só para o dono (podeEd/podePdf)
     // Aceitar tanto {data:[...]} quanto {success:true, data:[...]}
-    sfListaData = (r && (r.data || r.result || [])) || [];
+    const ler = async function(){ const r = await apiFatais('getSinistrosFatais', filtro); return (r && (r.data || r.result || [])) || []; };
+    let lista = await ler();
+    if(!atual()) return;
+    // Antes de aceitar "nenhum registro", confirma até 2 vezes: a entrega da resposta do Google
+    // às vezes falha de forma silenciosa e devolve vazio mesmo havendo registros nesse dia.
+    for(let tc=0; !rapido && lista.length===0 && tc<2; tc++){
+      await new Promise(function(res){ setTimeout(res,800); });
+      if(!atual()) return;
+      lista = await ler();
+      if(!atual()) return;
+    }
+    sfListaData = lista; sfListaIso = isoAlvo; sfListaPerfil = G.role+'|'+G.name; sfErroLista = '';
+    sfNuncaCarregado = false; // só marca como "consultado" depois que a resposta chegou de fato
     sfCardAberto = null;
     sfRenderLista();
     if(info) info.textContent='Atualizado '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})+' ('+sfListaData.length+'reg)';
     if(manual) toast('Lista atualizada. '+sfListaData.length+' registro(s).','ok');
   } catch(e) {
+    if(!atual()) return; // erro de uma consulta que já foi substituída por outra: ignora
     if(info) info.textContent='⚠ Erro';
     toast('Erro ao carregar: '+e.message,'err');
-  } finally { if(bref)bref.classList.remove('spin'); _sfCarregando=false; }
+    // Se a lista na tela é de OUTRA data, não deixa ela ali como se fosse desta: mostra o erro.
+    if(sfListaIso!==isoAlvo){ sfListaData=[]; sfListaIso=''; sfErroLista=e.message||'falha ao consultar'; sfRenderLista(); }
+  } finally { if(bref && meuNumero===_sfReqSeq) bref.classList.remove('spin'); }
+}
+
+// Apaga o que o módulo Fatais guardava (lista, busca, consultas em andamento). Usado no logout:
+// sem isso o próximo perfil que entrasse no mesmo navegador via a lista/vazio do perfil anterior.
+function sfResetEstado(){
+  _sfReqSeq++; // consultas em andamento do perfil anterior passam a ser descartadas quando voltarem
+  sfListaData=[]; sfListaIso=''; sfListaPerfil=''; sfErroLista='';
+  sfNuncaCarregado=true; sfCardAberto=null;
+  sfSearchResults=[]; sfSearchMode=false;
+  ['sfSrchDe','sfSrchAte','sfSrchTxt'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var inf=document.getElementById('sfSearchInfo'); if(inf) inf.style.display='none';
+  try{ sfRenderLista(); }catch(e){}
 }
 
 // ── Renderizar lista ──────────────────────────────────────────
@@ -10266,6 +10321,10 @@ function sfRenderLista() {
   const c=document.getElementById('sfLista'); if(!c)return;
   const lista=sfSearchMode?sfSearchResults:sfListaData;
   if(!lista.length){
+    if(sfErroLista && !sfSearchMode){
+      c.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:32px;margin-bottom:10px;">⚠</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Não foi possível carregar</div><div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.4;">A consulta falhou. Isso não significa que não existam registros neste dia.</div><button onclick="sfCarregar(true)" style="padding:10px 18px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">↻ Tentar de novo</button></div>';
+      return;
+    }
     if(sfNuncaCarregado && !sfSearchMode){
       c.innerHTML='<div style="text-align:center;padding:40px 20px;"><div style="font-size:32px;margin-bottom:10px;">🔍</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);">Clique em ↻ para consultar os registros</div></div>';
       return;
@@ -10278,6 +10337,7 @@ function sfRenderLista() {
     const vitimas=(s.envolvidos||[]).filter(e=>(e.condicao||'').includes('FATAL'));
     const nVit=vitimas.length||1;
     const podeEd=canEdit&&(G.role==='admin'||s.savedBy===G.name);
+    const podePdf=(G.role!=='supervisor')||podeEd; // supervisor, nos registros de OUTROS: só o card (sem PDF/editar/excluir)
     const miniImgs=(s.imagens||[]).filter(u=>u&&!u.startsWith('data:')).slice(0,6);
     const envList=(s.envolvidos||[]).map(e=>{
       const partes=[e.nome||'—',e.tipo,e.condicao].filter(Boolean);
@@ -10312,14 +10372,14 @@ function sfRenderLista() {
         ${orgaosList?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:4px;">Órgãos de Apoio</div><div style="display:flex;flex-wrap:wrap;gap:4px;">${orgaosList}</div></div>`:''}
         ${s.boat?`<div style="font-size:11px;color:var(--text3);margin-bottom:8px;">BOAT: <span style="color:var(--text);font-family:'IBM Plex Mono',monospace;">${s.boat}</span></div>`:''}
         ${miniImgs.length?`<div style="margin-bottom:10px;"><div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#ef4444;margin-bottom:6px;">Imagens (${miniImgs.length})</div><div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;">${miniImgs.map((u,fi)=>{const thumb=u.includes('drive.google.com/uc')?u.replace('uc?export=view&','thumbnail?').replace(/&sz=\w+/,'')+'&sz=w600':u.includes('drive.google.com/thumbnail')?u:u;return`<div style="flex-shrink:0;cursor:pointer;" onclick="window.open('${u}','_blank')"><img src="${thumb}" style="width:120px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--border);display:block;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div style="display:none;width:120px;height:90px;background:var(--surface3);border-radius:8px;border:2px solid var(--border);align-items:center;justify-content:center;flex-direction:column;gap:4px;"><i class='fas fa-image' style='font-size:24px;color:var(--text3);'></i><span style='font-size:9px;color:var(--text3);font-family:Rajdhani,sans-serif;font-weight:700;letter-spacing:1px;'>FOTO ${fi+1}</span></div></div>`;}).join('')}</div></div>`:''}
-        <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);">
+        ${podePdf?`<div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border);">
           ${podeEd?`<button onclick="sfAbrirModal('${s.id||''}')" style="flex:1;padding:9px 12px;background:linear-gradient(135deg,#c62828,#7f0000);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-edit"></i> Editar</button>`:''}
           <div style="flex:1;position:relative;" class="sf-pdf-card-wrap">
             <button onclick="sfAbrirLeitura(${i})" style="width:100%;padding:9px 12px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.4);border-radius:8px;color:#60a5fa;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-pdf"></i> PDF ${miniImgs.length?'<span style="font-size:9px;color:#f59e0b;margin-left:4px;" title="Fotos salvas no Drive podem não aparecer no PDF. Para garantir as fotos, gere o PDF logo após o registro.">⚠</span>':''}</button>
-            ${miniImgs.length?`<div style="font-size:9px;color:#f59e0b;text-align:center;margin-top:3px;line-height:1.3;"><i class="fas fa-exclamation-triangle" style="font-size:8px;"></i> Fotos só aparecem no PDF se gerado na hora do registro</div>`:''}
           </div>
           ${podeEd?`<button onclick="sfExcluir('${s.id||''}')" style="padding:9px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;color:#f87171;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;"><i class="fas fa-trash"></i></button>`:''}
-        </div>
+          ${miniImgs.length?`<div style="flex:0 0 100%;font-size:12px;color:var(--gold);line-height:1.4;"><i class="fas fa-exclamation-triangle" style="font-size:11px;"></i> Fotos só aparecem no PDF se gerado na hora do registro</div>`:''}
+        </div>`:''}
       </div>
     </div>`;
   }).join('');
@@ -10355,6 +10415,7 @@ function sfVerDetalhe(idx) {
   const lista=sfSearchMode?sfSearchResults:sfListaData;
   const s=lista[idx]; if(!s)return;
   sfEditandoId=null;
+  { const avF=document.getElementById('sfAvisoFotosNovo'); if(avF) avF.style.display='none'; }
   document.getElementById('sfModalTit').textContent='📋 '+s.tipo+' — '+sfFmtBR(s.data);
   sfLimparForm();
   sfPreencherForm(s);
@@ -10396,6 +10457,7 @@ function sfAbrirModal(id) {
     btnSalvar.disabled=false;
   }
   document.getElementById('sfBtnPDF').style.display='';
+  { const avF=document.getElementById('sfAvisoFotosNovo'); if(avF) avF.style.display=id?'none':'block'; } // aviso só em registro novo (pelo jeito que foi aberto, não pelo título)
   if(!id){
     sfEditandoId=null;
     sfPdfGerado=false; // nova ocorrência: PDF ainda não gerado
@@ -10445,23 +10507,36 @@ function sfAbrirOverlay(){
   box.addEventListener('touchmove',_sfTouchHandler,{passive:false});
 }
 
+function sfAvisoFotosPendentes(){
+  if(document.getElementById('sfAvisoFotosOv')) return;
+  var ov=document.createElement('div');
+  ov.id='sfAvisoFotosOv';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:99000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  var btn='width:100%;padding:13px;border-radius:8px;font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;';
+  ov.innerHTML='<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:18px;max-width:420px;width:100%;">'
+    +'<div style="font-family:\'Rajdhani\',sans-serif;font-weight:700;font-size:18px;color:var(--gold);margin-bottom:8px;">⚠ PDF ainda não foi gerado</div>'
+    +'<div style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:14px;">Este formulário tem fotos que ainda não saíram em nenhum PDF. Depois de fechado, as fotos continuam salvas, mas <b>não entram mais em PDFs novos</b>.</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;">'
+    +'<button class="sfAvPdf" style="'+btn+'background:linear-gradient(135deg,#c62828,#7f0000);border:none;color:#fff;">📄 Gerar PDF agora</button>'
+    +'<button class="sfAvFechar" style="'+btn+'background:var(--surface3);border:1px solid var(--border2);color:var(--text2);">Fechar sem PDF</button>'
+    +'<button class="sfAvVoltar" style="'+btn+'background:var(--surface3);border:1px solid var(--border2);color:var(--text);">Voltar ao formulário</button>'
+    +'</div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('.sfAvVoltar').onclick=function(){ ov.remove(); };
+  ov.querySelector('.sfAvFechar').onclick=function(){ ov.remove(); sfFecharModal(true); };
+  ov.querySelector('.sfAvPdf').onclick=function(){ ov.remove(); sfGerarPDF(); }; // depois do PDF, o próprio fluxo pergunta se quer encerrar
+}
+
 function sfFecharModal(force=false) {
   if(!force){
     const log=document.getElementById('sfLogradouro')?.value;
     if(log&&log.trim()){
-      // Se é registro novo (sfEditandoId tem ID mas pdfGerado=false), avisar sobre PDF
-      const eNovo=document.getElementById('sfModalTit')?.textContent?.includes('NOVO')||
-                  (!sfPdfGerado&&sfEditandoId&&!document.getElementById('sfModalTit')?.textContent?.includes('EDITAR'));
-      const semPdf=!sfPdfGerado&&sfImgs.some(Boolean); // tem imagens mas não gerou PDF
-      const titNovo=document.getElementById('sfModalTit')?.textContent?.includes('NOVO');
-      const temFotos=sfImgs&&sfImgs.some(Boolean);
-      if(!sfPdfGerado&&titNovo&&temFotos){
-        // Registro novo com fotos: avisar que fotos não vão aparecer no PDF gerado depois
-        const resp=confirm('⚠ PDF ainda não foi gerado!\n\nVocê adicionou fotos neste registro. Se fechar agora sem gerar o PDF, as fotos NÃO aparecerao em PDFs gerados posteriormente.\n\nRecomendamos gerar o PDF antes de fechar.\n\nFechar assim mesmo?');
-        if(!resp) return;
-      } else {
-        if(!confirm('Encerrar o preenchimento? O formulário será fechado.')) return;
-      }
+      // Fotos novas (ainda na memória do navegador) sem PDF gerado depois delas: só agora podem
+      // entrar no PDF. Depois de fechado o formulário, ficam salvas no Drive mas não saem em PDF.
+      // (Não depende do título do formulário: o salvamento automático troca "NOVO" por "EDITAR".)
+      const fotosPendentes=!sfPdfGerado&&(sfImgs||[]).some(function(u){return u&&String(u).indexOf('data:')===0;});
+      if(fotosPendentes){ sfAvisoFotosPendentes(); return; }
+      if(!confirm('Encerrar o preenchimento? O formulário será fechado.')) return;
     }
   }
   var m=document.getElementById('sfModal');
@@ -10483,15 +10558,16 @@ function sfFecharModal(force=false) {
 function sfLimparForm() {
   ['sfData','sfHora','sfLogradouro','sfNumero','sfBairro','sfResponsavel','sfDinamica',
    'sfDetPavimento','sfDetSin','sfVelocidade','sfExcVel','sfOutrosFatores',
-   'sfBoat','sfObservacoes','sfCameraOrigem','sfTipoOutro','sfVestigioOutro'].forEach(id=>{
+   'sfBoat','sfObservacoes','sfCameraOrigem','sfTipoOutro','sfVestigioOutro','sfVisOutros'].forEach(id=>{
     const el=document.getElementById(id); if(el)el.value='';
   });
   const sel=document.getElementById('sfTipo'); if(sel)sel.value='';
-  ['sfCkVestigios','sfCkPavimento','sfCkTampas','sfCkCalcada','sfCkSinDef','sfCkSemaforo','sfCkSinBom','sfCkCurva','sfCkVisib','sfCkIlum'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
+  const hpk=document.getElementById('sfHoraPicker'); if(hpk)hpk.value='';
+  ['sfCkVestigios','sfCkPavimento','sfCkTampas','sfCkCalcada','sfCkSinDef','sfCkSemaforo','sfCkSinBom','sfCkCurva','sfCkVisib','sfCkIlum','sfCkVisOutros'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=false;});
   const rN=document.querySelector('input[name="sfRadar"][value="NÃO"]'); if(rN)rN.checked=true;
   const cN=document.querySelector('input[name="sfCameras"][value="NÃO"]'); if(cN)cN.checked=true;
   const ts=document.querySelector('input[name="sfTipoSinaliz"][value="VERTICAL E HORIZONTAL"]'); if(ts)ts.checked=true;
-  ['sfTipoOutroWrap','sfTipoVestigiosWrap','sfConservSinWrap','sfDetSinWrap','sfCameraOrigemWrap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  ['sfTipoOutroWrap','sfTipoVestigiosWrap','sfConservSinWrap','sfDetSinWrap','sfCameraOrigemWrap','sfVisOutrosWrap'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   ['sfVeiculosContainer','sfEnvolvidosContainer','sfFatoresContainer','sfDRVContainer','sfTesteContainer','sfDocContainer','sfTestemunhasContainer','sfAmcContainer','sfPefoceContainer','sfPmContainer','sfSamuContainer','sfRabecaoContainer','sfOutrosContainer'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   const condc=document.getElementById('sfCondicoesVeicContainer'); if(condc)condc.innerHTML='<p style="color:var(--text3);font-size:12px;margin:4px 0;">Adicione veículos na seção 2.</p>';
   sfVeiculosAtivos=[];sfEnvolvidosAtivos=[];sfTestemunhasAtivas=[];
@@ -10510,6 +10586,7 @@ function sfLimparForm() {
 function sfPreencherForm(s) {
   document.getElementById('sfData').value=s.data||'';
   document.getElementById('sfHora').value=s.hora||'';
+  sfHoraSincPicker();
   const tipos=['COLISÃO','ATROPELAMENTO','CAPOTAMENTO','DESEQUILÍBRIO DE MOTO','CHOQUE COM POSTE','CHOQUE COM ÁRVORE'];
   if(tipos.includes(s.tipo||'')){document.getElementById('sfTipo').value=s.tipo||'';}
   else if(s.tipo){document.getElementById('sfTipo').value='OUTROS';document.getElementById('sfTipoOutroWrap').style.display='block';document.getElementById('sfTipoOutro').value=s.tipo;}
@@ -10518,8 +10595,9 @@ function sfPreencherForm(s) {
     const el=document.getElementById(id); if(el&&s[map[id]]!==undefined)el.value=s[map[id]]||'';
   });
   const cks=s.checkboxes||{};
-  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente'};
+  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente','sfCkVisOutros':'ck_visibilidade_outros'};
   Object.entries(ckMap).forEach(([domId,dataKey])=>{const el=document.getElementById(domId);if(el)el.checked=!!cks[dataKey];});
+  { const tv=document.getElementById('sfVisOutros'); if(tv) tv.value=cks.ck_visibilidade_outros?(s.visibilidadeOutros||''):''; const wv=document.getElementById('sfVisOutrosWrap'); if(wv) wv.style.display=cks.ck_visibilidade_outros?'block':'none'; }
   if(cks.ck_vestigios) document.getElementById('sfTipoVestigiosWrap').style.display='block';
   if(cks.ck_sinalizacao_deficiente) document.getElementById('sfDetSinWrap').style.display='block';
   if(cks.ck_sinalizacao_bom_estado) document.getElementById('sfConservSinWrap').style.display='block';
@@ -10586,7 +10664,7 @@ function sfCriarImgs() {
     document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));
   }
 }
-function sfCarregarImg(i,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>{sfImgs[i]=ev.target.result;sfImgsRotacao[i]=0;sfAtualizarSlot(i,'b64');};r.readAsDataURL(f);}
+function sfCarregarImg(i,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>{sfImgs[i]=ev.target.result;sfImgsRotacao[i]=0;sfPdfGerado=false;sfAtualizarSlot(i,'b64');};r.readAsDataURL(f);}
 function sfCamera(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';inp.onchange=(e)=>sfCarregarImg(i,e);inp.click();}
 function sfAtualizarSlot(i,tipo){
   const rot=sfImgsRotacao[i]||0;
@@ -10597,7 +10675,7 @@ function sfAtualizarSlot(i,tipo){
   s.innerHTML=`<div class="sf-img-wrap"><img src="${thumbSrc}" style="transform:rotate(${rot}deg)${Math.abs(rot)%180===90?` scale(0.75)`:''};transition:transform .3s;max-height:120px;max-width:100%;cursor:pointer;" onclick="window.open('${src}','_blank')"></div><div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;justify-content:center;">${tipo==='b64'?`<button type="button" onclick="sfRotImg(${i},-90)" style="padding:4px 8px;margin:0;background:#555;border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-undo"></i></button><button type="button" onclick="sfRotImg(${i},90)" style="padding:4px 8px;margin:0;background:#555;border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-redo"></i></button>`:''}<button type="button" onclick="sfRemImg(${i})" style="padding:4px 8px;margin:0;background:var(--vermelho,#c62828);border:none;border-radius:5px;color:#fff;font-size:10px;cursor:pointer;"><i class="fas fa-trash"></i></button></div>${avisDrive}`;
 }
 function sfRotImg(i,graus){sfImgsRotacao[i]=((sfImgsRotacao[i]||0)+graus+360)%360;sfAtualizarSlot(i,'b64');}
-function sfRemImg(i){if(!confirm('Remover esta imagem?'))return;sfImgs[i]=null;sfImgsRotacao[i]=0;const s=document.getElementById('sfSlot'+i);if(s){s.innerHTML=`<i class="fas fa-camera" style="font-size:28px;color:var(--text3);"></i><p style="color:var(--text3);margin:4px 0;font-size:11px;">Foto ${i+1}</p><input type="file" accept="image/*" id="sfImg${i}" style="display:none;"><button type="button" onclick="document.getElementById('sfImg${i}').click()" style="padding:6px 10px;margin:2px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;cursor:pointer;"><i class="fas fa-upload"></i> Galeria</button><button type="button" onclick="sfCamera(${i})" style="padding:6px 10px;margin:2px;background:#2e7d32;border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;"><i class="fas fa-camera"></i> Câmera</button>`;document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));}}
+function sfRemImg(i){if(!confirm('Remover esta imagem?'))return;sfImgs[i]=null;sfPdfGerado=false;sfImgsRotacao[i]=0;const s=document.getElementById('sfSlot'+i);if(s){s.innerHTML=`<i class="fas fa-camera" style="font-size:28px;color:var(--text3);"></i><p style="color:var(--text3);margin:4px 0;font-size:11px;">Foto ${i+1}</p><input type="file" accept="image/*" id="sfImg${i}" style="display:none;"><button type="button" onclick="document.getElementById('sfImg${i}').click()" style="padding:6px 10px;margin:2px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;cursor:pointer;"><i class="fas fa-upload"></i> Galeria</button><button type="button" onclick="sfCamera(${i})" style="padding:6px 10px;margin:2px;background:#2e7d32;border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;"><i class="fas fa-camera"></i> Câmera</button>`;document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));}}
 
 // ── Veículos ──────────────────────────────────────────────────
 function sfGetVeicOpts(){return sfVeiculosAtivos.map(id=>{const inf=sfVeiculosInfo[id];const lab=inf&&(inf.tipo||inf.placa)?`Veículo ${id} (${inf.tipo||''}${inf.tipo&&inf.placa?' - ':''}${inf.placa||''})` :`Veículo ${id}`;return`<option value="VEÍCULO ${id}">${lab}</option>`;}).join('');}
@@ -10913,6 +10991,60 @@ function sfMascaraTel(inp){
   // Se apagou tudo, restaurar prefixo
   if(inp.value.length<5) inp.value='(85) ';
 }
+// ── Endereço pela localização atual (GPS do aparelho + OpenStreetMap/Nominatim) ──
+function sfAbreviarVia(nome){
+  return String(nome||'').trim().toUpperCase().replace(/^RUA\s+/,'R ').replace(/^AVENIDA\s+/,'AV. ');
+}
+async function sfEnderecoPorCoordenadas(lat,lon){
+  const url='https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=pt-BR&lat='+encodeURIComponent(lat)+'&lon='+encodeURIComponent(lon);
+  const ctrl=(typeof AbortController!=='undefined')?new AbortController():null;
+  const timer=ctrl?setTimeout(function(){ctrl.abort();},12000):null;
+  try{
+    const r=await fetch(url,{signal:ctrl?ctrl.signal:undefined});
+    if(!r.ok) throw new Error('o serviço de mapas respondeu com erro ('+r.status+')');
+    const j=await r.json();
+    const a=(j&&j.address)||{};
+    const via=a.road||a.pedestrian||a.footway||a.path||a.residential||a.cycleway||'';
+    const bairro=a.suburb||a.neighbourhood||a.quarter||a.city_district||'';
+    return {logradouro:sfAbreviarVia(via), numero:String(a.house_number||'').trim().toUpperCase(), bairro:String(bairro).trim().toUpperCase()};
+  }catch(e){
+    if(e&&e.name==='AbortError') throw new Error('o serviço de mapas demorou demais para responder');
+    throw e;
+  }finally{ if(timer) clearTimeout(timer); }
+}
+async function sfUsarLocalizacao(){
+  const btn=document.getElementById('sfLocBtn');
+  if(btn&&btn.disabled) return;
+  if(!navigator.geolocation){ toast('Este navegador não oferece localização.','err'); return; }
+  const ids=['sfLogradouro','sfNumero','sfBairro'];
+  const jaTem=ids.some(function(id){const el=document.getElementById(id);return el&&el.value.trim();});
+  if(jaTem&&!confirm('O endereço já está preenchido.\n\nSubstituir pelo endereço da sua localização atual?')) return;
+  if(btn){btn.disabled=true;btn.classList.add('sf-ico-carregando');}
+  toast('Obtendo localização...','ok');
+  try{
+    const pos=await new Promise(function(ok,erro){navigator.geolocation.getCurrentPosition(ok,erro,{enableHighAccuracy:true,timeout:15000,maximumAge:0});});
+    const end=await sfEnderecoPorCoordenadas(pos.coords.latitude,pos.coords.longitude);
+    if(!end.logradouro){ toast('Não encontrei o nome da rua neste ponto. Digite o endereço.','err'); return; }
+    const vals={sfLogradouro:end.logradouro,sfNumero:end.numero,sfBairro:end.bairro};
+    ids.forEach(function(id){
+      const el=document.getElementById(id); if(!el) return;
+      if(id==='sfBairro'&&!vals[id]) return; // mapa sem bairro: mantém o que já estava
+      el.value=vals[id];
+      el.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    const prec=Math.round((pos.coords&&pos.coords.accuracy)||0);
+    toast('Endereço preenchido'+(prec?' (precisão de cerca de '+prec+' m)':'')+'. Confira antes de salvar.','ok');
+  }catch(e){
+    let msg;
+    if(e&&typeof e.code==='number'){
+      msg=e.code===1?'Localização negada. Habilite nas configurações do site.':(e.code===3?'A localização demorou demais. Tente de novo em local aberto.':'Não foi possível obter a localização agora.');
+    } else {
+      msg='Não foi possível obter o endereço: '+((e&&e.message)?e.message:'falha de conexão')+'.';
+    }
+    toast(msg,'err');
+  }finally{ if(btn){btn.disabled=false;btn.classList.remove('sf-ico-carregando');} }
+}
+
 function sfMascaraHora(inp){
   let v=inp.value.replace(/\D/g,'').substring(0,4);
   if(v.length>=3) v=v.substring(0,2)+':'+v.substring(2);
@@ -10923,6 +11055,19 @@ function sfMascaraHora(inp){
     if(m>59) v=v.split(':')[0]+':59';
   }
   inp.value=v;
+  if(inp.id==='sfHora') sfHoraSincPicker(); // mantém o relógio igual ao que foi digitado
+}
+// O relógio (seletor nativo) e o campo digitado andam juntos
+function sfHoraSincPicker(){
+  const t=document.getElementById('sfHora'), p=document.getElementById('sfHoraPicker');
+  if(!t||!p) return;
+  p.value=/^([01]\d|2[0-3]):[0-5]\d$/.test(t.value)?t.value:'';
+}
+function sfHoraDoRelogio(p){
+  const t=document.getElementById('sfHora'); if(!t) return;
+  t.value=p.value||'';
+  t.dispatchEvent(new Event('input',{bubbles:true}));
+  t.dispatchEvent(new Event('change',{bubbles:true}));
 }
 function sfMascaraPlaca(inp){
   // Remove tudo que não é alfanumérico, uppercase
@@ -11103,6 +11248,11 @@ function sfToggleCamposCNH(sel){
 function sfToggleOutroTipo(){const v=document.getElementById('sfTipo').value;document.getElementById('sfTipoOutroWrap').style.display=v==='OUTROS'?'block':'none';}
 function sfToggleCameraOrigem(){const v=document.querySelector('input[name="sfCameras"]:checked')?.value;document.getElementById('sfCameraOrigemWrap').style.display=v==='SIM'?'block':'none';}
 function sfToggleTipoVestigios(){const ck=document.getElementById('sfCkVestigios');document.getElementById('sfTipoVestigiosWrap').style.display=ck&&ck.checked?'block':'none';}
+function sfToggleVisOutros(){
+  const ck=document.getElementById('sfCkVisOutros'), w=document.getElementById('sfVisOutrosWrap');
+  if(w) w.style.display=ck&&ck.checked?'block':'none';
+  if(ck&&ck.checked){ const t=document.getElementById('sfVisOutros'); if(t) setTimeout(function(){t.focus();},50); }
+}
 function sfToggleDetSin(){const ck=document.getElementById('sfCkSinDef');document.getElementById('sfDetSinWrap').style.display=ck&&ck.checked?'block':'none';}
 function sfToggleConservSin(){const ck=document.getElementById('sfCkSinBom');document.getElementById('sfConservSinWrap').style.display=ck&&ck.checked?'block':'none';}
 document.addEventListener('change',function(e){
@@ -11115,7 +11265,7 @@ function sfColetarDados() {
   const tipo=document.getElementById('sfTipo').value;
   const tipoFinal=tipo==='OUTROS'?(document.getElementById('sfTipoOutro').value||'OUTROS').toUpperCase():tipo;
   const checkboxes={};
-  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente'};
+  const ckMap={'sfCkVestigios':'ck_vestigios','sfCkPavimento':'ck_pavimento_irregular','sfCkTampas':'ck_tampas_grelhas','sfCkCalcada':'ck_calcada_deficiente','sfCkSinDef':'ck_sinalizacao_deficiente','sfCkSemaforo':'ck_semaforo_falha','sfCkSinBom':'ck_sinalizacao_bom_estado','sfCkCurva':'ck_trecho_curva','sfCkVisib':'ck_visibilidade_dificil','sfCkIlum':'ck_iluminacao_deficiente','sfCkVisOutros':'ck_visibilidade_outros'};
   Object.entries(ckMap).forEach(([domId,dataKey])=>{checkboxes[dataKey]=document.getElementById(domId)?.checked||false;});
 
   const veiculos=sfVeiculosAtivos.map(id=>{
@@ -11188,6 +11338,7 @@ function sfColetarDados() {
     detPavimento:(document.getElementById('sfDetPavimento').value||'').toUpperCase(),
     tipoSinaliz:document.querySelector('input[name="sfTipoSinaliz"]:checked')?.value||'',
     detSin:(document.getElementById('sfDetSin').value||'').toUpperCase(),
+    visibilidadeOutros:checkboxes.ck_visibilidade_outros?(document.getElementById('sfVisOutros')?.value||'').trim().toUpperCase():'',
     velocidade:(document.getElementById('sfVelocidade').value||'').toUpperCase(),
     excVelocidade:(document.getElementById('sfExcVel').value||'').toUpperCase(),
     radar:document.querySelector('input[name="sfRadar"]:checked')?.value||'NÃO',
@@ -11218,7 +11369,7 @@ async function sfSalvar() {
     // Se era novo, guarda o ID para que salvas seguintes virem update
     if(isNovo&&res.id){ sfEditandoId=res.id; document.getElementById('sfModalTit').textContent='\u270f EDITAR SINISTRO FATAL'; }
     // Atualiza lista em background sem fechar o modal
-    await sfCarregar();
+    await sfCarregar(false,true); // rápido: sem a confirmação extra de lista vazia
     // Feedback visual no botão — fica verde por 2,5s e volta ao normal
     toast('✓ Salvo! Clique em × ou gere o PDF para encerrar.','ok');
     btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
@@ -11315,12 +11466,19 @@ async function sfGerarPDF() {
   if(!temDados){toast('Preencha ao menos o logradouro antes de gerar o PDF.','err');return;}
   // Salvar silenciosamente antes de gerar para garantir dados na planilha
   toast('Salvando antes de gerar o PDF...','ok');
+  const pre=sfColetarDados();
+  const faltam=[]; // mesmos campos que sfSalvarSilencioso exige para gravar
+  if(!pre.data)faltam.push('Data'); if(!pre.hora)faltam.push('Hora'); if(!pre.tipo)faltam.push('Tipo');
+  if(!pre.logradouro)faltam.push('Logradouro'); if(!pre.bairro)faltam.push('Bairro');
   const salvouOk = await sfSalvarSilencioso();
   if(!salvouOk){
-    if(!confirm('Não foi possível salvar os dados antes de gerar o PDF.\n\nDeseja gerar o PDF mesmo assim?')) return;
+    const motivo = faltam.length ? 'Faltam campos obrigatórios para salvar: '+faltam.join(', ')+'.' : 'Não foi possível salvar (falha de conexão com o servidor).';
+    if(!confirm('⚠ OS DADOS NÃO FORAM SALVOS NA PLANILHA.\n\n'+motivo+'\n\nO PDF pode ser gerado assim, mas se você fechar o formulário os dados serão perdidos.\n\nGerar o PDF mesmo assim?')) return;
   }
   const dados=sfColetarDados();
-  await sfGerarPDFComDados(dados, true);
+  // Sem ter salvo, não oferece "encerrar o formulário" depois do PDF (fechar apagaria tudo o que foi digitado)
+  await sfGerarPDFComDados(dados, salvouOk);
+  if(!salvouOk) toast('PDF gerado, mas os dados NÃO estão salvos. Complete os campos e use "Salvar na Nuvem" antes de fechar.','err');
 }
 
 async function sfGerarPDFComDados(dados, perguntarFechar=true) {
@@ -11341,14 +11499,15 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   try{imgCab=await loadImg(urlCab);}catch(e){}
   try{imgRod=await loadImg(urlRod);}catch(e){}
   function addCab(){if(imgCab){doc.addImage(imgCab,'JPEG',mE,2,lMax,altCab-2);}doc.setFillColor(127,0,0);doc.rect(mE,altCab+1,lMax,9,'F');doc.setFont('helvetica','bold');doc.setFontSize(13);doc.setTextColor(255,255,255);const t='RELATÓRIO DE SINISTRO FATAL - AMC';doc.text(t,(210-doc.getTextWidth(t))/2,altCab+7);doc.setTextColor(0,0,0);}
-  function addRod(){if(imgRod){doc.addImage(imgRod,'JPEG',mE,altPag-altRod,lMax,altRod);}doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100);doc.text('Página '+pagAtual,200-doc.getTextWidth('Página '+pagAtual),altPag-2);}
+  function addRod(){if(imgRod){doc.addImage(imgRod,'JPEG',mE,altPag-altRod,lMax,altRod);}}
   function novaPagina(){addRod();doc.addPage();pagAtual++;addCab();y=altCab+18;}
   function verificar(h){if(y+h>altPag-altRod-10){novaPagina();}}
-  function addTit(txt){verificar(12);doc.setFillColor(127,0,0);doc.rect(mE,y-3,lMax,9,'F');doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(255,255,255);doc.text(txt.toUpperCase(),mE+3,y+3);y+=12;doc.setTextColor(0,0,0);}
-  function addSubTit(txt){verificar(8);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(127,0,0);doc.text(txt.toUpperCase(),mE,y);y+=6;doc.setTextColor(0,0,0);}
+  function addTit(txt,reserva){verificar(12+(reserva===undefined?20:reserva));doc.setFillColor(127,0,0);doc.rect(mE,y-3,lMax,9,'F');doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(255,255,255);doc.text(txt.toUpperCase(),mE+3,y+3);y+=12;doc.setTextColor(0,0,0);}
+  function addSubTit(txt){verificar(18);doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(127,0,0);doc.text(txt.toUpperCase(),mE,y);y+=6;doc.setTextColor(0,0,0);}
   function addCampoSub(rot,val){if(!val||!String(val).trim())return;verificar(6);doc.setFontSize(8.5);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(100,30,30);doc.text(rot+':',mE+6,y);doc.setFont('helvetica','normal');doc.setTextColor(40,40,40);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-8);doc.text(ls,mE+6+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
   function addCampo(rot,val,indent=2){if(!val||!String(val).trim())return;verificar(5);doc.setFontSize(10);doc.setFont('helvetica','bold');const rW=doc.getTextWidth(rot+': ');doc.setTextColor(127,0,0);doc.text(rot+':',mE+indent,y);doc.setFont('helvetica','normal');doc.setTextColor(0,0,0);const ls=doc.splitTextToSize(String(val).toUpperCase(),lMax-rW-indent-2);doc.text(ls,mE+indent+rW,y);y+=Math.max(ls.length,1)*4.5+1;}
-  function addCaixa(txt,rotulo){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';const pad=4;const xT=mE+3+pad;const lT=lMax-3-(2*pad)-2;doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lT);const eL=5.2;const aT=ls.length*eL;const h=aT+(2*pad)+2;const hR=rotulo?5:0;verificar(h+6+hR);/* checa rótulo+caixa juntos, antes de desenhar qualquer um — nunca separa um do outro entre páginas */if(rotulo){doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);doc.text(rotulo,mE+2,y);y+=4;doc.setTextColor(0,0,0);}doc.setFillColor(248,248,248);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.roundedRect(mE,y,lMax,h,2,2,'FD');doc.setFillColor(127,0,0);doc.rect(mE,y,3,h,'F');doc.setTextColor(0,0,0);const yB=y+pad+3.5;ls.forEach((l,i)=>doc.text(l,xT,yB+(i*eL)));y+=h+5;}
+  function addCaixa(txt,rotulo){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';const pad=4;const xT=mE+3+pad;const lT=lMax-3-(2*pad)-2;doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lT);const eL=5.2;const aT=ls.length*eL;const h=aT+(2*pad)+2;const hR=rotulo?5:0;verificar(h+6+hR);/* checa rótulo+caixa juntos, antes de desenhar qualquer um — nunca separa um do outro entre páginas */if(rotulo){doc.setFont('helvetica','italic');doc.setFontSize(8);doc.setTextColor(120);doc.text(rotulo,mE+2,y);y+=4;doc.setTextColor(0,0,0);doc.setFont('helvetica','normal');doc.setFontSize(10);}doc.setFillColor(248,248,248);doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.roundedRect(mE,y,lMax,h,2,2,'FD');doc.setFillColor(127,0,0);doc.rect(mE,y,3,h,'F');doc.setTextColor(0,0,0);const yB=y+pad+3.5;ls.forEach((l,i)=>doc.text(l,xT,yB+(i*eL)));y+=h+5;}
+  function reservarTitCaixa(txt){const t=txt?.trim()?txt.toUpperCase():'NENHUM DADO INFORMADO';doc.setFont('helvetica','normal');doc.setFontSize(10);const ls=doc.splitTextToSize(t,lMax-3-(2*4)-2);verificar(12+(ls.length*5.2)+(2*4)+2+6);}
   function addChecklist(items){const colW=lMax/2;let col=0,maxL=1;doc.setFontSize(10);const its=items.map(it=>({...it,label:it.label.toUpperCase(),linhas:doc.splitTextToSize(it.label.toUpperCase(),colW-12)}));verificar(Math.ceil(its.length/2)*6+4);its.forEach((item,idx)=>{const x=mE+(col*colW);if(item.checked){doc.setFillColor(127,0,0);doc.rect(x,y-3.5,4,4,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);doc.text('X',x+0.8,y-0.5);}else{doc.setDrawColor(180,180,180);doc.setLineWidth(0.3);doc.rect(x,y-3.5,4,4,'D');}doc.setFontSize(10);doc.setFont('helvetica',item.checked?'bold':'normal');doc.setTextColor(item.checked?40:150,item.checked?10:100,item.checked?10:100);doc.text(item.linhas,x+6,y);maxL=Math.max(maxL,item.linhas.length);col++;if(col>=2){col=0;y+=maxL*5.5+1;maxL=1;}});if(col!==0)y+=maxL*5.5+1;y+=2;}
 
   addCab();
@@ -11375,22 +11534,17 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
     y+=2;verificar(0);
   });
   // 4
-  {
-    const t4=dados.dinamica?.trim()?dados.dinamica.toUpperCase():'NENHUM DADO INFORMADO';
-    const ls4=doc.splitTextToSize(t4,lMax-3-8-2);
-    const h4=(ls4.length*5.2)+10;
-    verificar(12+h4+6); // reserva título+caixa juntos — se não couber, pula os dois pra próxima página
-  }
-  addTit('4. Dinâmica do Sinistro'); addCaixa(dados.dinamica); y+=2;
+  reservarTitCaixa(dados.dinamica); // título+caixa juntos — se não couber, pula os dois pra próxima página
+  addTit('4. Dinâmica do Sinistro',0); addCaixa(dados.dinamica); y+=2;
   // 5
-  addTit('5. Fatores de Risco');
+  addTit('5. Fatores de Risco',34);
   // ── 5. FATORES DE RISCO ────────────────────────────────────────────────────
   const motoTiposFat=['MOTOCICLETA','QUADRICICLO','BICICLETA'];
   const cks=dados.checkboxes||{};
 
   // 5a — EPI por envolvido
   const envFiltrados5=(dados.envolvidos||[]).filter(e=>e.vinculo!=='ANIMAL'&&e.vinculo!=='NÃO IDENTIFICADO'&&e.vinculo!=='');
-  function addBloco(titulo){y+=2;verificar(12);doc.setFillColor(245,245,245);doc.setDrawColor(180,180,180);doc.setLineWidth(0.2);doc.rect(mE,y-3,lMax,9,'FD');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80,80,80);doc.text(titulo.toUpperCase(),mE+3,y+3);y+=11;doc.setTextColor(0,0,0);}
+  function addBloco(titulo){y+=2;verificar(32);doc.setFillColor(245,245,245);doc.setDrawColor(180,180,180);doc.setLineWidth(0.2);doc.rect(mE,y-3,lMax,9,'FD');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80,80,80);doc.text(titulo.toUpperCase(),mE+3,y+3);y+=11;doc.setTextColor(0,0,0);}
   if(envFiltrados5.length){
     addBloco('5a. Equipamentos de Proteção Individual (EPI)');
     envFiltrados5.forEach((e,idx)=>{
@@ -11437,7 +11591,8 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
 
   // 5e — Visibilidade
   addBloco('5e. Visibilidade e Iluminação');
-  addChecklist([{label:'Trecho em curva',checked:cks.ck_trecho_curva},{label:'Dificuldade de visibilidade',checked:cks.ck_visibilidade_dificil},{label:'Iluminação deficiente',checked:cks.ck_iluminacao_deficiente}]);
+  addChecklist([{label:'Trecho em curva',checked:cks.ck_trecho_curva},{label:'Dificuldade de visibilidade',checked:cks.ck_visibilidade_dificil},{label:'Iluminação deficiente',checked:cks.ck_iluminacao_deficiente},{label:'Outros',checked:cks.ck_visibilidade_outros}]);
+  if(cks.ck_visibilidade_outros&&(dados.visibilidadeOutros||'').trim()){ addCaixa(dados.visibilidadeOutros,'Outros (visibilidade e iluminação):'); }
   y+=2;
   // 5f — Câmeras (bloco próprio)
   addBloco('5f. Monitoramento');
@@ -11470,11 +11625,9 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   Object.entries(dados.orgaos||{}).forEach(([tipo,arr])=>{if(!arr||!arr.length)return;addSubTit(orgNomes[tipo]||tipo.toUpperCase());arr.forEach(o=>{if(tipo==='pefoce')addCampo('VTR '+(o.vtr||'—'),'PERITO: '+(o.perito||'—')+' | MOTORISTA: '+(o.motorista||'—'));else if(tipo==='samu')addCampo('VTR '+(o.vtr||'—'),'MÉDICO: '+(o.medico||'—')+' | ENF: '+(o.enfermeiro||'—')+' | MOT: '+(o.motorista||'—'));else if(tipo==='rabecao')addCampo('VTR '+(o.vtr||'—'),'MOTORISTA: '+(o.motorista||'—')+' | AUXILIAR: '+(o.auxiliar||'—'));else if(tipo==='outros')addCampo(o.orgao||'—',o.info||'');else addCampo('VTR '+(o.vtr||'—'),(o.agentes||o.equipe||'—').replace(/[,;\s]+$/,''));});});
   y+=2;
   // 8
-  if(!dados.testemunhas||!dados.testemunhas.length){
-    const t8=doc.splitTextToSize('NENHUMA TESTEMUNHA REGISTRADA',lMax-3-8-2);
-    verificar(12+(t8.length*5.2)+10+6); // título + caixa juntos, mesma proteção do item 4
-  }
-  addTit('8. Testemunhas');
+  const temTest8=!!(dados.testemunhas&&dados.testemunhas.length);
+  if(!temTest8){ reservarTitCaixa('NENHUMA TESTEMUNHA REGISTRADA'); } // título + caixa juntos
+  addTit('8. Testemunhas',temTest8?undefined:0);
   if(dados.testemunhas&&dados.testemunhas.length){
     dados.testemunhas.forEach((t,i)=>{addSubTit('Testemunha '+(i+1));addCampo('NOME',t.nome||'—');if(t.telefone)addCampo('TELEFONE',t.telefone);if(t.doc)addCampo('RG/CPF',t.doc);if(t.declaracao)addCaixa(t.declaracao);});
   } else {
@@ -11486,7 +11639,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   const imgsB64=(dados.imagens||[]).filter(u=>u&&u.startsWith('data:'));
   const todasImgs=[...imgsUrl,...imgsB64];
   if(todasImgs.length){
-    addTit('9. Imagens do Local');
+    addTit('9. Imagens do Local',95);
     let cnt=0;
     for(const imgSrc of todasImgs){
       if(cnt>=8)break; cnt++;
@@ -11527,10 +11680,10 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
     y+=2;
   }
   // 10
-  addTit('10. Observações'); addCaixa(dados.observacoes);
+  reservarTitCaixa(dados.observacoes); addTit('10. Observações',0); addCaixa(dados.observacoes);
   addRod();
   const total=doc.getNumberOfPages();
-  for(let p=1;p<=total;p++){doc.setPage(p);doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100);doc.text('Página '+p+' de '+total,200-doc.getTextWidth('Página '+p+' de '+total),altPag-2);}
+  for(let p=1;p<=total;p++){doc.setPage(p);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80);doc.text('Página '+p+' de '+total,200-doc.getTextWidth('Página '+p+' de '+total),altPag-6);}
   doc.save(fileName);
   sfPdfGerado=true;
   toast('PDF gerado com sucesso!','ok');
@@ -11551,7 +11704,7 @@ async function sfExecutarBusca(){
   const txt=(document.getElementById('sfSrchTxt').value||'').trim().toUpperCase();
   if(!de&&!ate&&!txt){toast('Informe ao menos um critério.','err');return;}
   try{
-    const filtro=G.role==='supervisor'?{de,ate,txt,savedBy:G.name}:{de,ate,txt};
+    const filtro={de,ate,txt}; // busca também em todos os registros; só o dono edita
     const r=await apiFatais('searchSinistrosFatais',filtro);
     sfSearchResults=r.data||[]; sfSearchMode=true;
     const info=document.getElementById('sfSearchInfo');
@@ -11964,6 +12117,19 @@ textarea.sf-input { resize: vertical; min-height: 70px; touch-action: pan-y; }
 select.sf-input { text-transform: none; }
 .sf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .sf-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+/* Campo com ícone dentro (hora e endereço) */
+.sf-input-ico{position:relative;}
+.sf-input-ico .sf-input{padding-right:44px;}
+.sf-ico-btn{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:transparent;border:none;border-radius:8px;color:var(--text2);font-size:16px;cursor:pointer;padding:0;}
+.sf-ico-btn:hover{color:var(--accent2);background:rgba(96,165,250,0.14);}
+.sf-ico-btn:disabled{opacity:.6;cursor:wait;}
+.sf-ico-passivo{pointer-events:none;}
+@keyframes sfGiro{to{transform:rotate(360deg);}}
+.sf-ico-btn.sf-ico-carregando i{animation:sfGiro 1s linear infinite;}
+/* Seletor de hora nativo, transparente por cima do ícone: o toque/clique abre o relógio do próprio aparelho */
+.sf-ico-picker{position:absolute;right:0;top:0;width:44px;height:100%;opacity:0;border:0;padding:0;margin:0;cursor:pointer;background:transparent;}
+.sf-ico-picker::-webkit-calendar-picker-indicator{position:absolute;left:0;top:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;}
+@supports (-moz-appearance:none){.sf-ico-picker{display:none;}}
 .sf-item {
   background: rgba(198,40,40,0.07); border: 1px solid rgba(198,40,40,0.25);
   border-left: 4px solid #c62828; border-radius: 8px; padding: 12px 42px 12px 12px;
@@ -12100,7 +12266,7 @@ select.sf-input { text-transform: none; }
 
 <!-- ── MODAL FORMULÁRIO COMPLETO ── -->
 <div id="sfModal" class="cov" style="z-index:870;align-items:flex-end;">
- <div id="sfModalBox" style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;will-change:scroll-position;touch-action:pan-y;">
+ <div id="sfModalBox" style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;width:100%;max-width:680px;max-height:90vh;max-height:min(90vh,100%);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;will-change:scroll-position;touch-action:pan-y;">
 
     <!-- Cabeçalho -->
     <div id="sfModalHeader" style="background:linear-gradient(135deg,#7f0000,#c62828);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-radius:16px 16px 0 0;margin:-0px;position:sticky;top:0;z-index:5;">
@@ -12115,7 +12281,12 @@ select.sf-input { text-transform: none; }
         <div class="sf-section-title"><i class="fas fa-info-circle"></i> 1. Dados Gerais</div>
         <div class="sf-row">
           <div><label class="sf-label">Data *</label><input type="date" class="sf-input" id="sfData"></div>
-          <div><label class="sf-label">Hora *</label><input type="text" class="sf-input" id="sfHora" placeholder="HH:MM" maxlength="5" inputmode="numeric" oninput="sfMascaraHora(this)"></div>
+          <div><label class="sf-label">Hora *</label>
+            <div class="sf-input-ico">
+              <input type="text" class="sf-input" id="sfHora" placeholder="HH:MM" maxlength="5" inputmode="numeric" oninput="sfMascaraHora(this)">
+              <span class="sf-ico-btn sf-ico-passivo"><i class="fas fa-clock"></i></span>
+              <input type="time" class="sf-ico-picker" id="sfHoraPicker" title="Escolher a hora" aria-label="Escolher a hora" tabindex="-1" onpointerdown="sfHoraSincPicker()" onfocus="sfHoraSincPicker()" onchange="sfHoraDoRelogio(this)">
+            </div></div>
         </div>
         <label class="sf-label">Tipo de Sinistro *</label>
         <select class="sf-input" id="sfTipo" onchange="sfToggleOutroTipo()">
@@ -12130,7 +12301,10 @@ select.sf-input { text-transform: none; }
         </select>
         <div id="sfTipoOutroWrap" style="display:none;"><label class="sf-label">Especifique *</label><input type="text" class="sf-input" id="sfTipoOutro" placeholder="Tipo do sinistro"></div>
         <label class="sf-label">Logradouro *</label>
-        <input type="text" class="sf-input" id="sfLogradouro" placeholder="AV. PRESIDENTE CASTELO BRANCO">
+        <div class="sf-input-ico">
+          <input type="text" class="sf-input" id="sfLogradouro" placeholder="AV. PRESIDENTE CASTELO BRANCO">
+          <button type="button" class="sf-ico-btn" id="sfLocBtn" title="Preencher o endereço com a minha localização atual" aria-label="Preencher o endereço com a minha localização atual" onclick="sfUsarLocalizacao()"><i class="fas fa-map-marker-alt"></i></button>
+        </div>
         <div class="sf-row">
           <div><label class="sf-label">Número / Referência</label><input type="text" class="sf-input" id="sfNumero" placeholder="2210"></div>
           <div><label class="sf-label">Bairro *</label><input type="text" class="sf-input" id="sfBairro" placeholder="CARLITO PAMPLONA"></div>
@@ -12235,6 +12409,10 @@ select.sf-input { text-transform: none; }
             <label class="sf-ck-item"><input type="checkbox" id="sfCkCurva"> Trecho em curva</label>
             <label class="sf-ck-item"><input type="checkbox" id="sfCkVisib"> Dificuldade de visibilidade</label>
             <label class="sf-ck-item"><input type="checkbox" id="sfCkIlum"> Iluminação deficiente</label>
+            <label class="sf-ck-item"><input type="checkbox" id="sfCkVisOutros" onchange="sfToggleVisOutros()"> Outros</label>
+          </div>
+          <div id="sfVisOutrosWrap" style="display:none;margin-top:8px;">
+            <textarea class="sf-input" id="sfVisOutros" rows="2" maxlength="300" placeholder="Descreva o que prejudicou a visibilidade ou a iluminação"></textarea>
           </div>
         </div>
 
@@ -12320,6 +12498,7 @@ select.sf-input { text-transform: none; }
       <div class="sf-section">
         <div class="sf-section-title"><i class="fas fa-images"></i> 9. Imagens do Local</div>
         <p style="color:var(--text3);font-size:12px;margin:0 0 8px;">Adicione até 8 fotos do local. Fotos salvas no Google Drive.</p>
+        <div id="sfAvisoFotosNovo" style="display:none;margin:0 0 10px;padding:8px 10px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.45);color:var(--gold);font-size:13px;line-height:1.4;"><i class="fas fa-exclamation-triangle"></i> Para as fotos saírem no PDF, gere o PDF antes de fechar este formulário. Depois de fechado, as fotos ficam salvas, mas não entram em PDFs novos.</div>
         <div class="sf-img-grid" id="sfImgContainer"></div>
       </div>
 
