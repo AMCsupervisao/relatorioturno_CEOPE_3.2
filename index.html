@@ -921,10 +921,10 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 <div class="lesqueceu-modal" id="esqueceuModal">
   <div class="lesqueceu-box">
     <div class="lesqueceu-icon">🔑</div>
-    <div class="lesqueceu-title">Redefinir Senha</div>
+    <div class="lesqueceu-title">Esqueci minha senha</div>
     <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;">
-      Informe seu CPF para redefinir sua senha para o padrão.<br>
-      Você precisará criar uma nova senha no próximo acesso.
+      Informe seu CPF para registrar o pedido de nova senha.<br>
+      O administrador do sistema vai gerar uma senha temporária e entregar a você. No próximo acesso você cria a sua.
     </div>
     <div style="margin-bottom:12px;">
       <label style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,255,255,0.35);text-transform:uppercase;display:block;margin-bottom:6px;">CPF</label>
@@ -935,7 +935,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
     <div id="esqueceuErr" style="display:none;color:#f87171;font-size:12px;text-align:center;margin-bottom:10px;padding:8px;background:rgba(239,68,68,0.08);border-radius:6px;"></div>
     <div style="display:flex;gap:8px;">
       <button onclick="fecharEsqueceuSenha()" style="flex:1;padding:11px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:rgba(255,255,255,0.5);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Cancelar</button>
-      <button id="esqueceuBtn" onclick="esqueceuConfirmar()" style="flex:2;padding:11px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Redefinir Senha</button>
+      <button id="esqueceuBtn" onclick="esqueceuConfirmar()" style="flex:2;padding:11px;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Solicitar nova senha</button>
     </div>
   </div>
 </div>
@@ -1047,7 +1047,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
       </div>
       <button class="bpdf" onclick="gerarPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
       <button id="btnLimpar" class="bcarregar" onclick="limparTudo()" style="display:none;background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#f87171;"><i class="fas fa-trash"></i> Limpar</button>
-      <button id="btnSenhas" class="bcarregar" onclick="abrirSenhas()" style="display:none;"><i class="fas fa-key"></i> Senhas</button>
+      
 
     </div>
   </div>
@@ -1995,70 +1995,23 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
   </div>
 </div>
 
-<!-- Modal Senhas -->
-<div id="modalSenhas" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:28px 22px;width:100%;max-width:360px;">
-    <h3 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;margin-bottom:20px;color:var(--text);">🔑 Gerenciar Senhas</h3>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Perfil</label>
-      <select id="spPerfil" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;-webkit-appearance:none;">
-        <option value="admin">Administrador</option>
-        <option value="supervisor">Supervisor do Turno</option>
-        <option value="central">Central</option>
-        <option value="chefia">Chefia</option>
-        <option value="operadorvl">Operador Via Livre</option>
-      </select>
-    </div>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Nova Senha</label>
-      <input type="password" id="spNova" placeholder="Nova senha..." autocomplete="new-password" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;box-sizing:border-box;text-transform:none;">
-    </div>
-    <div style="margin-bottom:20px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Confirmar</label>
-      <input type="password" id="spConfirm" placeholder="Repita..." autocomplete="new-password" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;box-sizing:border-box;text-transform:none;">
-    </div>
-    <div id="spErr" style="color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;display:none;"></div>
+<div id="adminSenhaTempModal" style="position:fixed;inset:0;z-index:950;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:24px;max-width:360px;width:100%;text-align:center;">
+    <div style="font-size:34px;margin-bottom:8px;">🔑</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px;">Senha temporária de <span id="adminSenhaTempNome"></span></div>
+    <div id="adminSenhaTempValor" style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:700;letter-spacing:3px;color:var(--accent2);background:var(--surface3);border-radius:10px;padding:14px;margin:14px 0;user-select:all;"></div>
+    <div style="font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:16px;">Entregue à pessoa <b>pessoalmente</b>. Ela aparece <b>somente agora</b> e não fica registrada em lugar nenhum. No próximo acesso a pessoa será obrigada a criar a própria senha.</div>
     <div style="display:flex;gap:8px;">
-      <button onclick="fecharSenhas()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Cancelar</button>
-      <button id="btnSalvarSenha" onclick="salvarSenha()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--verde2),var(--verde));border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
+      <button onclick="adminCopiarSenhaTemp()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;">Copiar</button>
+      <button onclick="adminFecharSenhaTemp()" style="flex:1;padding:12px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;cursor:pointer;">Concluir</button>
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <div class="cov" id="confDlg">
   <div class="cbox"><h3 id="confT">Confirmar</h3><p id="confM"></p>
     <div class="cbtns"><button class="cno" onclick="cc(false)">Não</button><button class="cyes" id="confY" onclick="cc(true)">Sim</button></div>
-  </div>
-</div>
-
-<!-- Modal Senhas -->
-<div id="modalSenhas" style="position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:14px;padding:28px 22px;width:100%;max-width:360px;">
-    <h3 style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;margin-bottom:20px;color:var(--text);">🔑 Gerenciar Senhas</h3>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Perfil</label>
-      <select id="spPerfil" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;-webkit-appearance:none;">
-        <option value="admin">Administrador</option>
-        <option value="supervisor">Supervisor do Turno</option>
-        <option value="central">Central</option>
-        <option value="chefia">Chefia</option>
-      </select>
-    </div>
-    <div style="margin-bottom:12px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Nova Senha</label>
-      <input type="password" id="spNova" placeholder="Nova senha..." autocomplete="new-password" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;box-sizing:border-box;text-transform:none;">
-    </div>
-    <div style="margin-bottom:20px;">
-      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);text-transform:uppercase;display:block;margin-bottom:6px;">Confirmar</label>
-      <input type="password" id="spConfirm" placeholder="Repita..." autocomplete="new-password" style="width:100%;padding:13px;background:var(--navy2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-size:15px;outline:none;box-sizing:border-box;text-transform:none;">
-    </div>
-    <div id="spErr" style="color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;display:none;"></div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="fecharSenhas()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Cancelar</button>
-      <button id="btnSalvarSenha" onclick="salvarSenha()" style="flex:2;padding:12px;background:linear-gradient(135deg,var(--verde2),var(--verde));border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">Salvar</button>
-    </div>
   </div>
 </div>
 
@@ -2068,7 +2021,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-06-v4'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-07-v6'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -2081,14 +2034,12 @@ const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotas
     }
   } catch(e) {}
 })();
-const DPW={admin:'admin2026',supervisor:'sup2026',central:'ceope2026',chefia:'chefia2026',operadorvl:'vl2026'};
 const RL={admin:'Administrador',supervisor:'Supervisor do Turno',central:'Central CEOPE',chefia:'Chefia',operadorvl:'Operador Via Livre'};
 const RC={admin:'ra',supervisor:'rs',central:'rc',chefia:'rc',operadorvl:'rvl'};
 
 let G={
   role:null,name:'',
   data:new Date(),turno:'MANHÃ',
-  pw:{...DPW},
   relatorio:null,
   bloqueado:false,
   desbloqueado:false,
@@ -2173,7 +2124,9 @@ function boot(){
   if(!savedVersion) localStorage.setItem('app_version',APP_VERSION);
   try{
     const sess=localStorage.getItem(LS.session);
-    if(sess){const s=JSON.parse(sess);if(s.role&&s.name){G.role=s.role;G.name=s.name;G.cpf=s.cpf||'';return true;}}
+    if(sess){const s=JSON.parse(sess);
+      if(s.role&&s.name&&s.token&&(!s.exp||s.exp*1000>Date.now())){G.role=s.role;G.name=s.name;G.token=s.token;G.tokenExp=s.exp||0;return true;}
+      localStorage.removeItem(LS.session);}
   }catch(e){}
   return false;
 }
@@ -3579,11 +3532,12 @@ var _loginUsuario = null; // usuário logado temporariamente antes de selecionar
 
 const PERFIL_LABEL = {
   admin:'Administrador', supervisor:'Supervisor do Turno',
-  central:'Central de Operações', chefia:'Chefia', operadorvl:'Operador Via Livre'
+  central:'Central de Operações', chefia:'Chefia', operadorvl:'Operador Via Livre', agente:'Agente de Trânsito'
 };
+const PERFIS_NESTE_SISTEMA = ['admin','supervisor','central','chefia','operadorvl'];
 const PERFIL_COR = {
   admin:'#f59e0b', supervisor:'#10b981', central:'#3b82f6',
-  chefia:'#a78bfa', operadorvl:'#fb923c'
+  chefia:'#a78bfa', operadorvl:'#fb923c', agente:'#94a3b8'
 };
 
 // ── Lembrar CPF ──────────────────────────────────────────────
@@ -3648,7 +3602,7 @@ function abrirEsqueceuSenha() {
     var err = document.getElementById('esqueceuErr');
     if (err) err.style.display = 'none';
     var btn = document.getElementById('esqueceuBtn');
-    if (btn) { btn.disabled=false; btn.textContent='Redefinir Senha'; }
+    if (btn) { btn.disabled=false; btn.textContent='Solicitar nova senha'; }
   }
 }
 
@@ -3666,30 +3620,16 @@ async function esqueceuConfirmar() {
     err.textContent = 'CPF inválido. Verifique e tente novamente.';
     err.style.display = 'block'; return;
   }
-  // Confirmação
-  if (!confirm('Deseja redefinir sua senha para a senha padrão?\n\nVocê precisará criar uma nova senha no próximo acesso.')) return;
-  btn.disabled = true; btn.textContent = 'Redefinindo...';
+  btn.disabled = true; btn.textContent = 'Enviando...';
   try {
-    var r = await api('resetSenhaUsuario', {cpf: cpf});
-    if (r.erro) {
-      err.textContent = r.erro;
-      err.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Redefinir Senha';
-      return;
-    }
+    var r = await api('solicitarResetSenha', {cpf: cpf});
     fecharEsqueceuSenha();
-    toast('Senha redefinida! Use a senha padrão para entrar e crie uma nova.', 'ok');
-    // Preencher CPF na tela de login
-    var cpfLogin = document.getElementById('loginCpf');
-    if (cpfLogin) {
-      var fmt = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-      cpfLogin.value = fmt;
-      document.getElementById('loginPass').focus();
-    }
+    alert((r && r.mensagem) || 'Pedido registrado. Procure o administrador do sistema para receber uma senha temporária.');
   } catch(ex) {
     err.textContent = 'Erro de conexão: ' + ex.message;
     err.style.display = 'block';
-    btn.disabled = false; btn.textContent = 'Redefinir Senha';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Solicitar nova senha';
   }
 }
 
@@ -3734,6 +3674,9 @@ async function doLogin() {
     if (r.erro) { err.textContent = r.erro; err.style.display = 'block'; return; }
     lembrarCpfSalvar(cpf);
     var u = r.data;
+    u.perfis = (u.perfis||[]).filter(function(p){ return PERFIS_NESTE_SISTEMA.indexOf(p) >= 0; });
+    if (!u.perfis.length) { err.textContent = 'Seu usuário não tem acesso a este sistema.'; err.style.display = 'block'; return; }
+    G.token = u.token; G.tokenExp = u.expiraEm || 0;   // chave restrita no primeiro acesso: só serve para trocar a senha
     _loginUsuario = u;
     // Primeiro acesso — trocar senha
     if (u.primeiroAcesso) {
@@ -3776,8 +3719,8 @@ function entrarComPerfil(u, role) {
   document.getElementById('telaPerfilSel').style.display = 'none';
   G.role = role;
   G.name = (u.nomeGuerra || '').toUpperCase();
-  G.cpf  = u.cpf;
-  try { localStorage.setItem(LS.session, JSON.stringify({role:G.role, name:G.name, cpf:G.cpf})); } catch(e) {}
+  G.token = u.token; G.tokenExp = u.expiraEm || 0;
+  salvarSessao();
   initApp();
   aplicarTemaSalvo();
 }
@@ -3815,8 +3758,9 @@ async function confirmarTrocaSenha() {
   btn.disabled = true; btn.textContent = 'Salvando...';
   err.style.display = 'none';
   try {
-    var r = await api('alterarSenha', {cpf: _loginUsuario.cpf, novaSenha: nova});
+    var r = await api('alterarSenha', {novaSenha: nova});
     if (r.erro) { err.textContent = r.erro; err.style.display = 'block'; return; }
+    if (r.token) { _loginUsuario.token = r.token; _loginUsuario.expiraEm = r.expiraEm || 0; G.token = r.token; G.tokenExp = r.expiraEm || 0; }
     toast('Senha alterada com sucesso! ✓', 'ok');
     document.getElementById('telaTrocaSenha').style.display = 'none';
     _loginUsuario.primeiroAcesso = false;
@@ -3833,7 +3777,7 @@ async function confirmarTrocaSenha() {
 
 // ── Gestão Admin ─────────────────────────────────────────────
 var _adminUsuarios = [];
-var _adminEditCpf  = null;
+var _adminEditUid  = null;
 
 async function adminCarregar() {
   var lista = document.getElementById('adminLista');
@@ -3852,7 +3796,7 @@ function adminFiltrar() {
   var perfil = document.getElementById('adminFiltroPerfil').value;
   var status = document.getElementById('adminFiltroStatus').value;
   var lista  = _adminUsuarios.filter(function(u) {
-    var txt = [u.nomeCompleto,u.nomeGuerra,u.cpf,u.matricula].join(' ').toUpperCase();
+    var txt = [u.nomeCompleto,u.nomeGuerra,u.cpfMask,u.matricula].join(' ').toUpperCase();
     var okBusca  = !busca  || txt.includes(busca);
     var okPerfil = !perfil || (u.perfis||[]).includes(perfil);
     var okStatus = !status || (status==='ativo' ? u.ativo!==false : u.ativo===false);
@@ -3861,6 +3805,18 @@ function adminFiltrar() {
   adminRenderLista(lista);
 }
 
+function escAttrAdmin(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest&&ev.target.closest('.admin-user-btns .admin-btn');
+  if(!b)return;
+  var card=b.closest('.admin-user-card');if(!card)return;
+  var uid=card.getAttribute('data-uid');
+  var u=_adminUsuarios.find(function(x){return x.uid===uid;});if(!u)return;
+  var a=b.getAttribute('data-acao');
+  if(a==='editar')adminEditarUsuario(uid);
+  else if(a==='reset')adminResetarSenha(uid,u.nomeGuerra);
+  else if(a==='toggle')adminToggleAtivo(uid,u.ativo!==false);
+});
 function adminRenderLista(lista) {
   var el = document.getElementById('adminLista');
   if (!lista.length) {
@@ -3873,25 +3829,27 @@ function adminRenderLista(lista) {
     var perfisHtml = (u.perfis||[]).map(function(p) {
       return '<span class="admin-perfil-tag" style="background:'+PERFIL_COR[p]+'22;color:'+PERFIL_COR[p]+';border:1px solid '+PERFIL_COR[p]+'44;">'+PERFIL_LABEL[p]+'</span>';
     }).join('');
-    var cpfMask = (u.cpf||'').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-    return '<div class="admin-user-card'+(ativo?'':' inativo')+'" data-cpf="'+u.cpf+'">'
+    var pend = u.resetPendente ? ' <span style="font-size:10px;color:#f59e0b;font-weight:700;">🔔 PEDIU NOVA SENHA</span>' : '';
+    var pa = (u.primeiroAcesso && !u.resetPendente) ? ' <span style="font-size:10px;color:var(--text3);">· ainda não entrou</span>' : '';
+    var uidAttr = escAttrAdmin(u.uid);
+    return '<div class="admin-user-card'+(ativo?'':' inativo')+'" data-uid="'+uidAttr+'">'
       +'<div class="admin-avatar">'+ini+'</div>'
       +'<div class="admin-user-info">'
-      +'<div class="admin-user-nome">'+u.nomeGuerra+(ativo?'':' <span style="font-size:10px;color:var(--red2);">[INATIVO]</span>')+'</div>'
-      +'<div class="admin-user-sub">'+cpfMask+(u.matricula?' · Mat: '+u.matricula:'')+'</div>'
+      +'<div class="admin-user-nome">'+escAttrAdmin(u.nomeGuerra)+(ativo?'':' <span style="font-size:10px;color:var(--red2);">[INATIVO]</span>')+pend+'</div>'
+      +'<div class="admin-user-sub">'+u.cpfMask+(u.matricula?' · Mat: '+escAttrAdmin(u.matricula):'')+pa+'</div>'
       +'<div style="margin-top:4px;">'+perfisHtml+'</div>'
       +'</div>'
       +'<div class="admin-user-btns">'
-      +'<button class="admin-btn" onclick="adminEditarUsuario(\''+u.cpf+'\')">✏️ Editar</button>'
-      +'<button class="admin-btn" onclick="adminResetarSenha(\''+u.cpf+'\',\''+u.nomeGuerra+'\')">🔑 Reset</button>'
-      +'<button class="admin-btn danger" onclick="adminToggleAtivo(\''+u.cpf+'\','+ativo+')">'+(ativo?'🚫 Desativar':'✅ Ativar')+'</button>'
+      +'<button class="admin-btn" data-acao="editar">✏️ Editar</button>'
+      +'<button class="admin-btn" data-acao="reset">🔑 Nova senha</button>'
+      +'<button class="admin-btn danger" data-acao="toggle">'+(ativo?'🚫 Desativar':'✅ Ativar')+'</button>'
       +'</div>'
       +'</div>';
   }).join('');
 }
 
 function adminNovoUsuario() {
-  _adminEditCpf = null;
+  _adminEditUid = null;
   document.getElementById('adminModalTitulo').textContent = 'Novo Usuário';
   document.getElementById('adminNomeCompleto').value = '';
   document.getElementById('adminNomeGuerra').value = '';
@@ -3906,16 +3864,15 @@ function adminNovoUsuario() {
   document.getElementById('adminModal').style.display = 'flex';
 }
 
-function adminEditarUsuario(cpf) {
-  var u = _adminUsuarios.find(function(x){return x.cpf===cpf;});
+function adminEditarUsuario(uid) {
+  var u = _adminUsuarios.find(function(x){return x.uid===uid;});
   if (!u) return;
-  _adminEditCpf = cpf;
+  _adminEditUid = uid;
   document.getElementById('adminModalTitulo').textContent = 'Editar Usuário';
   document.getElementById('adminNomeCompleto').value = u.nomeCompleto||'';
   document.getElementById('adminNomeGuerra').value = u.nomeGuerra||'';
   document.getElementById('adminMatricula').value = u.matricula||'';
-  var cpfFmt = (u.cpf||'').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-  document.getElementById('adminCpf').value = cpfFmt;
+  document.getElementById('adminCpf').value = u.cpfMask || '';
   document.getElementById('adminCpf').disabled = true; // CPF não pode mudar
   document.getElementById('adminAtivo').value = (u.ativo!==false)?'true':'false';
   document.getElementById('adminSenhaInicialWrap').style.display = 'none';
@@ -3928,7 +3885,7 @@ function adminEditarUsuario(cpf) {
 
 function adminFecharModal() {
   document.getElementById('adminModal').style.display = 'none';
-  _adminEditCpf = null;
+  _adminEditUid = null;
 }
 
 async function adminSalvarUsuario() {
@@ -3938,24 +3895,30 @@ async function adminSalvarUsuario() {
   var nomeCompleto = document.getElementById('adminNomeCompleto').value.trim().toUpperCase();
   var nomeGuerra   = document.getElementById('adminNomeGuerra').value.trim().toUpperCase();
   var matricula    = document.getElementById('adminMatricula').value.trim().toUpperCase();
-  var cpf          = limparCpf(document.getElementById('adminCpf').value);
+  var cpf          = _adminEditUid ? '' : limparCpf(document.getElementById('adminCpf').value);
   var ativo        = document.getElementById('adminAtivo').value === 'true';
   var perfis       = [];
   document.querySelectorAll('#adminPerfisWrap input[type=checkbox]:checked').forEach(function(c){perfis.push(c.value);});
   if (!nomeGuerra) { err.textContent='Nome de guerra obrigatório.'; err.style.display='block'; return; }
-  if (cpf.length !== 11) { err.textContent='CPF inválido.'; err.style.display='block'; return; }
+  if (!_adminEditUid && cpf.length !== 11) { err.textContent='CPF inválido.'; err.style.display='block'; return; }
   if (!perfis.length) { err.textContent='Selecione pelo menos um perfil.'; err.style.display='block'; return; }
-  var payload = {cpf,nomeCompleto,nomeGuerra,matricula,perfis,ativo};
-  if (!_adminEditCpf) {
+  var payload = {nomeCompleto,nomeGuerra,matricula,perfis,ativo};
+  if (_adminEditUid) payload.uid = _adminEditUid;
+  else {
+    payload.cpf = cpf;
     var senha = document.getElementById('adminSenhaInicial').value;
-    if (senha.length < 6) { err.textContent='Senha inicial deve ter pelo menos 6 caracteres.'; err.style.display='block'; return; }
-    payload.senhaInicial = senha;
+    if (senha) {
+      if (senha.length < 6) { err.textContent='Senha inicial deve ter pelo menos 6 caracteres.'; err.style.display='block'; return; }
+      payload.senhaInicial = senha;
+    } else if (matricula.replace(/[^A-Z0-9]/g,'').length < 3) {
+      err.textContent='Informe a matrícula (ela é a senha inicial) ou defina uma senha inicial.'; err.style.display='block'; return;
+    }
   }
   btn.disabled = true; btn.textContent = 'Salvando...';
   try {
-    var r = await api(_adminEditCpf ? 'updateUsuario' : 'createUsuario', payload);
+    var r = await api(_adminEditUid ? 'updateUsuario' : 'createUsuario', payload);
     if (r.erro) { err.textContent=r.erro; err.style.display='block'; return; }
-    toast(_adminEditCpf ? 'Usuário atualizado ✓' : 'Usuário criado ✓', 'ok');
+    toast(_adminEditUid ? 'Usuário atualizado ✓' : 'Usuário criado ✓', 'ok');
     adminFecharModal();
     adminCarregar();
   } catch(ex) {
@@ -3965,23 +3928,38 @@ async function adminSalvarUsuario() {
   }
 }
 
-async function adminResetarSenha(cpf, nome) {
-  conf('Resetar Senha', 'Resetar a senha de '+nome+'? O usuário deverá criar nova senha no próximo acesso.', async function() {
+async function adminResetarSenha(uid, nome) {
+  conf('Gerar nova senha', 'Gerar uma senha temporária para '+nome+'? A senha atual deixa de valer e a pessoa fica obrigada a criar uma nova no próximo acesso.', async function() {
     try {
-      var r = await api('resetSenhaUsuario', {cpf});
+      var r = await api('resetSenhaUsuario', {uid: uid});
       if (r.erro) { toast(r.erro,'err'); return; }
-      toast('Senha de '+nome+' resetada ✓','ok');
+      adminMostrarSenhaTemp(nome, r.senhaTemporaria);
+      adminCarregar();
     } catch(ex) { toast('Erro: '+ex.message,'err'); }
   });
 }
+function adminMostrarSenhaTemp(nome, senha) {
+  var m = document.getElementById('adminSenhaTempModal');
+  document.getElementById('adminSenhaTempNome').textContent = nome;
+  document.getElementById('adminSenhaTempValor').textContent = senha;
+  m.style.display = 'flex';
+}
+function adminFecharSenhaTemp() {
+  document.getElementById('adminSenhaTempValor').textContent = '';   // some da tela — só aparece uma vez
+  document.getElementById('adminSenhaTempModal').style.display = 'none';
+}
+function adminCopiarSenhaTemp() {
+  var t = document.getElementById('adminSenhaTempValor').textContent;
+  try { navigator.clipboard.writeText(t); toast('Copiada ✓','ok'); } catch(e) {}
+}
 
-async function adminToggleAtivo(cpf, ativoAtual) {
-  var u = _adminUsuarios.find(function(x){return x.cpf===cpf;});
-  var nome = u ? u.nomeGuerra : cpf;
+async function adminToggleAtivo(uid, ativoAtual) {
+  var u = _adminUsuarios.find(function(x){return x.uid===uid;});
+  var nome = u ? u.nomeGuerra : 'usuário';
   var acao = ativoAtual ? 'Desativar' : 'Ativar';
   conf(acao+' Usuário', acao+' '+nome+'?', async function() {
     try {
-      var r = await api('updateUsuario', {cpf, ativo: !ativoAtual});
+      var r = await api('updateUsuario', {uid: uid, ativo: !ativoAtual});
       if (r.erro) { toast(r.erro,'err'); return; }
       toast(nome+(ativoAtual?' desativado':' ativado')+' ✓','ok');
       adminCarregar();
@@ -4009,257 +3987,12 @@ function aplicarTemaSalvo() {
 }
 // ── fim Tema ──────────────────────────────────────────────────
 
-// ══════════════════════════════════════════════════════════════
-// ▶ IMPORTAÇÃO EM LOTE DE USUÁRIOS
-// ══════════════════════════════════════════════════════════════
-
-var adminImportDados = [];
-
-// ── Download do template CSV ──────────────────────────────────
-function adminBaixarTemplate() {
-  var cabecalho = 'cpf,nomeCompleto,nomeGuerra,matricula,perfis,senhaInicial';
-  var exemplos = [
-    '00000000001,JOSE DA SILVA,SILVA,12345,supervisor,Mudar@2026',
-    '00000000002,MARIA SOUZA,MARIA,12346,central,Mudar@2026',
-    '00000000003,JOAO SANTOS,SANTOS,12347,"supervisor,chefia",Mudar@2026',
-    '00000000004,ANA LIMA,ANA,12348,operadorvl,Mudar@2026',
-  ];
-  var conteudo = cabecalho + '\n' + exemplos.join('\n');
-  var blob = new Blob(['\uFEFF' + conteudo], {type:'text/csv;charset=utf-8;'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'template_usuarios_AMC.csv';
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-  toast('Template baixado! Preencha e importe.','ok');
-}
-
-// ── Abrir/fechar modal import ─────────────────────────────────
-function adminAbrirImport() {
-  adminLimparImport();
-  document.getElementById('adminImportModal').style.display = 'flex';
-}
-function adminFecharImport() {
-  document.getElementById('adminImportModal').style.display = 'none';
-  adminLimparImport();
-}
-function adminLimparImport() {
-  adminImportDados = [];
-  document.getElementById('adminImportPreview').style.display = 'none';
-  document.getElementById('adminImportTbody').innerHTML = '';
-  document.getElementById('adminImportErros').style.display = 'none';
-  document.getElementById('adminImportErr').style.display = 'none';
-  var fi = document.getElementById('adminImportFile');
-  if (fi) fi.value = '';
-}
-
-// ── Processar arquivo CSV ─────────────────────────────────────
-function adminProcessarArquivo(file) {
-  if (!file) return;
-  if (!file.name.toLowerCase().endsWith('.csv')) {
-    toast('Use um arquivo .csv (baixe o template).','err'); return;
-  }
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    var text = e.target.result;
-    // Remover BOM se existir
-    text = text.replace(/^\uFEFF/, '');
-    adminParseCsv(text);
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-function adminParseCsv(text) {
-  var linhas = text.split(/\r?\n/).filter(function(l){ return l.trim(); });
-  if (linhas.length < 2) { toast('Arquivo vazio ou sem dados.','err'); return; }
-
-  // Detectar separador (vírgula ou ponto e vírgula)
-  var sep = linhas[0].includes(';') ? ';' : ',';
-
-  // Parsear CSV respeitando campos entre aspas
-  function parseLinha(linha) {
-    var result = [], cur = '', inQ = false;
-    for (var i = 0; i < linha.length; i++) {
-      var c = linha[i];
-      if (c === '"') { inQ = !inQ; }
-      else if (c === sep && !inQ) { result.push(cur.trim()); cur = ''; }
-      else { cur += c; }
-    }
-    result.push(cur.trim());
-    return result;
-  }
-
-  var cabecalho = parseLinha(linhas[0]).map(function(c){ return c.toLowerCase().replace(/\s/g,''); });
-  var idxCpf    = cabecalho.findIndex(function(c){ return c.includes('cpf'); });
-  var idxNome   = cabecalho.findIndex(function(c){ return c.includes('nomecompleto')||c.includes('nome_completo'); });
-  var idxGuerra = cabecalho.findIndex(function(c){ return c.includes('nomeguerra')||c.includes('guerra'); });
-  var idxMat    = cabecalho.findIndex(function(c){ return c.includes('matricula')||c.includes('matrícula'); });
-  var idxPerfis = cabecalho.findIndex(function(c){ return c.includes('perfis')||c.includes('perfil'); });
-  var idxSenha  = cabecalho.findIndex(function(c){ return c.includes('senha'); });
-
-  if (idxCpf === -1 || idxGuerra === -1 || idxPerfis === -1) {
-    var erroEl = document.getElementById('adminImportErros');
-    erroEl.style.display = 'block';
-    erroEl.innerHTML = '⚠️ Colunas obrigatórias não encontradas. Certifique-se que o arquivo tem: <strong>cpf, nomeGuerra, perfis</strong><br>Use o template baixado para garantir o formato correto.';
-    document.getElementById('adminImportPreview').style.display = 'block';
-    return;
-  }
-
-  var perfisValidos = ['admin','supervisor','central','chefia','operadorvl'];
-  var dados = [], erros = [];
-
-  for (var i = 1; i < linhas.length; i++) {
-    var cols = parseLinha(linhas[i]);
-    if (cols.every(function(c){ return !c; })) continue; // linha vazia
-
-    var cpf     = (cols[idxCpf]||'').replace(/\D/g,'');
-    var nome    = (idxNome>=0    ? cols[idxNome]    : '').toUpperCase().trim();
-    var guerra  = (idxGuerra>=0  ? cols[idxGuerra]  : '').toUpperCase().trim();
-    var mat     = (idxMat>=0     ? cols[idxMat]     : '').toUpperCase().trim();
-    var perfStr = (idxPerfis>=0  ? cols[idxPerfis]  : '').toLowerCase().trim();
-    var senha   = (idxSenha>=0   ? cols[idxSenha]   : 'Mudar@2026').trim() || 'Mudar@2026';
-
-    var erroLinha = [];
-    if (cpf.length !== 11) erroLinha.push('CPF inválido');
-    if (!guerra) erroLinha.push('Nome de guerra vazio');
-
-    // Parsear perfis (pode ser "supervisor,chefia" ou "supervisor")
-    var perfisArr = perfStr.split(/[,;|]/).map(function(p){ return p.trim(); }).filter(Boolean);
-    var perfisInvalidos = perfisArr.filter(function(p){ return !perfisValidos.includes(p); });
-    if (!perfisArr.length) erroLinha.push('Nenhum perfil informado');
-    if (perfisInvalidos.length) erroLinha.push('Perfil inválido: '+perfisInvalidos.join(', '));
-
-    dados.push({
-      linha: i + 1,
-      cpf: cpf,
-      nomeCompleto: nome,
-      nomeGuerra: guerra,
-      matricula: mat,
-      perfis: perfisArr,
-      senhaInicial: senha,
-      erros: erroLinha,
-      ok: erroLinha.length === 0,
-    });
-  }
-
-  adminImportDados = dados;
-  adminRenderPreview(dados);
-}
-
-function adminRenderPreview(dados) {
-  var preview = document.getElementById('adminImportPreview');
-  preview.style.display = 'block';
-
-  var ok    = dados.filter(function(d){ return d.ok; }).length;
-  var erros = dados.filter(function(d){ return !d.ok; }).length;
-
-  var countEl = document.getElementById('adminImportCount');
-  countEl.innerHTML = '<span style="color:#10b981;">✓ '+ok+' válidos</span>'
-    + (erros > 0 ? ' &nbsp;·&nbsp; <span style="color:#f87171;">⚠ '+erros+' com erro</span>' : '');
-
-  var errosEl = document.getElementById('adminImportErros');
-  if (erros > 0) {
-    errosEl.style.display = 'block';
-    errosEl.innerHTML = '<strong>Linhas com erro (serão ignoradas):</strong><br>'
-      + dados.filter(function(d){ return !d.ok; }).map(function(d){
-          return '• Linha '+d.linha+' ('+d.nomeGuerra+'): '+d.erros.join(', ');
-        }).join('<br>');
-  } else {
-    errosEl.style.display = 'none';
-  }
-
-  var perfisLabel = {admin:'Admin',supervisor:'Supervisor',central:'Central',chefia:'Chefia',operadorvl:'Op. VL'};
-  var tbody = document.getElementById('adminImportTbody');
-  tbody.innerHTML = dados.map(function(d) {
-    var cpfFmt = d.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-    var perfisHtml = d.perfis.map(function(p){
-      return '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(99,102,241,0.2);color:#a5b4fc;margin-right:2px;">'+(perfisLabel[p]||p)+'</span>';
-    }).join('');
-    var statusHtml = d.ok
-      ? '<span style="color:#10b981;font-size:11px;">✓ OK</span>'
-      : '<span style="color:#f87171;font-size:10px;" title="'+d.erros.join('; ')+'">⚠ Erro</span>';
-    var rowBg = d.ok ? '' : 'background:rgba(239,68,68,0.05);';
-    return '<tr style="border-bottom:1px solid var(--border);'+rowBg+'">'
-      +'<td style="padding:7px 8px;font-family:\'IBM Plex Mono\',monospace;font-size:11px;color:#fcd34d;">'+cpfFmt+'</td>'
-      +'<td style="padding:7px 8px;font-size:12px;color:var(--text);font-weight:600;">'+d.nomeGuerra+'</td>'
-      +'<td style="padding:7px 8px;font-size:11px;color:var(--text3);">'+d.matricula+'</td>'
-      +'<td style="padding:7px 8px;">'+perfisHtml+'</td>'
-      +'<td style="padding:7px 8px;">'+statusHtml+'</td>'
-      +'</tr>';
-  }).join('');
-
-  // Habilitar botão só se tiver válidos
-  var btn = document.getElementById('adminImportBtn');
-  var validCount = dados.filter(function(d){ return d.ok; }).length;
-  btn.disabled = validCount === 0;
-  btn.style.opacity = validCount === 0 ? '0.5' : '1';
-  btn.textContent = validCount > 0 ? '⬆ Importar '+validCount+' usuário'+(validCount!==1?'s':'') : 'Nenhum válido';
-}
-
-// ── Confirmar importação ──────────────────────────────────────
-async function adminConfirmarImport() {
-  var validos = adminImportDados.filter(function(d){ return d.ok; });
-  if (!validos.length) { toast('Nenhum usuário válido para importar.','err'); return; }
-
-  var btn = document.getElementById('adminImportBtn');
-  var err = document.getElementById('adminImportErr');
-  btn.disabled = true; btn.textContent = 'Importando...';
-  err.style.display = 'none';
-
-  var sucessos = 0, falhas = [], cpfsDuplicados = [];
-
-  // Verificar duplicados contra lista já carregada
-  var cpfsExistentes = new Set(_adminUsuarios.map(function(u){ return u.cpf.replace(/\D/g,''); }));
-
-  for (var i = 0; i < validos.length; i++) {
-    var u = validos[i];
-    if (cpfsExistentes.has(u.cpf)) {
-      cpfsDuplicados.push(u.nomeGuerra + ' ('+u.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4')+')');
-      continue;
-    }
-    try {
-      var r = await api('createUsuario', {
-        cpf: u.cpf,
-        nomeCompleto: u.nomeCompleto,
-        nomeGuerra: u.nomeGuerra,
-        matricula: u.matricula,
-        perfis: u.perfis,
-        senhaInicial: u.senhaInicial,
-        criadoPor: G.name,
-      });
-      if (r.erro) { falhas.push(u.nomeGuerra+': '+r.erro); }
-      else { sucessos++; cpfsExistentes.add(u.cpf); }
-    } catch(ex) {
-      falhas.push(u.nomeGuerra+': '+ex.message);
-    }
-  }
-
-  btn.disabled = false;
-  var msg = '';
-  if (sucessos > 0) msg += sucessos+' usuário'+(sucessos!==1?'s':'')+' importado'+(sucessos!==1?'s':'')+' com sucesso! ';
-  if (cpfsDuplicados.length > 0) msg += cpfsDuplicados.length+' CPF(s) já cadastrado(s) ignorado(s). ';
-  if (falhas.length > 0) {
-    err.style.display = 'block';
-    err.innerHTML = '⚠️ Erros: '+falhas.join('<br>');
-  }
-
-  if (sucessos > 0) {
-    toast(msg.trim(),'ok');
-    await adminCarregar();
-    adminFecharImport();
-  } else {
-    btn.textContent = 'Tentar novamente';
-    btn.disabled = false;
-    toast('Nenhum usuário importado.','err');
-  }
-}
-// ── fim Importação em Lote ────────────────────────────────────
 
 function doLogout(){
   if(G.temAlteracaoLocal&&G.role==='supervisor'){
     if(!confirm('Há alterações não salvas no relatório. Deseja sair mesmo assim?')) return;
   }
-  G.role=null;G.name='';G.cpf='';G.supClicado=false;
+  G.role=null;G.name='';G.token='';G.tokenExp=0;G.supClicado=false;
   _loginUsuario=null;
   vlTurno=vlTurnoAtual();
   try{localStorage.removeItem(LS.session);}catch(e){}
@@ -4288,6 +4021,7 @@ function doLogout(){
 // ══════════════════════════════════════════════
 function initApp(){
   checkForUpdate(); // verificar nova versão ao logar
+  renovarSessaoSilencioso(); // renova a chave (e confirma que continua válida)
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('stickyHeader').style.display='block';
   document.getElementById('appConteudo').style.display='block';
@@ -4318,9 +4052,6 @@ function initApp(){
   // Aba Operações Especiais: todos exceto operadorvl (via livre)
   const tabOpsEspEl = document.getElementById('tabOpsEsp');
   if (tabOpsEspEl) tabOpsEspEl.style.display = G.role !== 'operadorvl' ? '' : 'none';
-  // Mostrar botão senhas só para admin
-  const btnS = document.getElementById('btnSenhas');
-  if (btnS) btnS.style.display = G.role === 'admin' ? 'inline-flex' : 'none';
   // Supervisor: preenche campo só se relatório ainda não tem supervisor salvo
   // (feito após carregarRelatorio, dentro de preencherFormulario)
   // Mostrar botão salvar fixo para admin/supervisor
@@ -4476,6 +4207,36 @@ function onTurnoChange(){
 }
 
 // ══════════════════════════════════════════════
+// SESSÃO (chave assinada emitida pelo servidor — o CPF NÃO fica guardado no navegador como sessão)
+// ══════════════════════════════════════════════
+const ACOES_SEM_TOKEN={loginUsuario:1,solicitarResetSenha:1};
+function tokenQS(action){return(G.token&&!ACOES_SEM_TOKEN[action])?'&t='+encodeURIComponent(G.token):'';}
+function erroDoServidor(msg){
+  if(msg==='SESSAO_INVALIDA'){sessaoExpirada();const e=new Error('Sessão expirada. Entre novamente.');e.sessao=true;return e;}
+  if(msg==='SEM_PERMISSAO'){return new Error('Seu perfil não tem permissão para esta ação.');}
+  return new Error(msg);
+}
+let _sessaoExpirando=false;
+function sessaoExpirada(){
+  if(_sessaoExpirando||!G.role&&!G.token)return;
+  _sessaoExpirando=true;
+  G.temAlteracaoLocal=false;
+  try{doLogout();}catch(e){}
+  G.token='';
+  const err=document.getElementById('loginErr');
+  if(err){err.textContent='Sua sessão expirou ou foi encerrada. Entre novamente.';err.style.display='block';}
+  setTimeout(function(){_sessaoExpirando=false;},1500);
+}
+function salvarSessao(){
+  try{localStorage.setItem(LS.session,JSON.stringify({role:G.role,name:G.name,token:G.token,exp:G.tokenExp||0}));}catch(e){}
+}
+async function renovarSessaoSilencioso(){
+  try{
+    const r=await api('renovarSessao',{});
+    if(r.data&&r.data.token){G.token=r.data.token;G.tokenExp=r.data.expiraEm||0;salvarSessao();}
+  }catch(ex){}
+}
+// ══════════════════════════════════════════════
 // API
 // ══════════════════════════════════════════════
 async function api(action,payload,_tentativa){
@@ -4484,13 +4245,13 @@ async function api(action,payload,_tentativa){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),40000); // 40s timeout (antes: 20s)
   try{
-    const r=await fetch(SCRIPT_URL+'?action='+action,{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain'},signal:controller.signal});
+    const r=await fetch(SCRIPT_URL+'?action='+action+tokenQS(action)+(tentativa>0?'&_r='+Date.now():''),{method:'POST',body:JSON.stringify(payload),headers:{'Content-Type':'text/plain'},signal:controller.signal});
     clearTimeout(timer);
-    const d=await r.json();if(d.error)throw new Error(d.error);return d;
+    const d=await r.json();if(d.error)throw erroDoServidor(d.error);return d;
   }catch(ex){
     clearTimeout(timer);
     // Retry automático (até 2x) só para leituras — falhas intermitentes do Apps Script (resposta expirada, JSON inválido, timeout esgotado)
-    if(ehLeitura && tentativa<2){
+    if(ehLeitura && !ex.sessao && tentativa<3){
       await new Promise(res=>setTimeout(res,800*(tentativa+1)));
       return api(action,payload,tentativa+1);
     }
@@ -5831,29 +5592,6 @@ function fmtDataArquivo(s){if(!s)return'';const[y,m,d]=s.split('-');return`${d}_
 function vf(id){const e=document.getElementById(id);return e?(e.value||'').trim():'';}
 
 
-// ── Funções de Senhas (Admin) ──
-function abrirSenhas(){document.getElementById('modalSenhas').style.display='flex';}
-function fecharSenhas(){document.getElementById('modalSenhas').style.display='none';}
-async function salvarSenha(){
-  const perfil=document.getElementById('spPerfil').value;
-  const nova=document.getElementById('spNova').value;
-  const conf=document.getElementById('spConfirm').value;
-  const err=document.getElementById('spErr');
-  if(!nova){err.textContent='Informe a nova senha.';err.style.display='block';return;}
-  if(nova!==conf){err.textContent='Senhas nao coincidem.';err.style.display='block';return;}
-  if(nova.length<4){err.textContent='Minimo 4 caracteres.';err.style.display='block';return;}
-  G.pw[perfil]=nova;
-  const btnSS=document.getElementById('btnSalvarSenha');
-  if(btnSS){btnSS.disabled=true;btnSS.textContent='Salvando...';}
-  try{
-    await api('savePasswords',G.pw);
-    fecharSenhas();
-    document.getElementById('spNova').value='';
-    document.getElementById('spConfirm').value='';
-    toast('Senha alterada! Sincronizada com a planilha.','ok');
-  }catch(ex){err.textContent='Erro: '+ex.message;err.style.display='block';}
-  if(btnSS){btnSS.disabled=false;btnSS.textContent='Salvar';}
-}
 
 
 // ══════════════════════════════════════════════
@@ -9221,9 +8959,9 @@ async function apiSrv(action, payload, _tentativa) {
   const tentativa = _tentativa || 0;
   const ehLeitura = /^(get|search)/i.test(action); // nunca re-tenta sozinho ações de gravação (evita duplicar registros)
   try {
-    const r = await fetch(SRV_URL+'?action='+action, {method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain'}});
+    const r = await fetch(SRV_URL+'?action='+action+tokenQS(action), {method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain'}});
     const d = await r.json();
-    if (d.error) throw new Error(d.error);
+    if (d.error) throw erroDoServidor(d.error);
     return d;
   } catch(ex) {
     // Retry automático (até 4x) só para leituras
@@ -9318,18 +9056,27 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&srvPostosF
 
 function srvPostosLocalizar(centralizar){
   if(!navigator.geolocation){ if(centralizar) toast('Seu navegador não suporta localização.','err'); return; }
-  navigator.geolocation.getCurrentPosition(function(pos){
+  function ok(pos){
     if(!srvPostosMapa) return;
     var ll=[pos.coords.latitude,pos.coords.longitude];
     if(srvPostosUserMarker) srvPostosMapa.removeLayer(srvPostosUserMarker);
     srvPostosUserMarker=L.circleMarker(ll,{radius:8,color:'#2563eb',fillColor:'#60a5fa',fillOpacity:0.9,weight:2}).addTo(srvPostosMapa);
     srvPostosUserMarker.bindPopup('Você está aqui');
     if(centralizar){ srvPostosMapa.setView(ll,15); srvPostosUserMarker.openPopup(); }
-  },function(err){
+  }
+  function falha(err){
     if(!centralizar) return;
-    if(err&&err.code===1) toast('Localização negada. Habilite nas configurações do site.','err');
-    else toast('Não foi possível obter sua localização agora.','err');
-  },{timeout:8000});
+    var c=err&&err.code;
+    if(c===1) toast('Localização negada. Habilite nas configurações do site.','err');
+    else if(c===3) toast('A localização demorou demais. Tente novamente.','err');
+    else toast('Este aparelho não conseguiu determinar a posição (computador sem GPS/Wi-Fi de localização ou bloqueio da rede). No celular costuma funcionar.','err');
+  }
+  // 1ª tentativa: precisa (GPS). Se falhar por indisponível/tempo, tenta de novo com precisão baixa (Wi-Fi/rede),
+  // que é o que funciona em computador de mesa.
+  navigator.geolocation.getCurrentPosition(ok,function(err){
+    if(err&&err.code===1){ falha(err); return; }
+    navigator.geolocation.getCurrentPosition(ok,falha,{enableHighAccuracy:false,timeout:15000,maximumAge:300000});
+  },{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
 }
 
 function srvAbrirRotaPosto(lat,lng){ window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng,'_blank'); }
@@ -10186,7 +9933,7 @@ document.addEventListener('change', function(e){
 async function apiFatais(action, payload, _tentativa) {
   const tentativa = _tentativa || 0;
   const ehLeitura = /^(get|search)/i.test(action); // nunca re-tenta sozinho ações de gravação (evita duplicar sinistros)
-  const url = SF_URL + '?action=' + encodeURIComponent(action);
+  const url = SF_URL + '?action=' + encodeURIComponent(action) + tokenQS(action);
   let text;
   // Leituras têm tempo limite (antes uma consulta travada deixava a tela sem responder para sempre)
   const ctrl = (ehLeitura && typeof AbortController !== 'undefined') ? new AbortController() : null;
@@ -10237,7 +9984,7 @@ async function apiFatais(action, payload, _tentativa) {
     console.error('[SF] JSON parse falhou após tentativas. Resposta bruta:', text.substring(0,500));
     throw new Error('O servidor não respondeu corretamente. Toque em ↻ para tentar de novo.');
   }
-  if (d && d.error) throw new Error(d.error);
+  if (d && d.error) throw erroDoServidor(d.error);
   return d;
 }
 
@@ -10456,6 +10203,7 @@ function sfAbrirModal(id) {
     btnSalvar.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
     btnSalvar.disabled=false;
   }
+  if(!sfPdfBusy)sfPdfOcupado(false);
   document.getElementById('sfBtnPDF').style.display='';
   { const avF=document.getElementById('sfAvisoFotosNovo'); if(avF) avF.style.display=id?'none':'block'; } // aviso só em registro novo (pelo jeito que foi aberto, não pelo título)
   if(!id){
@@ -10551,7 +10299,9 @@ function sfFecharModal(force=false) {
 
 
   document.querySelectorAll('#sfFormBody input,#sfFormBody select,#sfFormBody textarea').forEach(el=>el.removeAttribute('disabled'));
+  const _tinhaId=!!sfEditandoId;
   sfEditandoId=null;
+  if(_tinhaId){ try{ sfCarregar(false,true); }catch(e){} } // garante que o registro recém-salvo apareça na lista
 }
 
 // ── Limpar form ───────────────────────────────────────────────
@@ -11123,8 +10873,20 @@ function sfAmcSugestAg(inp){
 function sfAmcFecharSug(inp){setTimeout(()=>{if(inp&&inp._sfSug){inp._sfSug.remove();inp._sfSug=null;}},250);}
 
 // ── Auto-save Sinistros Fatais ────────────────────────────────
-var sfSaveTimer=null;
+var sfSaveTimer=null, sfSalvando=false, sfPdfBusy=false;
+var sfBtnSalvarHtml='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
+function sfMarcarSalvo(){
+  const b=document.getElementById('sfBtnSalvar'); if(!b)return;
+  b.disabled=false; b.innerHTML='<i class="fas fa-check"></i> Salvo!';
+  b.style.background='linear-gradient(135deg,#15803d,#166534)';
+}
+function sfMarcarSujo(){
+  const b=document.getElementById('sfBtnSalvar'); if(!b||b.disabled)return;
+  if(b.innerHTML.indexOf('fa-check')<0)return;
+  b.innerHTML=sfBtnSalvarHtml; b.style.background='linear-gradient(135deg,#c62828,#7f0000)';
+}
 function sfAgendarAutoSave(){
+  sfMarcarSujo(); // houve alteração depois do último salvamento
   if(sfSaveTimer)clearTimeout(sfSaveTimer);
   sfSaveTimer=setTimeout(()=>{
     // Se usuário ainda está com cursor em algum campo, reagendar por mais 5s
@@ -11161,7 +10923,8 @@ async function sfAutoSalvarSilencioso(){
     }
     const info=document.getElementById('sfRefreshInfo');
     if(info)info.textContent='Auto-salvo '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-    sfCarregar();
+    if(!(sfSalvando||sfPdfBusy))sfMarcarSalvo();
+    sfCarregar(false,true);
   }catch(e){console.warn('[SF] auto-save falhou:',e.message);}
 }
 
@@ -11360,6 +11123,7 @@ async function sfSalvar() {
     toast('Preencha os campos obrigatórios: data, hora, tipo, logradouro, bairro.','err'); return;
   }
   const btn=document.getElementById('sfBtnSalvar');
+  if(sfSalvando)return; sfSalvando=true;
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';
   try {
     const isNovo=!sfEditandoId;
@@ -11372,9 +11136,7 @@ async function sfSalvar() {
     await sfCarregar(false,true); // rápido: sem a confirmação extra de lista vazia
     // Feedback visual no botão — fica verde por 2,5s e volta ao normal
     toast('✓ Salvo! Clique em × ou gere o PDF para encerrar.','ok');
-    btn.innerHTML='<i class="fas fa-check"></i> Salvo!';
-    btn.style.background='linear-gradient(135deg,#15803d,#166534)';
-    setTimeout(()=>{ btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem'; btn.style.background='linear-gradient(135deg,#c62828,#7f0000)'; btn.disabled=false; },3000);
+    sfMarcarSalvo(); // fica verde até o usuário alterar algo (antes voltava a vermelho sozinho após 3s)
   } catch(e){
     // A tela pode mostrar erro mesmo quando o salvamento realmente aconteceu no servidor
     // (falha só na confirmação de volta — o mesmo problema de entrega que já vimos em outras
@@ -11403,7 +11165,7 @@ async function sfSalvar() {
       toast('Erro ao salvar: '+e.message,'err');
     }
     btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
-  }
+  } finally { sfSalvando=false; }
 }
 
 // ── Excluir ───────────────────────────────────────────────────
@@ -11416,7 +11178,18 @@ async function sfExcluir(id) {
 
 // ── Gerar PDF (com imagens do Drive carregadas) ───────────────
 // Gera PDF direto dos dados salvos (sem abrir formulário)
-async function sfGerarPDFDireto(s) {
+function sfPdfOcupado(on){
+  sfPdfBusy=on;
+  const b=document.getElementById('sfBtnPDF'); if(!b)return;
+  if(on){ if(!b._orig)b._orig=b.innerHTML; b.disabled=true; b.style.opacity='.75'; b.innerHTML='<i class="fas fa-spinner fa-spin"></i> Gerando…'; }
+  else { b.disabled=false; b.style.opacity=''; if(b._orig){b.innerHTML=b._orig;b._orig=null;} }
+}
+async function sfGerarPDFDireto(s){
+  if(sfPdfBusy){toast('PDF já está sendo gerado…','ok');return;}
+  sfPdfBusy=true; toast('Gerando PDF… aguarde.','ok');
+  try{ await sfGerarPDFDiretoImpl(s); } finally { sfPdfBusy=false; }
+}
+async function sfGerarPDFDiretoImpl(s) {
   if(!s){toast('Registro não encontrado.','err');return;}
   // Carregar dados no sfImgs para o PDF ter acesso às imagens
   sfImgs=[null,null,null,null,null,null,null,null];
@@ -11455,13 +11228,20 @@ async function sfSalvarSilencioso() {
       sfEditandoId=res.id;
       document.getElementById('sfModalTit').textContent='✏ EDITAR SINISTRO FATAL';
     }
+    sfMarcarSalvo();
+    sfCarregar(false,true); // lista já mostra o registro ao voltar (sem precisar sincronizar)
     return true;
   } catch(e) {
     return false;
   }
 }
 
-async function sfGerarPDF() {
+async function sfGerarPDF(){
+  if(sfPdfBusy)return;
+  sfPdfOcupado(true);
+  try{ await sfGerarPDFImpl(); } finally { sfPdfOcupado(false); }
+}
+async function sfGerarPDFImpl() {
   const temDados=document.getElementById('sfLogradouro')?.value?.trim();
   if(!temDados){toast('Preencha ao menos o logradouro antes de gerar o PDF.','err');return;}
   // Salvar silenciosamente antes de gerar para garantir dados na planilha
@@ -11688,12 +11468,30 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   sfPdfGerado=true;
   toast('PDF gerado com sucesso!','ok');
   if(perguntarFechar){
-    setTimeout(()=>{
-      if(confirm('PDF gerado! \n\nRelatório concluído? Deseja encerrar o formulário?')){
-        sfFecharModal(true);
-      }
-    },400);
+    // Painel dentro do app (antes: confirm() nativo, que no celular competia com a tela de downloads
+    // e deixava o usuário preso fora do aplicativo)
+    let blob=null; try{blob=doc.output('blob');}catch(e){}
+    setTimeout(()=>sfPainelPosPdf(blob,fileName),700);
   }
+}
+function sfPainelPosPdf(blob,fileName){
+  const antigo=document.getElementById('sfPosPdf'); if(antigo)antigo.remove();
+  const ov=document.createElement('div'); ov.id='sfPosPdf';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:16px;';
+  const b='width:100%;padding:14px;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer;margin-top:10px;';
+  let podeCompartilhar=false;
+  try{ if(blob&&navigator.canShare&&navigator.share){ podeCompartilhar=navigator.canShare({files:[new File([blob],fileName,{type:'application/pdf'})]}); } }catch(e){}
+  ov.innerHTML='<div style="background:var(--surface,#1e293b);color:var(--text,#fff);border:1px solid var(--border2,#475569);border-radius:12px;padding:20px;max-width:380px;width:100%;">'
+    +'<div style="font-size:17px;font-weight:700;">✅ PDF gerado</div>'
+    +'<div style="font-size:13px;margin-top:6px;color:var(--text2,#cbd5e1);">O arquivo foi baixado no aparelho (pasta Downloads). Os dados já estão salvos na nuvem.</div>'
+    +(podeCompartilhar?'<button class="pdfShare" style="'+b+'background:#1d4ed8;border:none;color:#fff;">📤 Abrir / compartilhar PDF</button>':'')
+    +'<button class="pdfFechar" style="'+b+'background:linear-gradient(135deg,#c62828,#7f0000);border:none;color:#fff;">Encerrar formulário</button>'
+    +'<button class="pdfCont" style="'+b+'background:var(--surface3,#334155);border:1px solid var(--border2,#475569);color:var(--text,#fff);">Continuar editando</button></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('.pdfCont').onclick=function(){ov.remove();};
+  ov.querySelector('.pdfFechar').onclick=function(){ov.remove();sfFecharModal(true);};
+  const sh=ov.querySelector('.pdfShare');
+  if(sh)sh.onclick=async function(){ try{ await navigator.share({files:[new File([blob],fileName,{type:'application/pdf'})],title:fileName}); }catch(e){} };
 }
 
 // ── Busca ─────────────────────────────────────────────────────
@@ -11750,10 +11548,10 @@ function opsEspBuscar(){
   const params=new URLSearchParams({action:'getRelatorios',dataIni:efDataIni,dataFim:efDataFim});
   if(corredor)params.append('corredor',corredor);
   if(agente)params.append('agente',agente);
-  fetch(OPS_CAMPO_URL+'?'+params.toString())
+  fetch(OPS_CAMPO_URL+'?'+params.toString()+tokenQS('getRelatorios'))
     .then(r=>r.json())
     .then(res=>{
-      if(!res.ok)throw new Error(res.error||'Erro desconhecido');
+      if(!res.ok)throw erroDoServidor(res.error||'Erro desconhecido');
       opsEspRender(res.relatorios||[]);
     })
     .catch(err=>{
@@ -11835,8 +11633,6 @@ function opsLightbox(url){
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
     <div style="font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--accent2);letter-spacing:1px;">⚙ GESTÃO DE USUÁRIOS</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button onclick="adminBaixarTemplate()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-download"></i> Template</button>
-      <button onclick="adminAbrirImport()" style="display:flex;align-items:center;gap:6px;padding:9px 14px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-import"></i> Importar</button>
       <button onclick="adminNovoUsuario()" style="display:flex;align-items:center;gap:6px;padding:9px 16px;background:linear-gradient(135deg,var(--accent),#1d4ed8);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-plus"></i> Novo Usuário</button>
     </div>
   </div>
@@ -11910,14 +11706,15 @@ function opsLightbox(url){
         <label class="admin-perfil-chk"><input type="checkbox" value="central"> Central</label>
         <label class="admin-perfil-chk"><input type="checkbox" value="chefia"> Chefia</label>
         <label class="admin-perfil-chk"><input type="checkbox" value="operadorvl"> Operador VL</label>
+        <label class="admin-perfil-chk"><input type="checkbox" value="agente"> Agente (só sistema de Rendição)</label>
       </div>
       <div id="adminPerfisErr" style="display:none;color:var(--red2);font-size:11px;margin-top:4px;">Selecione pelo menos um perfil.</div>
     </div>
 
     <div id="adminSenhaInicialWrap" style="margin-bottom:14px;">
-      <span class="flabel">Senha Inicial <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(o usuário deverá trocar no primeiro acesso)</span></span>
+      <span class="flabel">Senha Inicial <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:10px;">(opcional — se vazio, a senha inicial é a MATRÍCULA; a pessoa troca no primeiro acesso)</span></span>
       <div style="position:relative;">
-        <input type="password" class="finput" id="adminSenhaInicial" placeholder="Mínimo 6 caracteres" autocomplete="new-password" style="padding-right:44px;">
+        <input type="password" class="finput" id="adminSenhaInicial" placeholder="Deixe vazio para usar a matrícula" autocomplete="new-password" style="padding-right:44px;">
         <button type="button" onclick="toggleSenhaVis('adminSenhaInicial',this)"
           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;">👁</button>
       </div>
@@ -12062,7 +11859,7 @@ function opsLightbox(url){
     </div>
   </div>
 </div>
-<!-- Modal Importar Usuários em Lote -->
+
 
 <!-- TELA SINISTROS FATAIS                                         -->
 <!-- ══════════════════════════════════════════════════════════════ -->
@@ -12544,48 +12341,5 @@ select.sf-input { text-transform: none; }
 <!-- ══════════════════════════════════════════════════════════════ -->
 
 
-<div id="adminImportModal" style="display:none;position:fixed;inset:0;z-index:900;background:rgba(0,0,0,0.75);align-items:flex-end;justify-content:center;">
-  <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--text);">Importar Usuários em Lote</div>
-      <button onclick="adminFecharImport()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
-    </div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Selecione o arquivo <strong style="color:#f59e0b;">.csv</strong> preenchido com o template. Todos os usuários serão cadastrados com senha inicial definida na planilha.</div>
 
-    <!-- Upload area -->
-    <div id="adminImportDrop" onclick="document.getElementById('adminImportFile').click()"
-      style="border:2px dashed rgba(245,158,11,0.4);border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:rgba(245,158,11,0.04);margin-bottom:14px;transition:border-color .2s;"
-      ondragover="event.preventDefault();this.style.borderColor='#f59e0b';"
-      ondragleave="this.style.borderColor='rgba(245,158,11,0.4)';"
-      ondrop="event.preventDefault();this.style.borderColor='rgba(245,158,11,0.4)';adminProcessarArquivo(event.dataTransfer.files[0]);">
-      <div style="font-size:32px;margin-bottom:8px;">📂</div>
-      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;color:#f59e0b;">Clique ou arraste o arquivo CSV</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:4px;">Formato: .csv separado por vírgula</div>
-    </div>
-    <input type="file" id="adminImportFile" accept=".csv" style="display:none;" onchange="adminProcessarArquivo(this.files[0])">
-
-    <!-- Preview -->
-    <div id="adminImportPreview" style="display:none;">
-      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--accent2);margin-bottom:8px;" id="adminImportCount"></div>
-      <div id="adminImportErros" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#f87171;"></div>
-      <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:14px;">
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead><tr style="background:rgba(255,255,255,0.06);">
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">CPF</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Nome de Guerra</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Matrícula</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Perfis</th>
-            <th style="padding:7px 8px;text-align:left;color:var(--text3);font-weight:600;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">Status</th>
-          </tr></thead>
-          <tbody id="adminImportTbody"></tbody>
-        </table>
-      </div>
-      <div id="adminImportErr" style="display:none;color:var(--red2);font-size:12px;text-align:center;margin-bottom:10px;padding:8px;background:rgba(239,68,68,0.1);border-radius:6px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button onclick="adminLimparImport()" style="flex:1;padding:12px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;">Limpar</button>
-        <button id="adminImportBtn" onclick="adminConfirmarImport()" style="flex:2;padding:12px;background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;"><i class="fas fa-file-import"></i> Importar Todos</button>
-      </div>
-    </div>
-  </div>
-</div>
 </html>
