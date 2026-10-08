@@ -2068,7 +2068,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-07-v4b'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-08-v4c'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -10469,7 +10469,7 @@ function sfAbrirModal(id) {
   document.getElementById('sfBtnPDF').style.display='';
   { const avF=document.getElementById('sfAvisoFotosNovo'); if(avF) avF.style.display=id?'none':'block'; } // aviso só em registro novo (pelo jeito que foi aberto, não pelo título)
   if(!id){
-    sfEditandoId=null;
+    sfEditandoId=null; sfClientId=null;
     sfPdfGerado=false; // nova ocorrência: PDF ainda não gerado
     document.getElementById('sfModalTit').textContent='⚠ NOVO SINISTRO FATAL';
     sfLimparForm();
@@ -10562,7 +10562,7 @@ function sfFecharModal(force=false) {
 
   document.querySelectorAll('#sfFormBody input,#sfFormBody select,#sfFormBody textarea').forEach(el=>el.removeAttribute('disabled'));
   const _tinhaId=!!sfEditandoId;
-  sfEditandoId=null;
+  sfEditandoId=null; sfClientId=null;
   if(_tinhaId){ try{ sfCarregar(false,true); }catch(e){} } // garante que o registro recém-salvo apareça na lista
 }
 
@@ -11136,6 +11136,27 @@ function sfAmcFecharSug(inp){setTimeout(()=>{if(inp&&inp._sfSug){inp._sfSug.remo
 
 // ── Auto-save Sinistros Fatais ────────────────────────────────
 var sfSaveTimer=null, sfSalvando=false, sfPdfBusy=false;
+// ── Gravação única e em fila (evita registro duplicado) ───────────────────────
+// Todos os caminhos que gravam (botão Salvar, salvamento antes do PDF e salvamento automático) passam
+// por aqui, um de cada vez. Quem chega depois espera o anterior terminar e então já encontra o ID do
+// registro — vira ATUALIZAÇÃO em vez de criar outro. O clientId identifica este formulário para o servidor.
+var sfFilaGravar=Promise.resolve(), sfClientId=null;
+function sfGravar(dados){
+  const rodar=async function(){
+    if(!sfClientId)sfClientId='c'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+    dados.clientId=sfClientId;
+    if(sfEditandoId)dados.id=sfEditandoId;
+    const res=await apiFatais(sfEditandoId?'updateSinistroFatal':'saveSinistroFatal',dados);
+    if(res&&res.id&&!sfEditandoId){
+      sfEditandoId=res.id;
+      const tit=document.getElementById('sfModalTit'); if(tit)tit.textContent='\u270f EDITAR SINISTRO FATAL';
+    }
+    return res;
+  };
+  const p=sfFilaGravar.then(rodar,rodar);
+  sfFilaGravar=p.catch(function(){});
+  return p;
+}
 var sfBtnSalvarHtml='<i class="fas fa-cloud-upload-alt"></i> Salvar na Nuvem';
 function sfMarcarSalvo(){
   const b=document.getElementById('sfBtnSalvar'); if(!b)return;
@@ -11168,21 +11189,7 @@ async function sfAutoSalvarSilencioso(){
   // Exige ao menos data, hora e logradouro para auto-salvar
   if(!dados.data||!dados.hora||!dados.logradouro)return;
   try{
-    let action, res;
-    if(sfEditandoId){
-      // Já tem ID — atualizar
-      dados.id=sfEditandoId;
-      res=await apiFatais('updateSinistroFatal',dados);
-    } else {
-      // Sem ID — criar novo automaticamente
-      res=await apiFatais('saveSinistroFatal',dados);
-      if(res&&res.id){
-        sfEditandoId=res.id;
-        // Atualizar título do modal para indicar que já foi salvo
-        const tit=document.getElementById('sfModalTit');
-        if(tit)tit.textContent='✏ EDITAR SINISTRO FATAL';
-      }
-    }
+    await sfGravar(dados);
     const info=document.getElementById('sfRefreshInfo');
     if(info)info.textContent='Auto-salvo '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     if(!(sfSalvando||sfPdfBusy))sfMarcarSalvo();
@@ -11388,12 +11395,7 @@ async function sfSalvar() {
   if(sfSalvando)return; sfSalvando=true;
   btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Salvando...';
   try {
-    const isNovo=!sfEditandoId;
-    if(sfEditandoId){dados.id=sfEditandoId;}
-    const action=sfEditandoId?'updateSinistroFatal':'saveSinistroFatal';
-    const res=await apiFatais(action,dados);
-    // Se era novo, guarda o ID para que salvas seguintes virem update
-    if(isNovo&&res.id){ sfEditandoId=res.id; document.getElementById('sfModalTit').textContent='\u270f EDITAR SINISTRO FATAL'; }
+    const res=await sfGravar(dados); // guarda o ID para que salvas seguintes virem update
     // Atualiza lista em background sem fechar o modal
     await sfCarregar(false,true); // rápido: sem a confirmação extra de lista vazia
     // Feedback visual no botão — fica verde por 2,5s e volta ao normal
@@ -11483,13 +11485,7 @@ async function sfSalvarSilencioso() {
   try {
     const dados=sfColetarDados();
     if(!dados.data||!dados.hora||!dados.tipo||!dados.logradouro||!dados.bairro) return false;
-    if(sfEditandoId) dados.id=sfEditandoId;
-    const action=sfEditandoId?'updateSinistroFatal':'saveSinistroFatal';
-    const res=await apiFatais(action,dados);
-    if(res&&res.id&&!sfEditandoId){
-      sfEditandoId=res.id;
-      document.getElementById('sfModalTit').textContent='✏ EDITAR SINISTRO FATAL';
-    }
+    await sfGravar(dados);
     sfMarcarSalvo();
     sfCarregar(false,true); // lista já mostra o registro ao voltar (sem precisar sincronizar)
     return true;
