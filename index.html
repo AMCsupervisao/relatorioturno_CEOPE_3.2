@@ -2068,7 +2068,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-08-v4c'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-08-v4d'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -11583,15 +11583,26 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   // 5a — EPI por envolvido
   const envFiltrados5=(dados.envolvidos||[]).filter(e=>e.vinculo!=='ANIMAL'&&e.vinculo!=='NÃO IDENTIFICADO'&&e.vinculo!=='');
   function addBloco(titulo){y+=2;verificar(32);doc.setFillColor(245,245,245);doc.setDrawColor(180,180,180);doc.setLineWidth(0.2);doc.rect(mE,y-3,lMax,9,'FD');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(80,80,80);doc.text(titulo.toUpperCase(),mE+3,y+3);y+=11;doc.setTextColor(0,0,0);}
-  if(envFiltrados5.length){
+  // Mesmas regras do formulário: pedestre não usa capacete nem cinto; moto/bicicleta só capacete; carro/caminhão/ônibus só cinto.
+  const cintoTiposFat=['AUTOMÓVEL','CAMINHÃO','ÔNIBUS','VEÍCULO AUTOPROPELIDO'];
+  const epi5=[];
+  envFiltrados5.forEach((e,idx)=>{
+    if(String(e.vinculo||'').toUpperCase()==='PEDESTRE'||String(e.tipo||'').toUpperCase()==='PEDESTRE')return;
+    const veicNum=parseInt((e.vinculo||'').replace(/[^0-9]/g,''))||0;
+    const veicTipo5=veicNum?((dados.veiculos||[])[veicNum-1]?.tipo||''):'';
+    const eMoto=motoTiposFat.some(m=>veicTipo5.toUpperCase().includes(m));
+    const temCap=eMoto||!veicTipo5;
+    const temCin=!eMoto&&(!veicTipo5||cintoTiposFat.some(t=>veicTipo5.toUpperCase().includes(t)));
+    if(!temCap&&!temCin)return;
+    epi5.push({e:e,idx:idx,temCap:temCap,temCin:temCin});
+  });
+  if(epi5.length){
     addBloco('5a. Equipamentos de Proteção Individual (EPI)');
-    envFiltrados5.forEach((e,idx)=>{
-      const veicNum=parseInt((e.vinculo||'').replace(/[^0-9]/g,''))||0;
-      const veicTipo5=veicNum?((dados.veiculos||[])[veicNum-1]?.tipo||''):'';
-      const eMoto=motoTiposFat.some(m=>veicTipo5.toUpperCase().includes(m));
-      addSubTit((e.nome||'Envolvido '+(idx+1))+(e.vinculo?' — '+e.vinculo:''));
-      if(eMoto||!veicTipo5){addCampo('CAPACETE',e.capacete&&e.capacete!=='N/A'?e.capacete:'NÃO INFORMADO');}
-      if(!eMoto){addCampo('CINTO DE SEGURANÇA',e.cinto&&e.cinto!=='N/A'?e.cinto:'NÃO INFORMADO');}
+    epi5.forEach(function(it){
+      const e=it.e;
+      addSubTit((e.nome||'Envolvido '+(it.idx+1))+(e.vinculo?' — '+e.vinculo:''));
+      if(it.temCap){addCampo('CAPACETE',e.capacete&&e.capacete!=='N/A'?e.capacete:'NÃO INFORMADO');}
+      if(it.temCin){addCampo('CINTO DE SEGURANÇA',e.cinto&&e.cinto!=='N/A'?e.cinto:'NÃO INFORMADO');}
       y+=1;
     });
     y+=4;
