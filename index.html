@@ -670,6 +670,20 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 .qrv-row-info{flex:1;min-width:0;}
 .qrv-row-nomes{font-size:12px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .qrv-row-rota{font-size:10px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* Rota/missão em destaque — caixa colorida conforme o status do card (mesmas cores dos selos) */
+.qrv-row-rota{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:11px!important;line-height:1.5;}
+.qrvvl-card-main .qrv-row-rota{font-size:11px!important;}
+.qrv-rota-chip{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:.2px;padding:1px 6px;border-radius:4px;border:1px solid;margin:0;line-height:1.45;}
+.qrv-rota-chip.rc-livre{background:rgba(16,185,129,0.18);color:#34d399;border-color:rgba(16,185,129,0.5);}
+.qrv-rota-chip.rc-outros{background:rgba(239,68,68,0.18);color:#f87171;border-color:rgba(239,68,68,0.5);}
+.qrv-rota-chip.rc-qar{background:rgba(245,158,11,0.18);color:#fbbf24;border-color:rgba(245,158,11,0.5);}
+.qrv-rota-chip.rc-posto{background:rgba(99,102,241,0.2);color:#a78bfa;border-color:rgba(99,102,241,0.5);}
+.qrv-rota-chip.rc-chegada{background:rgba(100,116,139,0.2);color:#cbd5e1;border-color:rgba(100,116,139,0.5);}
+body.light-mode .qrv-rota-chip.rc-livre{color:#047857;}
+body.light-mode .qrv-rota-chip.rc-outros{color:#b91c1c;}
+body.light-mode .qrv-rota-chip.rc-qar{color:#92400e;}
+body.light-mode .qrv-rota-chip.rc-posto{color:#5b21b6;}
+body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 .qrv-row-right{display:flex;align-items:center;gap:4px;flex-shrink:0;}
 .qrv-saida-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:5px;color:#fff;font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 4px;width:68px;outline:none;cursor:pointer;}
 .qrv-saida-input::-webkit-calendar-picker-indicator{display:none;}
@@ -1444,6 +1458,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
       <button class="bref" id="qrvBRef" onclick="qrvCarregar()">↻</button>
       <span class="refresh-info" id="qrvRefreshInfo"></span>
       <button class="bpdf" onclick="qrvGerarPDF()"><i class="fas fa-file-pdf"></i> PDF</button>
+      <button class="bpdf" onclick="qrvCopiarTodos()" title="Copiar a composição de todos os cards visíveis" style="background:linear-gradient(135deg,#334155,#475569);"><i class="fas fa-copy"></i> Copiar todos</button>
     </div>
   </div>
 
@@ -1814,6 +1829,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
       <button class="bref" id="qrvvlBRef" onclick="qrvvlCarregar()">↻</button>
       <span class="refresh-info" id="qrvvlRefreshInfo"></span>
       <button class="bpdf" onclick="qrvvlGerarPDF()" style="background:linear-gradient(135deg,#c2410c,#fb923c);"><i class="fas fa-file-pdf"></i> PDF</button>
+      <button class="bpdf" onclick="qrvvlCopiarTodos()" title="Copiar a composição de todos os cards visíveis" style="background:linear-gradient(135deg,#334155,#475569);"><i class="fas fa-copy"></i> Copiar todos</button>
     </div>
   </div>
 
@@ -2068,7 +2084,7 @@ body.srv-mapa-fs-aberto{overflow:hidden;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-08-v4d'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-09-v4g'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -6708,6 +6724,57 @@ function qrvGetStatusPills(r){
   return pills.join('');
 }
 
+// ── Copiar composição (QRV e QRV VL) ──────────────────────────────────────────
+// Formato: "VT-195 — ACENIO, CRIS" (viatura/moto) ou só os nomes (posto fixo, sem prefixo).
+// Não leva rota, missão, horário nem observação.
+function composicaoTexto(vt,nomes){
+  vt=String(vt||'').trim(); nomes=String(nomes||'').replace(/\s+/g,' ').replace(/[,\s]+$/,'').trim();
+  if(/^[—–-]+$/.test(vt))vt='';
+  return vt&&nomes?vt+' — '+nomes:(nomes||vt);
+}
+function qrvComposicao(r){ return composicaoTexto(r.vt,[r.motorista,r.chefe,r.passag].filter(Boolean).join(', ')); }
+function qrvvlComposicao(r){ return composicaoTexto(r.vt,r.agentes); }
+function copiarTexto(txt,msgOk){
+  const ok=function(){toast(msgOk||'Copiado!','ok');};
+  const fallback=function(){
+    try{
+      const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;top:0;left:0;opacity:0;'; document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0,ta.value.length);
+      const r=document.execCommand('copy'); ta.remove();
+      if(r)ok(); else toast('Não foi possível copiar.','err');
+    }catch(e){toast('Não foi possível copiar.','err');}
+  };
+  if(navigator.clipboard&&window.isSecureContext){ navigator.clipboard.writeText(txt).then(ok,fallback); } else fallback();
+}
+function qrvCopiarCard(id){ const r=(qrvRegistros||[]).find(x=>String(x.id)===String(id)); if(!r)return; const t=qrvComposicao(r); if(!t){toast('Nada para copiar.','err');return;} copiarTexto(t,'Copiado: '+t); }
+function qrvvlCopiarCard(id){ const r=(qrvvlRegistros||[]).find(x=>String(x.id)===String(id)); if(!r)return; const t=qrvvlComposicao(r); if(!t){toast('Nada para copiar.','err');return;} copiarTexto(t,'Copiado: '+t); }
+function qrvCopiarTodos(){
+  const linhas=[]; document.querySelectorAll('#telaQrv .qrv-row').forEach(function(row){
+    if(row.style.display==='none')return;
+    const r=(qrvRegistros||[]).find(x=>String(x.id)===String(row.dataset.id)); if(!r)return;
+    const t=qrvComposicao(r); if(t)linhas.push(t);
+  });
+  if(!linhas.length){toast('Nenhum card para copiar.','err');return;}
+  copiarTexto(linhas.join('\n'),linhas.length+' composição(ões) copiada(s)');
+}
+function qrvvlCopiarTodos(){
+  const linhas=[]; document.querySelectorAll('#telaQrvVl .qrv-row').forEach(function(row){
+    if(row.style.display==='none')return;
+    const r=(qrvvlRegistros||[]).find(x=>String(x.id)===String(row.dataset.id)); if(!r)return;
+    const t=qrvvlComposicao(r); if(t)linhas.push(t);
+  });
+  if(!linhas.length){toast('Nenhum card para copiar.','err');return;}
+  copiarTexto(linhas.join('\n'),linhas.length+' composição(ões) copiada(s)');
+}
+const BTN_COPIAR_ESTILO='background:rgba(100,116,139,0.2);border:1px solid rgba(100,116,139,0.4);color:#94a3b8;border-radius:6px;padding:4px 9px;font-size:13px;cursor:pointer;min-height:30px;';
+function qrvBtnCopiar(id){ return '<button type="button" title="Copiar composição" style="'+BTN_COPIAR_ESTILO+'" onclick="event.stopPropagation();qrvCopiarCard(\''+id+'\')"><i class="fas fa-copy"></i></button>'; }
+function qrvvlBtnCopiar(id){ return '<button type="button" title="Copiar composição" style="'+BTN_COPIAR_ESTILO+'" onclick="event.stopPropagation();qrvvlCopiarCard(\''+id+'\')"><i class="fas fa-copy"></i></button>'; }
+
+// A cor da caixa da rota acompanha o status do card (mesma ordem de prioridade dos selos); é recalculada a cada desenho do card.
+function qrvRotaStatus(r){return r.statusQar?'qar':r.statusPosto?'posto':r.statusOutros?'outros':r.chegada?'chegada':'livre';}
+function qrvRotaChip(r){return '<span class="qrv-rota-chip rc-'+qrvRotaStatus(r)+'">'+r.rota+'</span>';}
+
 function qrvRenderRow(r,podeEditar){
   const secao=r.secao||(qrvVtsPrincipais.includes(r.vt)?'principal':qrvVtsSupervisao.includes(r.vt)?'supervisao':'demais');
   const isSup=secao==='supervisao'||(secao==='evento'&&r.rota==='SUPERVISÃO');
@@ -6730,10 +6797,11 @@ function qrvRenderRow(r,podeEditar){
         ${r.saida?`<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#60a5fa;font-weight:700;">▶ ${r.saida}</span>`:''}
         <div style="flex:1;min-width:140px;">
           <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">${nomes||'—'}</div>
-          ${r.rota?`<div style="font-size:11px;color:#94a3b8;font-family:'IBM Plex Mono',monospace;">${r.rota}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+          ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
           ${isRen&&r.localRendicao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rendição: ${r.localRendicao}</div>`:''}
           ${r.rotaAposMissao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rota após Missão: ${r.rotaAposMissao}</div>`:''}
         </div>
+      ${qrvBtnCopiar(r.id)}
       </div>
       ${r.obs?`<div style="padding:0 12px 8px;font-size:12px;color:#94a3b8;font-style:italic;">${r.obs}</div>`:''}
     </div>`;
@@ -6748,13 +6816,14 @@ function qrvRenderRow(r,podeEditar){
       ${badgeHtml}
       <div class="qrv-row-info">
         <div class="qrv-row-nomes">${nomes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>'}</div>
-        ${r.rota?`<div class="qrv-row-rota">${r.rota}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+        ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
       </div>
       ${qrvGetStatusPills(r)}
       <input type="time" class="qrv-saida-input" value="${r.saida||''}" title="Hora de saída"
         onclick="event.stopPropagation()"
         onblur="event.stopPropagation();qrvSalvarCampo('${r.id}','saida',this.value)">
       ${supTag}
+      ${qrvBtnCopiar(r.id)}
       <button class="qrv-btn-status" onclick="event.stopPropagation();qrvAbrirModal('${r.id}')">⚡</button>
       <button class="qrv-btn-status" style="background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.4);color:#94a3b8;" onclick="event.stopPropagation();qrvAbrirEditModal('${r.id}')">✏️</button>
       <span class="qrv-sync" id="qrvSync_${r.id}" title=""></span>
@@ -8738,9 +8807,10 @@ function qrvvlRenderRow(r, podeEditar) {
       +(r.saida?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;color:#fb923c;font-weight:700;">▶ '+r.saida+'</span>':'')
       +'<div style="flex:1;min-width:140px;">'
       +'<div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">'+(r.agentes||'—')+'</div>'
-      +(r.rota?'<div style="font-size:11px;color:#94a3b8;font-family:\'IBM Plex Mono\',monospace;">'+r.rota+'</div>':'')
+      +(r.rota?'<div class="qrv-row-rota">'+qrvRotaChip(r)+'</div>':'')
       +'</div>'
       +(mostrarStatus ? qrvvlGetStatusPills(r) : '')
+      +qrvvlBtnCopiar(r.id)
       +'</div>'
       +(r.obs?'<div style="padding:0 12px 8px;font-size:12px;color:#94a3b8;font-style:italic;">'+r.obs+'</div>':'')
       +'</div>';
@@ -8752,7 +8822,7 @@ function qrvvlRenderRow(r, podeEditar) {
     +vtBadge
     +'<div class="qrv-row-info">'
     +'<div class="qrv-row-nomes">'+(r.agentes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>')+'</div>'
-    +(r.rota?'<div class="qrv-row-rota">'+r.rota+'</div>':'')
+    +(r.rota?'<div class="qrv-row-rota">'+qrvRotaChip(r)+'</div>':'')
     +'</div>'
     +qrvvlGetStatusPills(r)
     +'<input type="time" class="qrv-saida-input" id="qrvvlSaidaInp_'+r.id+'" value="'+(r.saida||'')+'" title="Hora de saída"'
@@ -8760,6 +8830,7 @@ function qrvvlRenderRow(r, podeEditar) {
     +' onchange="event.stopPropagation();qrvvlSalvarCampo(\''+r.id+'\',\'saida\',this.value)"'
     +' onblur="event.stopPropagation();qrvvlSalvarCampo(\''+r.id+'\',\'saida\',this.value)">'
     +supTag
+    +qrvvlBtnCopiar(r.id)
     +'<button class="qrv-btn-status" onclick="event.stopPropagation();qrvvlAbrirModal(\''+r.id+'\')">⚡</button>'
     +'<button class="qrv-btn-status" style="background:rgba(100,116,139,0.2);border-color:rgba(100,116,139,0.4);color:#94a3b8;" onclick="event.stopPropagation();qrvvlAbrirEditModal(\''+r.id+'\')">✏️</button>'
     +'<span class="qrv-sync" id="qrvvlSync_'+r.id+'" title=""></span>'
