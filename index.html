@@ -2084,7 +2084,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-10-v7'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-11-v1'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9715,7 +9715,7 @@ function srvRenderAuthList(fl) {
     var ac = cw?'<div class="s-ract"><button class="s-bsm s-bedit" onclick="event.stopPropagation();srvEditAuth(\''+r.id+'\')">Editar</button><button class="s-bsm s-bdel" onclick="event.stopPropagation();srvDelAuth(\''+r.id+'\')">Excluir</button></div>':'';
     return '<div class="s-arow t-'+r.type+(venceHoje?' vence-hoje':'')+'" onclick="this.classList.toggle(\'expanded\')">'
       +'<div class="s-arow-head">'
-      +'<div class="s-arow-l1"><span class="s-arow-tipo '+SRV_BM[r.type]+'">'+SRV_TL[r.type]+'</span><div style="display:flex;align-items:center;gap:6px;">'+vTag+'<span style="color:var(--text3);font-size:11px;">▼</span></div></div>'
+      +'<div class="s-arow-l1"><span class="s-arow-tipo '+SRV_BM[r.type]+'">'+SRV_TL[r.type]+'</span><div style="display:flex;align-items:center;gap:6px;">'+vTag+'<span class="s-arow-chevron">▼</span></div></div>'
       +'<div class="s-arow-l2">'+(r.reg?'<span class="s-arow-reg">Nº '+r.reg+' ·</span>':'')+'<span class="s-arow-local">'+local+'</span></div>'
       +'</div>'
       +'<div class="s-arow-detail"><div class="s-arow-detail-inner">'
@@ -11593,6 +11593,11 @@ async function sfGerarPDFImpl() {
   const faltam=[]; // mesmos campos que sfSalvarSilencioso exige para gravar
   if(!pre.data)faltam.push('Data'); if(!pre.hora)faltam.push('Hora'); if(!pre.tipo)faltam.push('Tipo');
   if(!pre.logradouro)faltam.push('Logradouro'); if(!pre.bairro)faltam.push('Bairro');
+  if(faltam.length){
+    toast('PDF bloqueado — faltam campos obrigatórios: '+faltam.join(', ')+'.','err');
+    alert('⚠ NÃO É POSSÍVEL GERAR O PDF.\n\nFaltam campos obrigatórios: '+faltam.join(', ')+'.\n\nPreencha os campos e tente novamente.');
+    return;
+  }
   const salvouOk = await sfSalvarSilencioso();
   if(!salvouOk){
     const motivo = faltam.length ? 'Faltam campos obrigatórios para salvar: '+faltam.join(', ')+'.' : 'Não foi possível salvar (falha de conexão com o servidor).';
@@ -11615,7 +11620,7 @@ async function sfGerarPDFComDados(dados, perguntarFechar=true) {
   let y=altCab+5, pagAtual=1;
   const urlCab='https://i.imgur.com/ugHshEu.jpeg';
   const urlRod='https://i.imgur.com/9QqgR97.jpg';
-  const fileName='Sinistro_Fatal_'+(dados.data||sfIso(new Date())).split('-').reverse().join('_')+'_'+(dados.logradouro||'LOCAL').replace(/\s+/g,'_').substring(0,30)+'.pdf';
+  const fileName='Sinistro_Fatal_'+(dados.data||sfIso(new Date())).split('-').reverse().join('_')+'_'+(dados.logradouro||'LOCAL').replace(/\s+/g,'_').substring(0,30)+'_'+(function(){const n=new Date(),z=v=>String(v).padStart(2,'0');return z(n.getHours())+z(n.getMinutes())+z(n.getSeconds());})()+'.pdf';
   async function loadImg(url){return new Promise((res,rej)=>{const i=new Image();i.crossOrigin='Anonymous';i.onload=()=>res(i);i.onerror=rej;i.src=url;});}
   // Pre-carregar cabecalho e rodape uma vez so para todas as paginas
   let imgCab=null,imgRod=null;
@@ -12621,6 +12626,8 @@ body.light-mode .s-btn-copiar.copiado{background:#d1fae5!important;border-color:
 .s-ndjust-r{display:flex;align-items:center;gap:8px;margin-left:auto;}
 .s-ndjust-r .s-btn-copiar{padding:2px 9px;font-size:11px;letter-spacing:.5px;white-space:nowrap;}
 @media(min-width:601px){#telaServicos .date-sel{flex:0 0 170px;width:170px;}#telaServicos .refresh-info-live{flex:0 0 auto;}}
+#telaServicos .s-ndcard-chevron,#telaServicos .s-arow-chevron{color:var(--accent2);font-size:15px;transition:transform .2s;flex-shrink:0;display:inline-block;}
+#telaServicos .s-ndcard.expanded .s-ndcard-chevron,#telaServicos .s-arow.expanded .s-arow-chevron{transform:rotate(180deg);}
 </style>
 
 <!-- ── TELA PRINCIPAL (LISTA) ── -->
