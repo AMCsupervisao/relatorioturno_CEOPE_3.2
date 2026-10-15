@@ -2087,7 +2087,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-14-vE'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-15-vG'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5571,7 +5571,7 @@ function renderVisualizacao(d){
     // Função que lê o valor correto por coluna
     const getVal=(r,c)=>{
       if(c==='#')return'';
-      if(c==='Rota')return(r.rota||'').toUpperCase();
+      if(c==='Rota')return(r.rota||'').toUpperCase()+(r.etilometro?'<span class="etil-tag">ETILÔMETRO</span>':'');
       if(c==='Veículo')return(r.veiculo||'').toUpperCase();
       if(c==='Agentes')return(r.agentes||r.motorista||'').toUpperCase();
       if(c==='Veículo (Tipo)')return`${(r.veiculo||'').toUpperCase()}${r.tipo?' ('+r.tipo.toUpperCase()+')':''}`;
@@ -5720,9 +5720,9 @@ async function gerarPDF(){
         return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),comp];
       }
       if(titulo.includes('07. Rotas')){
-        return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),U(r.missaoDuranteTurno||'')];
+        return[i+1,U(r.rota)+(r.etilometro?(r.rota?'\n':'')+'ETILÔMETRO':''),U(r.veiculo),U(r.agentes),U(r.missaoDuranteTurno||'')];
       }
-      if(hasRota)return[i+1,U(r.rota),U(r.veiculo),U(r.agentes)];
+      if(hasRota)return[i+1,U(r.rota)+(r.etilometro?(r.rota?'\n':'')+'ETILÔMETRO':''),U(r.veiculo),U(r.agentes)];
       return[i+1,U(r.veiculo),U(r.agentes)];
     });
     await addTabela(td,titulo.includes('Fiscalização Volante')?['#','Rota','Veículo','Agentes','Composição']:(titulo.includes('07. Rotas')?['#','Rota','Veículo','Agentes','Missão no Turno']:cols),y);await addDiv();
@@ -6289,6 +6289,7 @@ async function qrvSalvarEdicao(){
   reg.rota=(document.getElementById('qrvEditRota').value||'').trim().toUpperCase();
   reg.saida=document.getElementById('qrvEditSaida').value||'';
   reg.secao=novaSecao;
+  if(window.etilLerEdicao)etilLerEdicao(reg);
   reg.deSupervisor=false;
   // Aplicar sub-grupo se Demais
   if(novaSecao==='demais'){
@@ -6409,6 +6410,7 @@ function qrvPrePopular(d){
   // Sequência idêntica ao relatório do supervisor, com origem para sub-cabeçalho
   (d.rotas||[]).forEach(r=>{
     addVt(r.veiculo,r.agentes,r.rota,'principal','07. Rotas');
+    if(window.etilQrvTag)etilQrvTag(novas,r);
     if(r.missaoDuranteTurno){
       const chave=(r.veiculo||'').trim().toUpperCase()||(r.agentes||'').split(',')[0].trim().toUpperCase();
       const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
@@ -6465,7 +6467,7 @@ function qrvPrePopular(d){
       }
     });
   });
-  (d.supervisao||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão'));
+  (d.supervisao||[]).forEach(r=>{addVt(r.veiculo,r.agentes,r.rota,'supervisao','17. Supervisão');if(window.etilQrvTag)etilQrvTag(novas,r);});
 
   if(novas.length>0) qrvRegistros=[...qrvRegistros,...novas];
 }
@@ -7140,7 +7142,7 @@ async function qrvGerarPDF(){
   const colStyles={0:{cellWidth:22},1:{cellWidth:68},2:{cellWidth:50},3:{cellWidth:16},4:{cellWidth:30},5:{cellWidth:'auto'}};
   const tableStyles={fontSize:8,cellPadding:2.5,lineColor:[210,230,210],lineWidth:0.2,overflow:'linebreak'};
   const head=[['VT/MT','Agentes','Rota / Local','Saída','QAR/POSTO','Observação']];
-  const toRow=r=>[U(r.vt),agentes(r)||U(r.motorista)||'',U(r.rota),r.saida||'',status(r),U(r.obs)];
+  const toRow=r=>[U(r.vt),agentes(r)||U(r.motorista)||'',U(r.rota)+(r.etilometro?(r.rota?'\n':'')+'ETILÔMETRO':''),r.saida||'',status(r),U(r.obs)];
 
   let startY=36;
 
@@ -9916,8 +9918,8 @@ async function srvSaveSubst() {
 }
 
 async function srvConcluirRend(id) {
-  conf('Concluir Rendição','Confirma que a rendição foi realizada com sucesso?', async function(){
-    try{ await apiSrv('updateRendition',{id:id,status:'concluida',concludedBy:G.name}); await srvLoadRenditions(); toast('Rendição concluída! ✓','ok'); }
+  conf('Concluir '+rcNomeDe(id),'Confirma que a '+rcNomeDe(id,1)+' foi realizada com sucesso?', async function(){
+    try{ await apiSrv('updateRendition',{id:id,status:'concluida',concludedBy:G.name}); await srvLoadRenditions(); toast(rcNomeDe(id)+' concluída! ✓','ok'); }
     catch(ex){ toast('Erro: '+ex.message,'err'); }
   });
 }
@@ -9932,7 +9934,7 @@ async function srvCancelRend(id) {
   modal.className = 'cov';
   modal.style.zIndex = '870';
   modal.innerHTML = '<div style="background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:420px;">'
-    + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Cancelar Rendição</div>'
+    + '<div style="font-family:\'Rajdhani\',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;">Cancelar '+rcNomeDe(id)+'</div>'
     + '<div style="font-size:13px;color:var(--text2);margin-bottom:14px;">Confirma cancelamento? Informe o motivo abaixo:</div>'
     + '<div style="margin-bottom:14px;">'
     +   '<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:5px;">Motivo do Cancelamento</div>'
@@ -9956,7 +9958,7 @@ async function srvConfirmarCancelamento(id) {
     await apiSrv('updateRendition',{id:id,status:'cancelada',canceledBy:G.name,motivoCancelamento:motivo});
     await srvLoadRenditions();
     var m = document.getElementById('srvMCancelRend'); if(m) m.remove();
-    toast('Rendição cancelada.','ok');
+    toast(rcNomeDe(id)+' cancelada.','ok');
   } catch(ex) {
     toast('Erro: '+ex.message,'err');
     if (btn) { btn.disabled=false; btn.textContent='Sim, Cancelar'; }
@@ -9964,8 +9966,8 @@ async function srvConfirmarCancelamento(id) {
 }
 
 async function srvReativarRend(id) {
-  conf('Reativar Rendição','Deseja reativar esta rendição? Ela voltará para Pendente.', async function(){
-    try{ await apiSrv('updateRendition',{id:id,status:'pendente',canceledBy:'',motivoCancelamento:'',reativadoBy:G.name}); await srvLoadRenditions(); toast('Rendição reativada!','ok'); }
+  conf('Reativar '+rcNomeDe(id),'Deseja reativar esta '+rcNomeDe(id,1)+'? Ela voltará para Pendente.', async function(){
+    try{ await apiSrv('updateRendition',{id:id,status:'pendente',canceledBy:'',motivoCancelamento:'',reativadoBy:G.name}); await srvLoadRenditions(); toast(rcNomeDe(id)+' reativada!','ok'); }
     catch(ex){ toast('Erro: '+ex.message,'err'); }
   });
 }
@@ -10186,6 +10188,7 @@ async function srvOpenRendModal(id) {
   if (id && srvER===id && document.getElementById('srvMRend').classList.contains('open')) return; // clique repetido
   srvER = id||null;
   document.getElementById('srvMRendTit').textContent = id ? 'Editar Rendição' : 'Nova Rendição';
+  if (window.rcSetCat) rcSetCat(id ? ((srvRends.find(function(r){return r.id===id;})||{}).categoria) : 'rendicao');
   if (id) {
     // Abre na hora com o dado local; confere a versão mais recente em segundo plano
     var srvBtnR = document.getElementById('srvBSR');
@@ -10200,6 +10203,7 @@ async function srvOpenRendModal(id) {
       var f=function(fid,v){var el=document.getElementById(fid);if(el&&v)el.value=v;};
       f('srvFRReg',rec.reg); f('srvFRD',d.substring(0,10)); f('srvFRT',rec.turno);
       f('srvFRL',rec.local); f('srvFRA',rec.agente); f('srvFRM',rec.motivo); f('srvFRS',rec.substituto);
+      if (window.rcSetCat) rcSetCat(rec.categoria);
     };
     if (recL) fillRend(recL);
     if (srvBtnR) { srvBtnR.disabled = true; srvBtnR.textContent = 'Verificando…'; }
@@ -10243,6 +10247,7 @@ async function srvSaveRend() {
     agente:     agente,
     motivo:     document.getElementById('srvFRM').value.trim().toUpperCase(),
     substituto: document.getElementById('srvFRS').value.trim().toUpperCase(),
+    categoria:  (window.rcGetCat ? rcGetCat() : 'rendicao'),
     createdBy:  G.name,
     createdAt:  new Date().toISOString(),
   };
@@ -10257,14 +10262,15 @@ async function srvSaveRend() {
     await apiSrv(srvER?'updateRendition':'addRendition', payload);
     srvCm('srvMRend');
     await srvLoadRenditions();
-    toast((srvER?'Rendição atualizada':'Rendição registrada')+' ✓','ok');
+    toast((srvER?'Registro atualizado':'Registro salvo')+' ✓','ok');
+    if (window.rcCatVerificar) rcCatVerificar(payload.id, payload.categoria);
   } catch(ex) { toast('Erro: '+ex.message,'err'); }
   if (btn) { btn.disabled=false; btn.textContent='Salvar'; }
 }
 
 function srvEditRend(id) { srvOpenRendModal(id); }
 function srvDelRend(id) {
-  conf('Excluir Rendição','⚠ Essa ação NÃO PODE SER DESFEITA. O registro será apagado permanentemente. Confirma a exclusão?', async function(){
+  conf('Excluir '+rcNomeDe(id),'⚠ Essa ação NÃO PODE SER DESFEITA. O registro será apagado permanentemente. Confirma a exclusão?', async function(){
     try{ await apiSrv('deleteRendition',{id:id}); await srvLoadRenditions(); toast('Excluído ✓','ok'); }
     catch(ex){ toast('Erro: '+ex.message,'err'); }
   });
@@ -12814,6 +12820,59 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
   .tb-compact .toolbar-row2 .refresh-info{order:11;flex:0 1 auto;font-size:10.5px;}
   .tb-compact .toolbar-row2 .bloqueado-info{order:12;flex:1 0 100%;font-size:10px;letter-spacing:.3px;padding:3px 8px;line-height:1.3;}
 }
+
+/* ── Lote F: categorias em Rendições (Rendição / Missão / Atendimento) ── */
+.rc-grp-head{display:flex;align-items:center;gap:8px;margin:14px 2px 8px;padding:0 0 6px;border-bottom:1px solid var(--border2);}
+.rc-grp-t{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;flex:1;}
+.rc-grp-n{font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;padding:1px 9px;border-radius:10px;}
+.rc-grp-head.rc-rendicao{border-bottom-color:rgba(16,185,129,.45);}
+.rc-grp-head.rc-rendicao .rc-grp-t{color:#34d399;}.rc-grp-head.rc-rendicao .rc-grp-n{background:rgba(16,185,129,.16);color:#34d399;}
+.rc-grp-head.rc-missao{border-bottom-color:rgba(245,158,11,.5);}
+.rc-grp-head.rc-missao .rc-grp-t{color:#fbbf24;}.rc-grp-head.rc-missao .rc-grp-n{background:rgba(245,158,11,.16);color:#fbbf24;}
+.rc-grp-head.rc-atendimento{border-bottom-color:rgba(96,165,250,.5);}
+.rc-grp-head.rc-atendimento .rc-grp-t{color:#60a5fa;}.rc-grp-head.rc-atendimento .rc-grp-n{background:rgba(96,165,250,.16);color:#60a5fa;}
+body.light-mode .rc-grp-head.rc-rendicao .rc-grp-t{color:#047857;}body.light-mode .rc-grp-head.rc-rendicao .rc-grp-n{color:#047857;}
+body.light-mode .rc-grp-head.rc-missao .rc-grp-t{color:#92400e;}body.light-mode .rc-grp-head.rc-missao .rc-grp-n{color:#92400e;}
+body.light-mode .rc-grp-head.rc-atendimento .rc-grp-t{color:#1d4ed8;}body.light-mode .rc-grp-head.rc-atendimento .rc-grp-n{color:#1d4ed8;}
+/* card de atendimento: sem status, faixa azul */
+.s-ndcard.sa{border-left:4px solid #3b82f6;}
+.s-ndcard.sa .s-ndsb{background:rgba(59,130,246,.16);color:#60a5fa;}
+.ndcard.sa{border-left:4px solid #3b82f6;}
+.sa .ndsb{background:rgba(59,130,246,.16);color:#60a5fa;}
+body.light-mode .s-ndcard.sa .s-ndsb,body.light-mode .sa .ndsb{color:#1d4ed8 !important;}
+/* escolha da categoria no Novo/Editar */
+.rc-cat-box{margin-bottom:12px;}
+.rc-cat-lbl{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
+.rc-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.rc-cat-opt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 4px;border-radius:10px;cursor:pointer;text-align:center;user-select:none;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(180deg,rgba(37,99,235,.34),rgba(37,99,235,.16));border:1px solid rgba(96,165,250,.6);
+  box-shadow:0 3px 0 rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.2),inset 0 -3px 0 rgba(0,0,0,.2);transition:transform .08s,box-shadow .08s,filter .15s;}
+.rc-cat-ico{font-size:20px;line-height:1.1;}
+.rc-cat-nm{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:#bfdbfe;}
+.rc-cat-opt:hover{filter:brightness(1.15);}
+.rc-cat-opt:active{transform:translateY(2px);box-shadow:inset 0 2px 4px rgba(0,0,0,.5);}
+.rc-cat-opt.sel{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#bfdbfe;box-shadow:0 3px 0 #1e3a8a,0 0 0 2px rgba(147,197,253,.5),inset 0 1px 0 rgba(255,255,255,.35);}
+.rc-cat-opt.sel .rc-cat-nm{color:#fff;}
+body.light-mode .rc-cat-opt{background:linear-gradient(180deg,#eff6ff,#dbeafe);border-color:#3b82f6;box-shadow:0 3px 0 #64748b,inset 0 1px 0 #fff;}
+body.light-mode .rc-cat-nm{color:#1e40af;}
+body.light-mode .rc-cat-opt.sel{background:linear-gradient(135deg,#2563eb,#1d4ed8);border-color:#1e3a8a;box-shadow:0 3px 0 #1e3a8a,0 0 0 2px rgba(37,99,235,.35);}
+body.light-mode .rc-cat-opt.sel .rc-cat-nm{color:#fff;}
+
+/* ── Lote G: marcador Etilômetro (itens 07 e 18, leitura, PDF e QRV) ── */
+.etil-wrap{display:flex;align-items:center;gap:8px;width:100%;margin-top:2px;}
+.etil-btn{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;
+  color:var(--text2);background:var(--surface2);border:1px solid var(--border2);box-shadow:0 2px 0 rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08);transition:transform .08s,box-shadow .08s,filter .15s,background .15s;-webkit-tap-highlight-color:transparent;}
+.etil-btn .etil-ck{width:17px;height:17px;border-radius:4px;border:2px solid var(--text3);display:inline-flex;align-items:center;justify-content:center;font-size:12px;line-height:1;color:transparent;flex-shrink:0;}
+.etil-btn:hover{filter:brightness(1.12);}
+.etil-btn:active{transform:translateY(2px);box-shadow:none;}
+.etil-btn.on{background:linear-gradient(180deg,rgba(20,184,166,.38),rgba(20,184,166,.2));border-color:#2dd4bf;color:#5eead4;box-shadow:0 2px 0 #0f766e,inset 0 1px 0 rgba(255,255,255,.2);}
+.etil-btn.on .etil-ck{background:#14b8a6;border-color:#14b8a6;color:#fff;}
+.etil-tag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:4px;background:rgba(20,184,166,.18);border:1px solid rgba(45,212,191,.6);color:#2dd4bf;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:10.5px;letter-spacing:.5px;line-height:1.5;vertical-align:middle;white-space:nowrap;}
+.qrv-row-rota .etil-tag{margin-left:0;margin-right:6px;font-size:11px;}
+.qrv-row-rota .qrv-rota-chip + .etil-tag{margin-left:6px;}
+body.light-mode .etil-btn{box-shadow:0 2px 0 #94a3b8,inset 0 1px 0 rgba(255,255,255,.5);}
+body.light-mode .etil-btn.on{background:linear-gradient(180deg,#ccfbf1,#99f6e4);border-color:#0d9488;color:#115e59;box-shadow:0 2px 0 #0f766e;}
+body.light-mode .etil-tag{background:#ccfbf1;border-color:#0d9488;color:#115e59;}
 </style>
 
 <!-- ── TELA PRINCIPAL (LISTA) ── -->
@@ -13269,9 +13328,9 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function fontes(d){
     var out=[];
-    function add(v,a,r,cr){out.push({vt:nrm(v),ag:String(a||'').trim(),rota:String(r||'').trim(),cr:!!cr});}
-    (d.rotas||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true);});
-    (d.supervisao||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true);});
+    function add(v,a,r,cr,et){out.push({vt:nrm(v),ag:String(a||'').trim(),rota:String(r||'').trim(),cr:!!cr,et:et});}
+    (d.rotas||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true,!!r.etilometro);});
+    (d.supervisao||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true,!!r.etilometro);});
     (d.zonaAzul||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true);});
     (d.fiscalizacao||[]).forEach(function(r){add(r.veiculo,r.agentes,r.rota,true);});
     (d.rendicaoVl||[]).forEach(function(it){(it.viaturas||[]).forEach(function(v){var rv=String(v.rota||'').trim();add(v.veiculo,v.agentes,rv,!!rv);});});
@@ -13296,10 +13355,11 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
       var agQrv=[reg.motorista,reg.chefe,reg.passag].filter(Boolean).join(', ');
       var difAg=agKey(agQrv)!==agKey(f.ag);
       var difRota=f.cr&&f.rota&&nrm(reg.rota)!==nrm(f.rota);
-      if(!difAg&&!difRota)return;
-      var chave=String(reg.id)+'|'+agKey(f.ag)+'|'+nrm(f.rota);
+      var difEt=(f.et!==undefined)&&!reg.etilManual&&(!!f.et!==!!reg.etilometro);
+      if(!difAg&&!difRota&&!difEt)return;
+      var chave=String(reg.id)+'|'+agKey(f.ag)+'|'+nrm(f.rota)+'|'+(f.et?1:0);
       if(_divIgn[chave])return;
-      _divItens.push({reg:reg,f:f,difAg:difAg,difRota:difRota,agQrv:agQrv,chave:chave});
+      _divItens.push({reg:reg,f:f,difAg:difAg,difRota:difRota,difEt:difEt,agQrv:agQrv,chave:chave});
     });
     if(!_divItens.length){el.style.display='none';el.innerHTML='';return;}
     var pode=podeAtualizar();
@@ -13310,9 +13370,10 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
       var t='<b>'+esc(it.f.vt)+'</b>';
       if(it.difAg)t+=' · Agentes: <span class="old">'+esc(it.agQrv||'—')+'</span> → <span class="new">'+esc(it.f.ag.toUpperCase())+'</span>';
       if(it.difRota)t+=' · Rota: <span class="old">'+esc(it.reg.rota||'—')+'</span> → <span class="new">'+esc(it.f.rota.toUpperCase())+'</span>';
+      if(it.difEt)t+=' · Etilômetro: <span class="old">'+(it.reg.etilometro?'SIM':'NÃO')+'</span> → <span class="new">'+(it.f.et?'SIM':'NÃO')+'</span>';
       h+='<div class="qdv-row"><div class="t">'+t+'</div>'+(pode?'<button class="qdv-b" onclick="qrvDivAtualizar('+i+')">Atualizar</button>':'')+'</div>';
     });
-    h+='<div style="margin-top:8px;font-size:11px;color:var(--text3);">Atualizar copia do Relatório AMC apenas a <b>rota</b> e os <b>agentes</b> — horários, status e histórico do QRV não mudam.</div></div>';
+    h+='<div style="margin-top:8px;font-size:11px;color:var(--text3);">Atualizar copia do Relatório AMC apenas a <b>rota</b>, os <b>agentes</b> e o <b>etilômetro</b> — horários, status e histórico do QRV não mudam.</div></div>';
     el.innerHTML=h;el.style.display='block';
   };
   window.qrvDivIgnorar=function(){_divItens.forEach(function(it){_divIgn[it.chave]=true;});var el=banner();if(el){el.style.display='none';el.innerHTML='';}};
@@ -13326,6 +13387,7 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
       var reg=it.reg;
       if(it.difAg){reg.motorista=it.f.ag.toUpperCase();reg.chefe='';reg.passag='';}
       if(it.difRota){reg.rota=it.f.rota.toUpperCase();}
+      if(it.difEt){reg.etilometro=!!it.f.et;}
     });
     qrvRenderCards();
     toast('Atualizando '+alvo.length+' registro(s)...','ok');
@@ -13489,6 +13551,265 @@ body.light-mode #srvTgrid>div.tsel div{color:#fff !important;}
     var b=document.createElement('button');b.type='button';b.className='pl-close';b.textContent='Entendi';
     b.onclick=function(ev){ev.stopPropagation();pn.classList.remove('open');};pn.appendChild(b);});}
   add();
+})();
+</script>
+<script>
+/* ── Lote F: categorias da aba Rendições ── */
+(function(){
+  'use strict';
+  var CATS={
+    rendicao:{nome:'Rendição',plural:'Rendições',ico:'🔄',art:'Nova',ag:'Agente a ser Rendido',mot:'Motivo da Rendição',motRow:'Motivo',motPh:'Descreva o motivo...',subst:true,status:true,just:'atendimento (rendição)'},
+    missao:{nome:'Missão',plural:'Missões',ico:'🎯',art:'Nova',ag:'Agente(s) / VT',mot:'Descrição da Missão',motRow:'Descrição',motPh:'Descreva a missão...',subst:true,status:true,just:'atendimento'},
+    atendimento:{nome:'Atendimento',plural:'Atendimentos',ico:'📝',art:'Novo',ag:'Agente(s) / VT',mot:'Descrição do Atendimento',motRow:'Descrição',motPh:'Descreva o atendimento...',subst:false,status:false,just:'atendimento'}
+  };
+  var ORDEM=['rendicao','missao','atendimento'];
+  function $(id){return document.getElementById(id);}
+  function catDe(r){var c=String((r&&r.categoria)||'').trim().toLowerCase();return CATS[c]?c:'rendicao';}
+  function achar(id){var L=srvRends||[];for(var i=0;i<L.length;i++){if(L[i].id===id)return L[i];}return null;}
+  function dataIso(r){
+    var d=String(r.date||'').trim();
+    if(d.indexOf('/')>=0){var p=d.split('/');d=p[2]+'-'+p[1]+'-'+p[0];}
+    else if(d.length>10){try{d=srvIso(new Date(d));}catch(ex){}}
+    return d.substring(0,10);
+  }
+
+  /* nome da categoria de um registro (usado nos textos de concluir/cancelar/excluir) */
+  window.rcNomeDe=function(id,low){var r=achar(id);var n=CATS[catDe(r)].nome;return low?n.toLowerCase():n;};
+
+  /* ── seletor no modal Novo/Editar ── */
+  function montaModal(){
+    var reg=$('srvFRReg');if(!reg||$('rcCatGrid'))return;
+    var bloco=reg.parentNode;
+    var box=document.createElement('div');box.className='rc-cat-box';
+    box.innerHTML='<div class="rc-cat-lbl">Categoria do registro</div><div class="rc-cat-grid" id="rcCatGrid" data-cat="rendicao">'
+      +ORDEM.map(function(k){return '<div class="rc-cat-opt" data-cat="'+k+'" onclick="rcSetCat(\''+k+'\')"><span class="rc-cat-ico">'+CATS[k].ico+'</span><span class="rc-cat-nm">'+CATS[k].nome+'</span></div>';}).join('')
+      +'</div>';
+    bloco.parentNode.insertBefore(box,bloco);
+  }
+  function rotulo(inputId,txt,ph){
+    var inp=$(inputId);if(!inp)return;
+    var lb=inp.parentNode.querySelector('.flabel,label');if(lb)lb.textContent=txt;
+    if(ph)inp.setAttribute('placeholder',ph);
+  }
+  window.rcSetCat=function(k){
+    if(!CATS[k])k='rendicao';
+    var c=CATS[k],g=$('rcCatGrid');if(!g)return;
+    g.setAttribute('data-cat',k);
+    var ops=g.querySelectorAll('.rc-cat-opt');for(var i=0;i<ops.length;i++){ops[i].classList.toggle('sel',ops[i].getAttribute('data-cat')===k);}
+    rotulo('srvFRA',c.ag);
+    rotulo('srvFRM',c.mot,c.motPh);
+    var sb=$('srvFRS');if(sb&&sb.parentNode)sb.parentNode.style.display=c.subst?'':'none';
+    var t=$('srvMRendTit');if(t)t.textContent=(srvER?'Editar ':c.art+' ')+c.nome;
+  };
+  window.rcGetCat=function(){var g=$('rcCatGrid');var k=g?g.getAttribute('data-cat'):'';return CATS[k]?k:'rendicao';};
+
+  /* se a planilha ainda não tem a coluna "categoria", avisa em vez de falhar em silêncio */
+  window.rcCatVerificar=function(id,esperada){
+    try{
+      var r=achar(id);if(!r)return;
+      if(esperada!=='rendicao'&&catDe(r)!==esperada){
+        toast('⚠ A categoria não foi gravada: falta a coluna "categoria" na aba Rendicoes da planilha. Avise o administrador.','err');
+      }
+    }catch(ex){}
+  };
+
+  /* ── lista agrupada ── */
+  function vazio(msg){return '<div style="text-align:center;padding:40px;color:var(--text3);"><div style="font-size:36px;margin-bottom:8px;">🔄</div><div style="font-family:\'Rajdhani\',sans-serif;font-size:14px;letter-spacing:1px;text-transform:uppercase;">'+msg+'</div></div>';}
+  function card(r,k){
+    var c=CATS[k];
+    var status=String(r.status||'pendente').toLowerCase();
+    var sl,stxt;
+    if(c.status){
+      sl={pendente:'sp',concluida:'sr',cancelada:'sc'}[status]||'sp';
+      stxt={pendente:'PENDENTE',concluida:'CONCLUÍDA',cancelada:'CANCELADA'}[status]||status.toUpperCase();
+    }else{sl='sa';stxt='ATENDIMENTO';}
+    var cw=['admin','central'].indexOf(G.role)>=0;
+    var cs=['admin','central','supervisor'].indexOf(G.role)>=0;
+    var temSub=!!(r.substituto&&String(r.substituto).trim());
+
+    var agendadaHtml='';
+    if(c.subst&&temSub){
+      var label=status==='concluida'?'Realizado por':'Agendada para';
+      agendadaHtml='<div class="s-ndinfo-row"><div class="s-ndinfo-label">'+label+'</div><div class="s-ndinfo-value" style="color:#10b981;">'+r.substituto+'</div></div>';
+    }
+    var btnAgendar=(c.status&&status==='pendente'&&cs&&(G.role!=='supervisor'||srvIso(srvRD)>=srvIso(new Date()))&&!temSub)
+      ?'<div class="ab-row"><button class="abtn abtn-blue" onclick="event.stopPropagation();srvOpenSup(\''+r.id+'\')">Agendar substituto</button></div>':'';
+    var podeConcluir=status==='pendente'&&(k==='missao'||temSub);
+    var acoes=cw?('<div class="ab-row">'
+      +'<button class="abtn abtn-blue" onclick="event.stopPropagation();srvEditRend(\''+r.id+'\')">Editar</button>'
+      +(c.status&&status==='pendente'&&podeConcluir?'<button class="abtn abtn-green" onclick="event.stopPropagation();srvConcluirRend(\''+r.id+'\')">Concluir</button>':'')
+      +(c.status&&status==='pendente'?'<button class="abtn abtn-amber" onclick="event.stopPropagation();srvCancelRend(\''+r.id+'\')">Cancelar</button>':'')
+      +(c.status&&status==='cancelada'?'<button class="abtn abtn-blue" onclick="event.stopPropagation();srvReativarRend(\''+r.id+'\')">Reativar</button>':'')
+      +((!c.status||status==='pendente'||status==='cancelada')?'<button class="abtn abtn-red" onclick="event.stopPropagation();srvDelRend(\''+r.id+'\')">Excluir</button>':'')
+      +'</div>'):'';
+    var motivoCanc=(c.status&&r.motivoCancelamento&&String(r.motivoCancelamento).trim())
+      ?'<div class="s-ndinfo-row"><div class="s-ndinfo-label" style="color:#ef4444;">Motivo do Cancelamento</div><div class="s-ndinfo-value" style="color:#ef4444;">'+r.motivoCancelamento+'</div></div>':'';
+    var copiar=(c.status&&status==='cancelada')?'':'<button class="s-btn-copiar" onclick="event.stopPropagation();srvCopiarJustificativa(\''+r.id+'\',this)" title="Copiar justificativa de ausência de ponto">📋 Justif. de ponto</button>';
+
+    return '<div class="s-ndcard '+sl+'" onclick="this.classList.toggle(\'expanded\')">'
+      +'<div class="s-ndcard-head">'
+      +'<div class="s-ndcard-l1"><span class="s-ndsb">'+stxt+'</span><span class="s-ndjust-r">'+copiar+'<span class="s-ndcard-chevron">▼</span></span></div>'
+      +'<div class="s-ndcard-l2">'+(r.reg?'<span class="s-ndcard-reg">Nº '+r.reg+' ·</span>':'')+'<span class="s-ndcard-local">'+(r.agente||'—')+'</span></div>'
+      +(r.local?'<div style="font-size:12px;color:var(--text2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.local+'</div>':'')
+      +(r.motivo?'<div style="font-size:12px;color:var(--gold2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+r.motivo+'</div>':'')
+      +'</div>'
+      +'<div class="s-ndcard-detail"><div class="s-ndcard-detail-inner">'
+      +srvNdRow('Agente(s)',r.agente)+srvNdRow('Nº Registro',r.reg)+srvNdRow('Local / Posto',r.local)+srvNdRow(c.motRow,r.motivo)
+      +agendadaHtml+btnAgendar+motivoCanc+acoes
+      +(copiar?'<div style="margin-top:10px;">'+copiar+'</div>':'')
+      +'</div></div></div>';
+  }
+
+  function rcRender(){
+    var el=$('srvRendList');if(!el)return;
+    if(srvRendGate){el.innerHTML='<div style="padding:26px 14px;text-align:center;color:var(--text2);font-size:13px;"><div style="font-size:26px;margin-bottom:6px;">📅</div>Data anterior — escolha o turno e toque em ↻ para consultar os registros.</div>';return;}
+    var td=srvIso(srvRD);
+    var busca=((($('srvRendSearch')||{}).value)||'').trim().toUpperCase();
+    var t=srvRendTab,sf=srvRendSF;
+    var items=(srvRends||[]).filter(function(r){
+      var cat=catDe(r);
+      var rTurno=String(r.turno||'').trim().toLowerCase();
+      var rStatus=String(r.status||'pendente').trim().toLowerCase();
+      var rAgente=String(r.agente||'').toUpperCase();
+      var okSf=(sf==='todos')||(CATS[cat].status&&rStatus===sf);
+      return dataIso(r)===td&&rTurno===t&&okSf&&(!busca||rAgente.indexOf(busca)>=0);
+    });
+    if(!items.length){el.innerHTML=vazio(busca?'Nenhum agente encontrado':'Nenhum registro neste turno');srvUpdateTurnoBadges();return;}
+    var n=items.length;
+    var html='<div class="s-list-counter"><span>'+n+'</span> registro'+(n!==1?'s':'')+'</div>';
+    ORDEM.forEach(function(k){
+      var g=items.filter(function(r){return catDe(r)===k;});
+      if(!g.length)return;
+      html+='<div class="rc-grp-head rc-'+k+'"><span class="rc-grp-t">'+CATS[k].ico+' '+CATS[k].plural+'</span><span class="rc-grp-n">'+g.length+'</span></div>';
+      html+=g.map(function(r){return card(r,k);}).join('');
+    });
+    el.innerHTML=html;
+    srvUpdateTurnoBadges();
+  }
+  window.srvRenderRend=rcRender;
+
+  /* ── justificativa de ponto: texto por categoria ── */
+  window.srvCopiarJustificativa=function(id,btn){
+    var r=achar(id);if(!r)return;
+    var txt='Solicito justificar a ausência de registro de ponto de entrada/saída no dia '+srvFmtBR(dataIso(r))
+      +', em razão do '+CATS[catDe(r)].just+' realizado no local: '+(r.local||'—')
+      +', conforme registro no sistema de atendimento da CENTRAL - SAC sob o Nº '+(r.reg||'—')+'.';
+    function ok(){toast('Justificativa copiada! ✓','ok');try{srvJustFeedback(btn);}catch(e){}}
+    function fallback(){
+      var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);ok();
+    }
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok).catch(fallback);}else{fallback();}
+  };
+
+  /* botão da barra: agora serve para os três tipos */
+  var nb=$('srvBtnNR');if(nb)nb.textContent='＋ Novo';
+  montaModal();
+})();
+</script>
+<script>
+/* ── Lote G: marcador Etilômetro ── */
+(function(){
+  'use strict';
+  function $(id){return document.getElementById(id);}
+  function setOn(b,on){if(!b)return;b.classList.toggle('on',!!on);b.setAttribute('aria-pressed',on?'true':'false');}
+  function mkBtn(auto){
+    var b=document.createElement('button');b.type='button';b.className='etil-btn';b.setAttribute('aria-pressed','false');
+    b.innerHTML='<span class="etil-ck">✓</span><span>Etilômetro</span>';
+    b.addEventListener('click',function(ev){
+      ev.preventDefault();ev.stopPropagation();
+      setOn(b,!b.classList.contains('on'));
+      if(auto){try{agendarAutoSave();}catch(e){}}
+    });
+    return b;
+  }
+  /* botão em cada linha dos itens 07 (Rotas) e 18 (Supervisão) */
+  function addTo(row){
+    if(!row||row.querySelector('.etil-btn'))return;
+    var w=document.createElement('div');w.className='etil-wrap';w.appendChild(mkBtn(true));
+    var rem=null;for(var i=0;i<row.children.length;i++){if(row.children[i].classList&&row.children[i].classList.contains('btnrem')){rem=row.children[i];break;}}
+    if(rem)row.insertBefore(w,rem);else row.appendChild(w);
+  }
+  function wrapAdd(name,contId){
+    var o=window[name];if(typeof o!=='function')return;
+    window[name]=function(){var r=o.apply(this,arguments);try{var c=$(contId);if(c)addTo(c.lastElementChild);}catch(e){}return r;};
+  }
+  wrapAdd('adicionarRota','rotasContainer');
+  wrapAdd('addSupervisao','supervisaoContainer');
+
+  /* coleta: grava "etilometro:true" só nas viaturas marcadas */
+  function marcados(contId){
+    var out=[],c=$(contId);if(!c)return out;
+    for(var i=0;i<c.children.length;i++){out.push(!!c.children[i].querySelector('.etil-btn.on'));}
+    return out;
+  }
+  function tag(arr,contId){var m=marcados(contId);for(var i=0;i<arr.length;i++){if(m[i]&&arr[i])arr[i].etilometro=true;}return arr;}
+  var _cr=window.coletarRotas;
+  if(typeof _cr==='function')window.coletarRotas=function(){return tag(_cr.apply(this,arguments),'rotasContainer');};
+  var _cc=window.coletarContainer;
+  if(typeof _cc==='function')window.coletarContainer=function(id){var a=_cc.apply(this,arguments);return id==='supervisaoContainer'?tag(a,'supervisaoContainer'):a;};
+
+  /* ao abrir um relatório salvo, religa os botões */
+  function aplicar(contId,arr){
+    var c=$(contId);if(!c)return;
+    for(var i=0;i<c.children.length;i++){var b=c.children[i].querySelector('.etil-btn');if(b)setOn(b,!!(arr&&arr[i]&&arr[i].etilometro));}
+  }
+  var _pf=window.preencherFormulario;
+  if(typeof _pf==='function')window.preencherFormulario=function(d){
+    var r=_pf.apply(this,arguments);
+    try{aplicar('rotasContainer',d&&d.rotas);aplicar('supervisaoContainer',d&&d.supervisao);}catch(e){}
+    return r;
+  };
+
+  /* QRV: viatura nova vinda do relatório já nasce com a etiqueta */
+  window.etilQrvTag=function(novas,r){
+    try{
+      if(!r||!r.etilometro)return;
+      var chave=(r.veiculo||'').trim().toUpperCase()||(r.agentes||'').split(',')[0].trim().toUpperCase();
+      var id=('sup_'+isoData(G.data)+'_'+G.turno+'_'+chave).replace(/\s/g,'_');
+      for(var i=0;i<novas.length;i++){if(novas[i].id===id){if(!novas[i].etilManual)novas[i].etilometro=true;break;}}
+    }catch(e){}
+  };
+
+  /* QRV: etiqueta na linha da viatura (todos os perfis) */
+  function tagEl(){var t=document.createElement('span');t.className='etil-tag';t.textContent='ETILÔMETRO';return t;}
+  function decorar(){
+    var rows=document.querySelectorAll('#telaQrv .qrv-row');
+    for(var i=0;i<rows.length;i++){
+      var row=rows[i];
+      var reg=(typeof qrvRegistros!=='undefined'?qrvRegistros:[]).filter(function(x){return String(x.id)===String(row.getAttribute('data-id'));})[0];
+      if(!reg||!reg.etilometro||row.querySelector('.etil-tag'))continue;
+      var rotaEl=row.querySelector('.qrv-row-rota');
+      if(rotaEl){rotaEl.appendChild(tagEl());continue;}
+      var cont=row.querySelector('.qrv-row-info')||row.querySelector('div[style*="flex:1"]');
+      if(cont){var d=document.createElement('div');d.className='qrv-row-rota';d.appendChild(tagEl());cont.appendChild(d);}
+    }
+  }
+  var _rc=window.qrvRenderCards;
+  if(typeof _rc==='function')window.qrvRenderCards=function(){var r=_rc.apply(this,arguments);try{decorar();}catch(e){}return r;};
+
+  /* QRV: interruptor na edição do card (central/admin) */
+  function montaEdicao(){
+    var rw=$('qrvEditRotaWrap');if(!rw||$('qrvEditEtil'))return;
+    var blk=rw.parentNode;
+    var box=document.createElement('div');box.style.marginBottom='8px';
+    box.innerHTML='<span class="flabel">Equipamento</span>';
+    var w=document.createElement('div');w.className='etil-wrap';
+    var b=mkBtn(false);b.id='qrvEditEtil';w.appendChild(b);box.appendChild(w);
+    blk.parentNode.insertBefore(box,blk.nextSibling);
+  }
+  var _ae=window.qrvAbrirEditModal;
+  if(typeof _ae==='function')window.qrvAbrirEditModal=function(id){
+    var r=_ae.apply(this,arguments);
+    try{var reg=(typeof qrvRegistros!=='undefined'?qrvRegistros:[]).filter(function(x){return x.id==id;})[0];setOn($('qrvEditEtil'),!!(reg&&reg.etilometro));}catch(e){}
+    return r;
+  };
+  window.etilLerEdicao=function(reg){
+    var b=$('qrvEditEtil');if(!b||!reg)return;
+    var on=b.classList.contains('on');
+    if(on!==!!reg.etilometro){reg.etilometro=on;reg.etilManual=true;}
+  };
+  montaEdicao();
 })();
 </script>
 </html>
