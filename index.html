@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-21-vT'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-21-vV'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -2879,20 +2879,24 @@ let vlRegioes = JSON.parse(localStorage.getItem(LS_VL.regioes)) || [
   "CIDADE DOS FUNCIONÁRIOS","CONJUNTO ESPERANÇA","MARAPONGA",
   "PAPICU","PARANGABA","RODOLFO TEÓFILO"
 ].sort((a,b)=>a.localeCompare(b));
+// Lista oficial atualizada em 21/10/2026. Ao mudar a lista, altere também a versão abaixo: celulares que tinham
+// uma cópia antiga salva ("Editar Operadores") passam a usar a lista nova uma vez.
+const VL_OP_VERSAO='2026-10-21';
+try{ if(localStorage.getItem('vlOperadoresVersao')!==VL_OP_VERSAO){ localStorage.removeItem(LS_VL.operadores); localStorage.setItem('vlOperadoresVersao',VL_OP_VERSAO); } }catch(e){}
 let vlOperadores = JSON.parse(localStorage.getItem(LS_VL.operadores)) || [
-  "ACÁCIO","ADAMS","ANCHIETA DA SILVA","BACELAR","BRUNO","BRUNO ALBUQUERQUE","CALACIO",
-  "CARLOS ALBERTO","CARLOS ALEX","CARLOS EDUARDO","CRISTIANO","DANRLEI","DAVID","DELUCAS",
-  "DENIS","EDILBERTO","ELIZIÁRIO","EMANUEL PINHEIRO","EMERSON","ERICK","FABRÍCIO","FELIPE",
-  "FRANCISCO","FRANCISCO THIAGO","GABRIEL RIBEIRO","GENILSON","GOMES","HUDSON","ITALO",
-  "JAIRO","JOAN","JOÃO LUCAS","JOÃO PAULO","JORGE LUIS","JOSÉ AIRTON","JOSÉ ARY",
-  "JOSÉ MOREIRA","JOSE RONALDO","JULIO CESAR","LEONI","LUCAS CAVALCANTE","MAIA","MAICON",
-  "MÁRCIO","MARCELO ARAÚJO","MARLON","MIGUEL","MIZAEL","NEGREIROS","NEIRTON","NONATO",
-  "OLAVO","ONILDO","PAULO SÉRGIO","PAULO TELES","PEDRO LESSA","PEDRO MARQUES","ROBSON","RONALDO",
-  "SALES","SANTANA","SIDNEY","THAYANNE","THIAGO CÉSAR","THIAGO NOGUEIRA","UIRAQUÊ",
-  "WESLEY SILVA","ZAMISK","FLÁVIO","FRANCISCO MÁRIO","FRANCISCO MATHEUS","GABRIEL PINTO",
-  "GIULYANDRESS","JEBBERSON","JOBSON","JOÃO BATISTA","JOSÉ MATEUS","JOSÉ WELINGTON",
-  "LIDOMAR","LUCAS SAMPAIO","LUIZ CARLOS","MAX","MENDONÇA","MICHEL","MOZART","NOJOSA",
-  "OLIVEIRA","RAFAEL MELO","VLADSON","WESLEY NASCIMENTO","ERONILDES"
+  "ACÁCIO","ANTONIO MARCOS","AMADEU","BACELAR","CALACIO","CARLOS ALBERTO",
+  "CARLOS ALEX","CARLOS EDUARDO","CRISTIANO","DANRLEI","DANIEL ALVES","DELUCAS",
+  "DENIS","EDILBERTO","ELIZIÁRIO","EMANUEL PINHEIRO","EMANUEL VICTOR","ERICK",
+  "FARIAS","FELIPE","FLÁVIO","FRANCISCO MÁRIO","FRANCISCO MATHEUS","GABRIEL PINTO",
+  "GEOVANE","GIULYANDRESS","HUDSON","ITALO","JAIRO","JEAN CARLOS",
+  "JOAN","JOÃO BATISTA","JOÃO LUCAS","JOÃO PAULO","JOBSON","JORGE LUIS",
+  "JOSÉ AIRTON","JOSÉ ARY","JOSÉ MATEUS","JOSÉ MOREIRA","JOSE RONALDO","JOSÉ WELINGTON",
+  "JULIO CESAR","JULIO ROBERTO","LEONI","LUCAS SAMPAIO","LUIZ CARLOS","MAIA",
+  "MARCONDES ALENCAR","MARCELO ARAÚJO","MÁRCIO","MATHEUS VIALY","MAX","MARCOS DOUGLAS",
+  "MOZART","NEIRTON","NOJOSA","NONATO","OLAVO","OLIVEIRA",
+  "PAULO SÉRGIO","PAULO TELES","PEDRO LESSA","PEDRO MARQUES","RAFAEL MELO","ROBSON",
+  "RONALDO","SALES","SIDNEY","THAYANNE","THIAGO NOGUEIRA","VLADSON",
+  "WESLEY NASCIMENTO","WESLEY SILVA"
 ].sort((a,b)=>a.localeCompare(b));
 let vlTurno='MANHÃ';
 let vlRelatorio=null;
@@ -10831,16 +10835,25 @@ function sfCarregarHeic(){
   return window._sfHeicP;
 }
 async function sfProcessarFoto(file){
-  if(sfEhHeic(file)){
+  window._sfSig='';
+  // copia o arquivo para a memória já de início (foto recém-tirada pela câmera pode ser temporária no celular)
+  let buf=null;
+  try{ buf=await file.arrayBuffer(); }catch(eb){ buf=null; }
+  let heic=sfEhHeic(file);
+  if(buf){
+    const h=new Uint8Array(buf.slice(0,16));
+    window._sfSig=Array.prototype.map.call(h.slice(0,12),function(x){return ('0'+x.toString(16)).slice(-2);}).join('');
+    // o celular pode declarar "image/jpeg" mas entregar HEIC de verdade: confere pelo conteúdo ("ftyp" + marca heic/heif)
+    const marca=String.fromCharCode.apply(null,h.slice(4,12));
+    if(/^ftyp(hei[cxms]|hev[cx]|mif1|msf1)/.test(marca)) heic=true;
+  }
+  if(heic){
     toast('Convertendo foto do celular… pode levar alguns segundos.','ok');
     await sfCarregarHeic();
-    let out=await window.heic2any({blob:file,toType:'image/jpeg',quality:0.85});
+    let out=await window.heic2any({blob:buf?new Blob([buf],{type:'image/heic'}):file,toType:'image/jpeg',quality:0.85});
     if(Array.isArray(out)) out=out[0];
-    file=out;
-  }
-  // copia o arquivo para a memória já de início (foto recém-tirada pela câmera pode ser temporária no celular)
-  try{ const buf=await file.arrayBuffer(); file=new Blob([buf],{type:file.type||'image/jpeg'}); }
-  catch(eb){ /* segue com o arquivo original */ }
+    file=out; buf=null;
+  } else if(buf){ file=new Blob([buf],{type:file.type||'image/jpeg'}); }
   let bmp=null;
   try{ if(window.createImageBitmap) bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
   catch(e1){ try{ bmp=await createImageBitmap(file); }catch(e2){ bmp=null; } }
@@ -10852,7 +10865,12 @@ async function sfProcessarFoto(file){
   }
   if(!bmp){ // último recurso: data URL
     const du=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('leitura'));r.readAsDataURL(file);});
-    bmp=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(new Error('decode-final'));x.src=du;});
+    try{ bmp=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(new Error('decode-final'));x.src=du;}); }
+    catch(ef){
+      try{ await sfCarregarHeic(); let o2=await window.heic2any({blob:file,toType:'image/jpeg',quality:0.85}); if(Array.isArray(o2))o2=o2[0];
+           bmp=await createImageBitmap(o2); }
+      catch(eh){ throw ef; }
+    }
   }
   const w=bmp.width||bmp.naturalWidth, h=bmp.height||bmp.naturalHeight;
   if(!w||!h) throw new Error('vazia');
@@ -10871,7 +10889,7 @@ function sfCarregarImg(i,e){
     sfImgs[i]=url; sfImgsRotacao[i]=0; sfPdfGerado=false; sfAtualizarSlot(i,'b64');
   }).catch(function(err){
     console.warn('[SF] foto:',err);
-    toast(sfEhHeic(f)?'Não consegui converter esta foto (formato HEIC). Verifique a internet e tente de novo, ou mude a câmera do celular para o formato JPEG.':'Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+', '+Math.round((f.size||0)/1024)+' KB'+(err&&err.message?', '+String(err.message).slice(0,40):'')+'). Tire outra ou escolha outra da galeria.','err');
+    toast(sfEhHeic(f)?'Não consegui converter esta foto (formato HEIC). Verifique a internet e tente de novo, ou mude a câmera do celular para o formato JPEG.':'Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+', '+Math.round((f.size||0)/1024)+' KB'+(err&&err.message?', '+String(err.message).slice(0,40):'')+(window._sfSig?', '+window._sfSig:'')+'). Tire outra ou escolha outra da galeria.','err');
   }).then(function(){ const sl=document.getElementById('sfSlot'+i); if(sl)sl.style.opacity=''; try{inp.value='';}catch(_){} });
 }
 function sfCamera(i){
