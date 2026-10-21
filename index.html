@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-21-vX'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-21-vZ'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -14389,9 +14389,13 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
   function $(id){return document.getElementById(id);}
   function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function norm(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();}
-  function oficiais(){
+  // campos do Via Livre conferem com a lista de OPERADORES VL; os demais, com a lista de agentes da AMC
+  function oficiais(input){
     var set={},max=1,n=0,lista=[];
-    try{lista=Array.isArray(agentes)?agentes:[];}catch(e){}
+    try{
+      if(input&&input._agVL&&typeof vlOperadores!=='undefined'&&Array.isArray(vlOperadores))lista=vlOperadores;
+      else lista=Array.isArray(agentes)?agentes:[];
+    }catch(e){}
     lista.forEach(function(a){var k=norm(a);if(!k)return;set[k]=a;n++;var w=k.split(' ').length;if(w>max)max=w;});
     return {set:set,max:max,n:n,lista:lista};
   }
@@ -14531,12 +14535,16 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
 
   function validar(input){
     if(!input||!input.isConnected||input.disabled||input.readOnly)return;
-    var of=oficiais();
+    var of=oficiais(input);
     var entradas=entradasDe(input);
     var novos=[],pend=[],mudou=false,sepAvisos=[];
     if(of.n>0){
       entradas.forEach(function(e){
-        var r=proc(e,of);
+        // "NOME 85 99999-1234": confere só o nome; o telefone acompanha o último nome
+        var eb=e,tail='',mp=e.match(/^(.*?)[\s\-–]*((?:\(?\d{2}\)?[\s\-]?)?9?\d{4}[\s\-]?\d{4})\s*$/);
+        if(mp&&mp[1].trim()&&!/\d/.test(mp[1])){eb=mp[1].trim();tail=e.slice(eb.length);}
+        var r=proc(eb,of);
+        if(tail&&r.length){r=r.slice();r[r.length-1]={nome:r[r.length-1].nome+tail,st:r[r.length-1].st,sug:r[r.length-1].sug};}
         if(r.length===1&&r[0].nome===e){ if(r[0].st==='desc')pend.push({e:e,sug:r[0].sug}); novos.push(e); return; }
         mudou=true;
         var nomes=r.map(function(x){return x.nome;});
@@ -14594,7 +14602,13 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
         else if(a==='inc'){
           var nome=it.e.toUpperCase();
           try{
-            if(Array.isArray(agentes)&&agentes.map(norm).indexOf(norm(nome))<0){
+            if(input._agVL&&Array.isArray(vlOperadores)){
+              if(vlOperadores.map(norm).indexOf(norm(nome))<0){
+                vlOperadores.push(nome);vlOperadores.sort(function(x,y){return x.localeCompare(y);});
+                localStorage.setItem(LS_VL.operadores,JSON.stringify(vlOperadores));
+                toast('Incluído na lista de operadores deste aparelho.','ok');
+              }
+            }else if(Array.isArray(agentes)&&agentes.map(norm).indexOf(norm(nome))<0){
               agentes.push(nome);agentes.sort(function(x,y){return x.localeCompare(y);});
               localStorage.setItem(LS.agentes,JSON.stringify(agentes));
               toast('Incluído na lista de agentes deste aparelho.','ok');
@@ -14630,6 +14644,14 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
       if(!el.isConnected||document.activeElement!==el){clearInterval(el._agVigia);el._agVigia=null;return;}
       if(el.value!==el._agLast){el._agLast=el.value;agendaEco(el);}
     },300);
+  }
+  var fVl=window.vlAddEventosOp;
+  if(typeof fVl==='function'){
+    window.vlAddEventosOp=function(input){
+      var r=fVl.apply(this,arguments);
+      try{ if(input)input._agVL=true; }catch(e){}
+      return r;
+    };
   }
   var f0=window.addEventosAgentes;
   if(typeof f0==='function'){
