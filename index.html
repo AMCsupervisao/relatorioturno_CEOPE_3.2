@@ -1350,9 +1350,10 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel" style="color:#a78bfa;">Viaturas / Motos</span>
-          <button onclick="cmdAdicionarVt()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ VT/MT</button>
+          <button onclick="cmdAdicionarVt()" style="display:none;background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ VT/MT</button>
         </div>
         <div id="cmdVtContainer"></div>
+        <button type="button" class="btn-add-grande roxo" data-add="cmd"><span class="mais">+</span> Adicionar VT/MT</button>
       </div>
       <div class="fsec" style="margin-bottom:14px;">
         <span class="flabel" style="color:#f59e0b;">Ausências</span>
@@ -1402,17 +1403,19 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel">Postos / Locais</span>
-          <button onclick="evtAdicionarPosto()" style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:var(--gold);font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ POSTO</button>
+          <button onclick="evtAdicionarPosto()" style="display:none;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:var(--gold);font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ POSTO</button>
         </div>
         <div id="evtPostosContainer"></div>
+        <button type="button" class="btn-add-grande ambar" data-add="posto"><span class="mais">+</span> Adicionar posto</button>
       </div>
       <!-- Supervisão -->
       <div style="margin-bottom:8px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span class="flabel" style="color:#a78bfa;">Supervisão</span>
-          <button onclick="evtAdicionarSupervisao()" style="background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
+          <button onclick="evtAdicionarSupervisao()" style="display:none;background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.4);border-radius:8px;color:#a78bfa;font-size:13px;font-weight:700;padding:8px 16px;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:1px;">+ SUPERVISÃO</button>
         </div>
         <div id="evtSupervisaoContainer"></div>
+        <button type="button" class="btn-add-grande roxo" data-add="sup"><span class="mais">+</span> Adicionar supervisão</button>
       </div>
       <div class="fsec" style="margin-bottom:14px;">
         <span class="flabel" style="color:#f59e0b;">Ausências</span>
@@ -2087,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-20-vK'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-20-vO'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -12960,6 +12963,41 @@ body.light-mode .bp-tg.evt{color:#5b21b6;background:#ede9fe;border-color:#7c3aed
 /* ── vK: botão do período rápido (7/15/30) fica marcado ── */
 .bp-rap button.on{color:#fff;background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#93c5fd;box-shadow:0 2px 0 rgba(0,0,0,.5),0 0 0 2px rgba(96,165,250,.35),inset 0 1px 0 rgba(255,255,255,.25);}
 body.light-mode .bp-rap button.on{color:#fff;background:linear-gradient(180deg,#2563eb,#1d4ed8);border-color:#1e40af;box-shadow:0 2px 0 #94a3b8,0 0 0 2px rgba(37,99,235,.3),inset 0 1px 0 rgba(255,255,255,.3);}
+
+/* ── vL: conferência dos nomes de agentes (lista oficial) e aviso de MT ── */
+.ag-aviso{margin-top:5px;padding:6px 8px;border:1px solid rgba(251,191,36,.65);background:rgba(245,158,11,.12);border-radius:8px;font-size:12px;line-height:1.35;color:#fcd34d;}
+.ag-aviso b{color:#fff;}
+.ag-l{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:2px 0;}
+.ag-l>span{flex:1 1 150px;min-width:0;}
+.ag-b{display:inline-flex;flex-wrap:wrap;gap:5px;}
+.ag-b button{padding:3px 9px;border-radius:6px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:#fcd34d;background:transparent;border:1px solid rgba(251,191,36,.65);}
+.ag-b button.pri{color:#1b1300;background:#fbbf24;border-color:#fbbf24;}
+input.ag-warn{border-color:#f59e0b!important;}
+body.light-mode .ag-aviso{background:#fffbeb;color:#92400e;border-color:#d97706;}
+body.light-mode .ag-aviso b{color:#451a03;}
+body.light-mode .ag-b button{color:#92400e;border-color:#d97706;}
+body.light-mode .ag-b button.pri{color:#fff;background:#d97706;border-color:#d97706;}
+
+/* ── vM: aviso em largura total, Comando empilhado no celular e texto completo dos agentes ── */
+.ag-aviso{order:5;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;}
+.ag-l>span{min-width:0;}
+.ag-b{flex:1 1 100%;}
+.ag-eco{order:4;box-sizing:border-box;max-width:100%;margin-top:4px;padding:5px 8px;border-left:3px solid #60a5fa;background:rgba(96,165,250,.08);border-radius:0 6px 6px 0;font-size:12px;line-height:1.4;color:var(--text2,#94a3b8);overflow-wrap:anywhere;}
+body.light-mode .ag-eco{background:rgba(37,99,235,.06);color:#334155;}
+@media (max-width:520px){
+  .cmd-vt-form{flex-wrap:wrap;}
+  .cmd-vt-form .input-wrap{order:3;flex:1 1 100%!important;}
+  .cmd-vt-form > button{margin-left:auto;}
+}
+
+/* ── vN: botão grande de adicionar embaixo do último registro (Comando e Evento) ── */
+.btn-add-grande{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin:8px 0 4px;padding:10px 14px;box-sizing:border-box;border-radius:12px;border:2px dashed;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:16px;letter-spacing:1.2px;text-transform:uppercase;transition:transform .08s,filter .15s;}
+.btn-add-grande:active{transform:translateY(2px);filter:brightness(1.2);}
+.btn-add-grande .mais{font-size:24px;line-height:1;font-weight:700;}
+.btn-add-grande.roxo{color:#c4b5fd;border-color:rgba(167,139,250,.8);background:rgba(167,139,250,.12);}
+.btn-add-grande.ambar{color:#fbbf24;border-color:rgba(245,158,11,.85);background:rgba(245,158,11,.12);}
+body.light-mode .btn-add-grande.roxo{color:#5b21b6;border-color:#7c3aed;background:#ede9fe;}
+body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;background:#fef3c7;}
 </style>
 
 <!-- ── TELA PRINCIPAL (LISTA) ── -->
@@ -14239,6 +14277,296 @@ body.light-mode .bp-rap button.on{color:#fff;background:linear-gradient(180deg,#
   });
   window.bpAbrir=abrir;window.bpBuscar=buscar;window.bpVis=vis;
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',montaBotoes);else montaBotoes();
+})();
+</script>
+<script>
+/* ── vL: conferência dos nomes de agentes (lista oficial) e aviso de MT ── */
+(function(){
+  'use strict';
+  var ignorados={};      // nomes que o usuário escolheu "manter" nesta sessão
+  function $(id){return document.getElementById(id);}
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function norm(t){return String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/\s+/g,' ').trim();}
+  function oficiais(){
+    var set={},max=1,n=0,lista=[];
+    try{lista=Array.isArray(agentes)?agentes:[];}catch(e){}
+    lista.forEach(function(a){var k=norm(a);if(!k)return;set[k]=a;n++;var w=k.split(' ').length;if(w>max)max=w;});
+    return {set:set,max:max,n:n,lista:lista};
+  }
+  // decomposição COMPLETA em nomes oficiais (menor nº de peças); null se não fechar
+  function decompor(w,of){
+    var n=w.length,best=[];best[0]=[];
+    for(var i=1;i<=n;i++){
+      best[i]=null;
+      for(var j=Math.max(0,i-of.max);j<i;j++){
+        if(best[j]===null)continue;
+        var nm=w.slice(j,i).join(' ');
+        if(of.set[norm(nm)]){var c=best[j].concat([nm]);if(best[i]===null||c.length<best[i].length)best[i]=c;}
+      }
+    }
+    return best[n];
+  }
+  // separação parcial: partes oficiais + trechos desconhecidos
+  function parcial(w,of){
+    var pecas=[],desc=[],achou=false,i=0;
+    function fecha(){if(desc.length){pecas.push(desc.join(' '));desc=[];}}
+    while(i<w.length){
+      var j=Math.min(w.length,i+of.max),ok=false;
+      for(;j>i;j--){if(of.set[norm(w.slice(i,j).join(' '))]){ok=true;break;}}
+      if(ok){fecha();pecas.push(w.slice(i,j).join(' '));achou=true;i=j;}else{desc.push(w[i]);i++;}
+    }
+    fecha();
+    return achou?pecas:null;
+  }
+  function dist(a,b){ // Damerau (transposição conta 1)
+    var m=a.length,n=b.length,d=[],i,j;
+    for(i=0;i<=m;i++){d[i]=[i];}for(j=1;j<=n;j++)d[0][j]=j;
+    for(i=1;i<=m;i++)for(j=1;j<=n;j++){
+      var c=a[i-1]===b[j-1]?0:1;
+      d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+c);
+      if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])d[i][j]=Math.min(d[i][j],d[i-2][j-2]+1);
+    }
+    return d[m][n];
+  }
+  function parecido(e,of){
+    var ne=norm(e);if(ne.length<3)return null;
+    var ini=null,best=null,bd=99;
+    of.lista.forEach(function(a){
+      var na=norm(a);
+      if(na.indexOf(ne)===0&&(!ini||na.length<norm(ini).length))ini=a;
+      var lim=ne.length<=4?1:2;
+      if(Math.abs(na.length-ne.length)<=lim){var dd=dist(ne,na);if(dd<=lim&&dd<bd){bd=dd;best=a;}}
+    });
+    return ini||best;
+  }
+  // um trecho (sem " E "): oficial / separável / desconhecido
+  function base(t,of){
+    var nt=norm(t);
+    if(!nt)return [];
+    if(of.set[nt]||ignorados[nt])return [{nome:t,st:'ok'}];
+    var w=t.split(' ');
+    if(w.length>=2){
+      var full=decompor(w,of);
+      if(full&&full.length>=2)return full.map(function(x){return {nome:x,st:'ok'};});
+      var par=parcial(w,of);
+      if(par&&par.length>=2)return [{nome:t,st:'desc',sug:{tipo:'separar',pecas:par}}];
+    }
+    var pa=parecido(t,of);
+    return [{nome:t,st:'desc',sug:pa?{tipo:'trocar',nome:pa}:null}];
+  }
+  function proc(e,of){
+    var nt=norm(e);
+    if(of.set[nt]||ignorados[nt])return [{nome:e,st:'ok'}];
+    var partes=e.split(/\s+E\s+|\s*[\/&+]\s*/);
+    var out=[];
+    partes.forEach(function(pt){base(pt.trim(),of).forEach(function(x){out.push(x);});});
+    return out;
+  }
+
+  /* ── campo de viatura da mesma linha (para MT) ── */
+  function acharVt(input){
+    var el=input.parentElement,nivel=0;
+    input._agRow=null;input._agNivel=null;
+    while(el&&nivel<4){
+      var vts=el.querySelectorAll('.vt-input,[data-vtid]');   // no QRV o campo perde a classe, mas mantém data-vtid
+      if(vts.length===1){input._agRow=el;input._agNivel=nivel;return vts[0];}
+      if(vts.length>1)return null;
+      el=el.parentElement;nivel++;
+    }
+    return null;
+  }
+
+  function sinal(input){
+    var v=input._agAviso;return v?v.getAttribute('data-sig'):'';
+  }
+  // coloca o aviso/eco na linha inteira (largura total) quando o campo está numa linha com a viatura
+  function colocar(box,input){
+    var row=(input._agRow&&input._agNivel!=null&&input._agNivel<=2)?input._agRow:null;
+    if(row){
+      var cs=getComputedStyle(row);
+      if(cs.display==='flex'||cs.display==='inline-flex'){
+        if(cs.flexWrap==='nowrap'){row.style.flexWrap='wrap';row._agWrap=1;}
+        box.style.flex='1 0 100%';
+      }else if(cs.display==='grid'){box.style.gridColumn='1 / -1';}
+      row.appendChild(box);input._agRowUsed=row;
+    }else{(input.parentElement||input).appendChild(box);input._agRowUsed=null;}
+  }
+  function soltaLinha(input){
+    var row=input._agRowUsed;
+    if(row&&row._agWrap&&!row.querySelector('.ag-aviso,.ag-eco')){row.style.flexWrap='';row._agWrap=0;}
+  }
+  function limpaAviso(input){
+    if(input._agAviso){input._agAviso.remove();input._agAviso=null;}
+    input.classList.remove('ag-warn');
+    soltaLinha(input);
+  }
+  function limpaEco(input){
+    if(input._agEco){input._agEco.remove();input._agEco=null;}
+    soltaLinha(input);
+  }
+  function ecoAgora(input){
+    if(!input.isConnected)return;
+    if(document.activeElement!==input){limpaEco(input);return;}   // só aparece com o campo em foco
+    var v=input.value.trim();
+    if(!v||!(input.scrollWidth>input.clientWidth+2)){limpaEco(input);return;}
+    if(!input._agEco||!input._agEco.isConnected){
+      acharVt(input);
+      var d=document.createElement('div');d.className='ag-eco';input._agEco=d;colocar(d,input);
+    }
+    input._agEco.textContent=v;
+  }
+  function agendaEco(input){
+    clearTimeout(input._agEcoT);
+    input._agEcoT=setTimeout(function(){try{ecoAgora(input);}catch(e){}},120);
+  }
+  function entradasDe(input){return input.value.split(/[,;\n]+/).map(function(x){return x.replace(/\s+/g,' ').trim();}).filter(Boolean);}
+  function setValor(input,lista){
+    input.value=lista.join(', ');
+    agendaEco(input);
+    try{atualizarContagem();}catch(e){}
+    try{agendarAutoSave();}catch(e){}
+  }
+
+  function validar(input){
+    if(!input||!input.isConnected||input.disabled||input.readOnly)return;
+    var of=oficiais();
+    var entradas=entradasDe(input);
+    var novos=[],pend=[],mudou=false,sepAvisos=[];
+    if(of.n>0){
+      entradas.forEach(function(e){
+        var r=proc(e,of);
+        if(r.length===1&&r[0].nome===e){ if(r[0].st==='desc')pend.push({e:e,sug:r[0].sug}); novos.push(e); return; }
+        mudou=true;
+        var nomes=r.map(function(x){return x.nome;});
+        if(r.every(function(x){return x.st==='ok';}))sepAvisos.push(nomes.join(', '));
+        r.forEach(function(x){novos.push(x.nome);if(x.st==='desc')pend.push({e:x.nome,sug:x.sug});});
+      });
+      if(mudou){
+        setValor(input,novos);entradas=novos;
+        if(sepAvisos.length){try{toast('Nomes separados: '+sepAvisos.join(' | '),'ok');}catch(e){}}
+      }
+    }
+    // aviso de MT com mais de um agente
+    var mtMsg='';
+    var vt=acharVt(input);
+    if(vt){
+      var vv=norm(vt.value);
+      if(/^MT[- ]?\d+/.test(vv)&&entradas.length>1&&input._mtOk!==vv){mtMsg=vt.value.trim().toUpperCase()+' normalmente leva 1 agente (há '+entradas.length+').';input._mtVt=vv;}
+      if(!vt._agLig){vt._agLig=true;var rev=function(){validar(input);};vt.addEventListener('blur',rev);vt.addEventListener('change',rev);}
+    }
+    if(!pend.length&&!mtMsg){limpaAviso(input);return;}
+
+    var h='',sig=pend.map(function(x){return x.e+'|'+(x.sug?x.sug.tipo:'');}).join(';')+'#'+mtMsg;
+    if(sinal(input)===sig&&input._agAviso&&input._agAviso.isConnected)return;   // já está na tela igual
+    pend.forEach(function(x,i){
+      var sugTxt='',bt='';
+      if(x.sug&&x.sug.tipo==='separar'){
+        sugTxt=' — separar em <b>'+esc(x.sug.pecas.join(', '))+'</b>?';
+        bt='<button type="button" class="pri" data-a="sep" data-i="'+i+'">Separar</button>';
+      }else if(x.sug&&x.sug.tipo==='trocar'){
+        sugTxt=' — quis dizer <b>'+esc(x.sug.nome)+'</b>?';
+        bt='<button type="button" class="pri" data-a="troca" data-i="'+i+'">Trocar</button>';
+      }
+      if(!(x.sug&&x.sug.tipo==='separar'))bt+='<button type="button" data-a="inc" data-i="'+i+'">Incluir na lista</button>';
+      bt+='<button type="button" data-a="man" data-i="'+i+'">Manter</button>';
+      h+='<div class="ag-l"><span>Fora da lista: <b>'+esc(x.e)+'</b>'+sugTxt+'</span><span class="ag-b">'+bt+'</span></div>';
+    });
+    if(mtMsg){h+='<div class="ag-l"><span>'+esc(mtMsg)+' Conferir.</span><span class="ag-b"><button type="button" data-a="mt">Está certo</button></span></div>';}
+    limpaAviso(input);
+    var box=document.createElement('div');box.className='ag-aviso';box.setAttribute('data-sig',sig);box.innerHTML=h;
+    colocar(box,input);
+    input._agAviso=box;
+    if(pend.length)input.classList.add('ag-warn');
+    box.addEventListener('mousedown',function(ev){ev.stopPropagation();});
+    box.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click',function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        var a=b.getAttribute('data-a'),it=pend[+b.getAttribute('data-i')];
+        var lista=entradasDe(input);
+        if(a==='mt'){input._mtOk=input._mtVt;limpaAviso(input);validar(input);return;}
+        if(!it)return;
+        var k=lista.indexOf(it.e);
+        if(a==='man'){ignorados[norm(it.e)]=1;}
+        else if(a==='troca'&&k>=0){lista[k]=it.sug.nome;setValor(input,lista);}
+        else if(a==='sep'&&k>=0){lista.splice.apply(lista,[k,1].concat(it.sug.pecas));setValor(input,lista);}
+        else if(a==='inc'){
+          var nome=it.e.toUpperCase();
+          try{
+            if(Array.isArray(agentes)&&agentes.map(norm).indexOf(norm(nome))<0){
+              agentes.push(nome);agentes.sort(function(x,y){return x.localeCompare(y);});
+              localStorage.setItem(LS.agentes,JSON.stringify(agentes));
+              toast('Incluído na lista de agentes deste aparelho.','ok');
+            }
+          }catch(e){}
+        }
+        limpaAviso(input);validar(input);
+      });
+    });
+  }
+
+  /* ── ligação: todos os campos de agentes passam por addEventosAgentes ── */
+  function ehCampo(el){
+    return el&&el.tagName==='INPUT'&&(el._agOn||el.classList.contains('finput-agentes')||el.classList.contains('campo-agentes')||el.getAttribute('data-campo')==='agentes');
+  }
+  var fSel=window.selecionarSugestao;
+  if(typeof fSel==='function'){
+    window.selecionarSugestao=function(input){
+      var r=fSel.apply(this,arguments);
+      try{
+        input._agLast=input.value;agendaEco(input);
+        var fim=function(){try{input.scrollLeft=input.scrollWidth;var n=input.value.length;input.setSelectionRange(n,n);}catch(e){}};
+        fim();setTimeout(fim,0);setTimeout(fim,120);
+      }catch(e){}
+      return r;
+    };
+  }
+  // com o campo em foco, o texto completo acompanha qualquer mudança (sugestão, colar, trocar, separar)
+  function vigia(el){
+    if(el._agVigia)return;
+    el._agLast=el.value;
+    el._agVigia=setInterval(function(){
+      if(!el.isConnected||document.activeElement!==el){clearInterval(el._agVigia);el._agVigia=null;return;}
+      if(el.value!==el._agLast){el._agLast=el.value;agendaEco(el);}
+    },300);
+  }
+  var f0=window.addEventosAgentes;
+  if(typeof f0==='function'){
+    window.addEventosAgentes=function(input){var r=f0.apply(this,arguments);try{if(input)input._agOn=true;}catch(e){}return r;};
+  }
+  document.addEventListener('focusout',function(ev){
+    var el=ev.target;if(!ehCampo(el))return;
+    setTimeout(function(){try{if(document.activeElement!==el)validar(el);agendaEco(el);}catch(e){}},120);
+  });
+  document.addEventListener('focusin',function(ev){
+    var el=ev.target;if(!ehCampo(el))return;
+    limpaAviso(el);agendaEco(el);vigia(el);
+  });
+  document.addEventListener('input',function(ev){var el=ev.target;if(ehCampo(el))agendaEco(el);});
+  window.agValidar=validar;window.agIgnorados=ignorados;
+})();
+</script>
+<script>
+/* ── vN: botões grandes de adicionar (Comando e Evento) ── */
+(function(){
+  'use strict';
+  var MAP={
+    cmd:{fn:'cmdAdicionarVt',cont:'cmdVtContainer'},
+    posto:{fn:'evtAdicionarPosto',cont:'evtPostosContainer'},
+    sup:{fn:'evtAdicionarSupervisao',cont:'evtSupervisaoContainer'}
+  };
+  document.addEventListener('click',function(ev){
+    var b=ev.target.closest&&ev.target.closest('.btn-add-grande');if(!b)return;
+    ev.preventDefault();
+    var m=MAP[b.getAttribute('data-add')];if(!m)return;
+    try{window[m.fn]();}catch(e){}
+    setTimeout(function(){
+      try{
+        var c=document.getElementById(m.cont),last=c&&c.lastElementChild;if(!last)return;
+        last.scrollIntoView({behavior:'smooth',block:'center'});
+        var f=last.querySelector('input');if(f)f.focus({preventScroll:true});
+      }catch(e){}
+    },80);
+  });
 })();
 </script>
 </html>
