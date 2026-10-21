@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-20-vO'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-21-vP'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -10814,7 +10814,37 @@ function sfCriarImgs() {
     document.getElementById('sfImg'+i).addEventListener('change',(e)=>sfCarregarImg(i,e));
   }
 }
-function sfCarregarImg(i,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=(ev)=>{sfImgs[i]=ev.target.result;sfImgsRotacao[i]=0;sfPdfGerado=false;sfAtualizarSlot(i,'b64');};r.readAsDataURL(f);}
+// Toda foto (galeria ou câmera) é lida, girada conforme a orientação do celular, reduzida (lado maior 1600 px)
+// e convertida para JPEG antes de entrar no formulário: resolve foto de câmera que ficava "quebrada"
+// (formato/tamanho que o navegador não exibia) e deixa o envio bem mais leve em internet fraca.
+async function sfProcessarFoto(file){
+  let bmp=null;
+  try{ if(window.createImageBitmap) bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
+  catch(e1){ try{ bmp=await createImageBitmap(file); }catch(e2){ bmp=null; } }
+  if(!bmp){
+    const u=URL.createObjectURL(file);
+    try{ bmp=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(new Error('decode'));x.src=u;}); }
+    finally{ setTimeout(()=>URL.revokeObjectURL(u),4000); }
+  }
+  const w=bmp.width||bmp.naturalWidth, h=bmp.height||bmp.naturalHeight;
+  if(!w||!h) throw new Error('vazia');
+  const k=Math.min(1,1600/Math.max(w,h));
+  const cv=document.createElement('canvas'); cv.width=Math.max(1,Math.round(w*k)); cv.height=Math.max(1,Math.round(h*k));
+  const cx=cv.getContext('2d'); cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height); cx.drawImage(bmp,0,0,cv.width,cv.height);
+  if(bmp.close) try{bmp.close();}catch(_){}
+  const url=cv.toDataURL('image/jpeg',0.85);
+  if(!url||url.length<200) throw new Error('vazia');
+  return url;
+}
+function sfCarregarImg(i,e){
+  const inp=e.target; const f=inp.files&&inp.files[0]; if(!f)return;
+  const slot=document.getElementById('sfSlot'+i); if(slot)slot.style.opacity='.5';
+  sfProcessarFoto(f).then(function(url){
+    sfImgs[i]=url; sfImgsRotacao[i]=0; sfPdfGerado=false; sfAtualizarSlot(i,'b64');
+  }).catch(function(){
+    toast('Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+'). Tire outra ou escolha outra da galeria.','err');
+  }).then(function(){ const sl=document.getElementById('sfSlot'+i); if(sl)sl.style.opacity=''; try{inp.value='';}catch(_){} });
+}
 function sfCamera(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';inp.onchange=(e)=>sfCarregarImg(i,e);inp.click();}
 function sfAtualizarSlot(i,tipo){
   const rot=sfImgsRotacao[i]||0;
@@ -12998,6 +13028,14 @@ body.light-mode .ag-eco{background:rgba(37,99,235,.06);color:#334155;}
 .btn-add-grande.ambar{color:#fbbf24;border-color:rgba(245,158,11,.85);background:rgba(245,158,11,.12);}
 body.light-mode .btn-add-grande.roxo{color:#5b21b6;border-color:#7c3aed;background:#ede9fe;}
 body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;background:#fef3c7;}
+
+/* Sinistros Fatais: barra compacta também com fonte grande no celular */
+@media(max-width:600px){
+  #telaFatais .toolbar-row2{justify-content:flex-start;}
+  #telaFatais .toolbar-row2 #sfBtnNovo{flex:1 1 auto;order:1;}
+  #telaFatais .toolbar-row2 .btoday{order:2;flex:0 0 auto;}
+  #telaFatais .toolbar-row2 .refresh-info{order:20;flex:1 0 100%;padding-left:2px;}
+}
 </style>
 
 <!-- ── TELA PRINCIPAL (LISTA) ── -->
@@ -13617,7 +13655,7 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
 <script>
 /* barra compacta: o ↻ sobe para a linha da data (Evento, Relatório AMC, QRV, Via Livre, QRV VL) */
 (function(){
-  ['appConteudo','telaEvento','telaQrv','telaVl','telaQrvVl'].forEach(function(id){
+  ['appConteudo','telaEvento','telaQrv','telaVl','telaQrvVl','telaFatais'].forEach(function(id){
     try{
       var t=document.getElementById(id);if(!t)return;
       var tb=null;for(var i=0;i<t.children.length;i++){if(t.children[i].classList.contains('toolbar')){tb=t.children[i];break;}}
