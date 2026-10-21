@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-21-vP'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-21-vS'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -10817,7 +10817,27 @@ function sfCriarImgs() {
 // Toda foto (galeria ou câmera) é lida, girada conforme a orientação do celular, reduzida (lado maior 1600 px)
 // e convertida para JPEG antes de entrar no formulário: resolve foto de câmera que ficava "quebrada"
 // (formato/tamanho que o navegador não exibia) e deixa o envio bem mais leve em internet fraca.
+var SF_HEIC_URL='https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+function sfEhHeic(f){ return /hei[cf]/i.test(f.type||'') || /\.hei[cf]$/i.test(f.name||''); }
+function sfCarregarHeic(){
+  if(window.heic2any) return Promise.resolve();
+  if(window._sfHeicP) return window._sfHeicP;
+  window._sfHeicP=new Promise(function(res,rej){
+    const sc=document.createElement('script'); sc.src=SF_HEIC_URL; sc.async=true;
+    sc.onload=function(){ window.heic2any?res():rej(new Error('heic')); };
+    sc.onerror=function(){ window._sfHeicP=null; rej(new Error('heic-load')); };
+    document.head.appendChild(sc);
+  });
+  return window._sfHeicP;
+}
 async function sfProcessarFoto(file){
+  if(sfEhHeic(file)){
+    toast('Convertendo foto do celular… pode levar alguns segundos.','ok');
+    await sfCarregarHeic();
+    let out=await window.heic2any({blob:file,toType:'image/jpeg',quality:0.85});
+    if(Array.isArray(out)) out=out[0];
+    file=out;
+  }
   let bmp=null;
   try{ if(window.createImageBitmap) bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
   catch(e1){ try{ bmp=await createImageBitmap(file); }catch(e2){ bmp=null; } }
@@ -10842,7 +10862,7 @@ function sfCarregarImg(i,e){
   sfProcessarFoto(f).then(function(url){
     sfImgs[i]=url; sfImgsRotacao[i]=0; sfPdfGerado=false; sfAtualizarSlot(i,'b64');
   }).catch(function(){
-    toast('Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+'). Tire outra ou escolha outra da galeria.','err');
+    toast(sfEhHeic(f)?'Não consegui converter esta foto (formato HEIC). Verifique a internet e tente de novo, ou mude a câmera do celular para o formato JPEG.':'Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+'). Tire outra ou escolha outra da galeria.','err');
   }).then(function(){ const sl=document.getElementById('sfSlot'+i); if(sl)sl.style.opacity=''; try{inp.value='';}catch(_){} });
 }
 function sfCamera(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';inp.onchange=(e)=>sfCarregarImg(i,e);inp.click();}
@@ -13029,12 +13049,18 @@ body.light-mode .ag-eco{background:rgba(37,99,235,.06);color:#334155;}
 body.light-mode .btn-add-grande.roxo{color:#5b21b6;border-color:#7c3aed;background:#ede9fe;}
 body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;background:#fef3c7;}
 
-/* Sinistros Fatais: barra compacta também com fonte grande no celular */
+/* Sinistros Fatais: barra em 2 linhas — (1) ‹ data › Hoje 🔍  (2) + Novo ↻ Status; com zoom grande o Status desce sozinho */
+#telaFatais .toolbar-row1{flex-wrap:nowrap;gap:5px;justify-content:center;}
+#telaFatais .toolbar-row1 .date-sel{flex:0 1 170px;width:170px;min-width:0;}
+#telaFatais .toolbar-row1 .bnav{flex:0 0 auto;}
+#telaFatais .toolbar-row2{flex-wrap:wrap;gap:6px 8px;justify-content:flex-start;align-items:center;}
+#telaFatais .toolbar-row2 #sfBtnNovo{order:1;flex:0 0 auto;}
+#telaFatais .toolbar-row2 .bref{order:2;flex:0 0 auto;}
+#telaFatais .toolbar-row2 .refresh-info{order:3;flex:1 1 auto;white-space:nowrap;font-size:10.5px;padding-left:2px;}
+#telaFatais .bnav,#telaFatais .bref,#telaFatais #sfBtnNovo,#telaFatais .date-sel{min-height:42px;box-sizing:border-box;}
 @media(max-width:600px){
-  #telaFatais .toolbar-row2{justify-content:flex-start;}
-  #telaFatais .toolbar-row2 #sfBtnNovo{flex:1 1 auto;order:1;}
-  #telaFatais .toolbar-row2 .btoday{order:2;flex:0 0 auto;}
-  #telaFatais .toolbar-row2 .refresh-info{order:20;flex:1 0 100%;padding-left:2px;}
+  #telaFatais .toolbar-row1 .date-sel{flex:0 1 150px;width:150px;font-size:14px;padding-left:8px;padding-right:6px;}
+  #telaFatais .toolbar-row1 .bnav{padding-left:10px;padding-right:10px;min-width:0;}
 }
 </style>
 
@@ -13054,6 +13080,7 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
       <button onclick="sfToggleBusca()" class="bnav btoday" style="font-size:14px;">🔍</button>
     </div>
   </div>
+  <script>(function(){try{var t=document.getElementById('telaFatais'),r1=t.querySelector('.toolbar-row1'),b=t.querySelector('.toolbar-row2 button[onclick="sfToggleBusca()"]');if(r1&&b)r1.appendChild(b);}catch(e){}})();</script>
   <!-- Bloco busca -->
   <div id="sfBuscaBlock" style="display:none;padding:10px;background:var(--surface2);border-bottom:1px solid var(--border);">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#ef4444;text-transform:uppercase;margin-bottom:8px;">Buscar Sinistros</div>
@@ -13655,7 +13682,7 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
 <script>
 /* barra compacta: o ↻ sobe para a linha da data (Evento, Relatório AMC, QRV, Via Livre, QRV VL) */
 (function(){
-  ['appConteudo','telaEvento','telaQrv','telaVl','telaQrvVl','telaFatais'].forEach(function(id){
+  ['appConteudo','telaEvento','telaQrv','telaVl','telaQrvVl'].forEach(function(id){
     try{
       var t=document.getElementById(id);if(!t)return;
       var tb=null;for(var i=0;i<t.children.length;i++){if(t.children[i].classList.contains('toolbar')){tb=t.children[i];break;}}
