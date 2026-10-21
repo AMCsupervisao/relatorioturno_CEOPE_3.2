@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-21-vS'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-21-vT'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -5848,7 +5848,7 @@ async function cc(yes){
   if(btnY){btnY.disabled=false;btnY.textContent=txtOriginal;}
   if(btnN)btnN.disabled=false;
 }
-function toast(msg,tp){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(tp||'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200);}
+function toast(msg,tp){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(tp||'');t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(()=>t.classList.remove('show'),Math.min(9000,3200+Math.max(0,String(msg).length-40)*60));}
 function isoData(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}-${m}-${dd}`;}
 function localDate(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
 function fmtData(d){if(typeof d==='string'){const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`;}const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${dd}/${m}/${y}`;}
@@ -10838,13 +10838,21 @@ async function sfProcessarFoto(file){
     if(Array.isArray(out)) out=out[0];
     file=out;
   }
+  // copia o arquivo para a memória já de início (foto recém-tirada pela câmera pode ser temporária no celular)
+  try{ const buf=await file.arrayBuffer(); file=new Blob([buf],{type:file.type||'image/jpeg'}); }
+  catch(eb){ /* segue com o arquivo original */ }
   let bmp=null;
   try{ if(window.createImageBitmap) bmp=await createImageBitmap(file,{imageOrientation:'from-image'}); }
   catch(e1){ try{ bmp=await createImageBitmap(file); }catch(e2){ bmp=null; } }
   if(!bmp){
     const u=URL.createObjectURL(file);
     try{ bmp=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(new Error('decode'));x.src=u;}); }
+    catch(e3){ bmp=null; }
     finally{ setTimeout(()=>URL.revokeObjectURL(u),4000); }
+  }
+  if(!bmp){ // último recurso: data URL
+    const du=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(new Error('leitura'));r.readAsDataURL(file);});
+    bmp=await new Promise((res,rej)=>{const x=new Image();x.onload=()=>res(x);x.onerror=()=>rej(new Error('decode-final'));x.src=du;});
   }
   const w=bmp.width||bmp.naturalWidth, h=bmp.height||bmp.naturalHeight;
   if(!w||!h) throw new Error('vazia');
@@ -10861,11 +10869,22 @@ function sfCarregarImg(i,e){
   const slot=document.getElementById('sfSlot'+i); if(slot)slot.style.opacity='.5';
   sfProcessarFoto(f).then(function(url){
     sfImgs[i]=url; sfImgsRotacao[i]=0; sfPdfGerado=false; sfAtualizarSlot(i,'b64');
-  }).catch(function(){
-    toast(sfEhHeic(f)?'Não consegui converter esta foto (formato HEIC). Verifique a internet e tente de novo, ou mude a câmera do celular para o formato JPEG.':'Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+'). Tire outra ou escolha outra da galeria.','err');
+  }).catch(function(err){
+    console.warn('[SF] foto:',err);
+    toast(sfEhHeic(f)?'Não consegui converter esta foto (formato HEIC). Verifique a internet e tente de novo, ou mude a câmera do celular para o formato JPEG.':'Não foi possível ler esta foto ('+(f.type||'formato desconhecido')+', '+Math.round((f.size||0)/1024)+' KB'+(err&&err.message?', '+String(err.message).slice(0,40):'')+'). Tire outra ou escolha outra da galeria.','err');
   }).then(function(){ const sl=document.getElementById('sfSlot'+i); if(sl)sl.style.opacity=''; try{inp.value='';}catch(_){} });
 }
-function sfCamera(i){const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';inp.onchange=(e)=>sfCarregarImg(i,e);inp.click();}
+function sfCamera(i){
+  let inp=document.getElementById('sfCamInput');
+  if(!inp){
+    inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.id='sfCamInput'; inp.setAttribute('capture','environment');
+    inp.style.cssText='position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
+    inp.addEventListener('change',function(e){ const k=parseInt(inp.dataset.slot,10); sfCarregarImg(isNaN(k)?0:k,e); });
+    document.body.appendChild(inp);
+  }
+  inp.dataset.slot=String(i); try{inp.value='';}catch(_){}
+  inp.click();
+}
 function sfAtualizarSlot(i,tipo){
   const rot=sfImgsRotacao[i]||0;
   const src=sfImgs[i]||'';
@@ -12993,7 +13012,7 @@ body.light-mode .bp-dia{background:rgba(37,99,235,.08);}
 @media (max-width:520px){.bp-ov{padding:6px;}.bp-box{max-height:calc(100vh - 12px);}.bp-open .bp-tx{display:none;}.bp-open{padding:6px 10px;}}
 
 /* ── Lote I: busca por período — aviso na frente, limpar/refazer, Evento e Comando ── */
-.toast{z-index:3300;}
+.toast{z-index:3300;white-space:normal;width:max-content;max-width:calc(100vw - 24px);box-sizing:border-box;line-height:1.35;}
 .bp-ctx{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border:1px dashed rgba(96,165,250,.55);border-radius:8px;background:rgba(96,165,250,.08);font-size:13px;color:var(--text2,#94a3b8);}
 .bp-ctx span{flex:1;min-width:140px;}
 .bp-ctx b{color:var(--text,#e2e8f0);}
