@@ -2090,7 +2090,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-10-21-vZ'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-10-23-vZ2'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -4849,8 +4849,8 @@ function coletarDados(){
     rendicaoVl:coletarRendicao(),
     afericao:coletarComLocalChefe('afericaoContainer'),
     apoioEtufor:coletarViaturas('apoioEtuforContainer'),
-    fiscNva:coletarViaturas('fiscNvaContainer'),
-    fiscAet:coletarViaturas('fiscAetContainer'),
+    fiscNva:coletarViaturasObs('fiscNvaContainer'),
+    fiscAet:coletarViaturasObs('fiscAetContainer'),
     zonaAzul:coletarZonaAzul(),
     apoioAeroporto:coletarAeroporto(),
     fiscalizacao:coletarFiscalizacao(),
@@ -4990,8 +4990,8 @@ function preencherFormulario(d){
     (d.rendicaoVl||[]).forEach(r=>{addRendicao(r);});
     (d.afericao||[]).forEach(r=>{addComLocalChefe('afericaoContainer');const el=document.getElementById('afericaoContainer').lastElementChild;el.querySelector('input[placeholder="Digite o local"]').value=r.local||'';el.querySelector('input[placeholder="Digite o chefe da missão"]').value=r.chefe||'';(r.viaturas||[]).forEach(v=>{const div=criarViaturaSimples();const vtI=div.querySelector('.vt-input');if(vtI)vtI.value=v.veiculo||'';const agI=div.querySelector('.finput-agentes');if(agI)agI.value=v.agentes||'';el.querySelector('.viaturasContainer').appendChild(div);});});
     (d.apoioEtufor||[]).forEach(r=>{addViatura('apoioEtuforContainer');const el=document.getElementById('apoioEtuforContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';});
-    (d.fiscNva||[]).forEach(r=>{addViatura('fiscNvaContainer');const el=document.getElementById('fiscNvaContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';});
-    (d.fiscAet||[]).forEach(r=>{addViatura('fiscAetContainer');const el=document.getElementById('fiscAetContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';});
+    (d.fiscNva||[]).forEach(r=>{addViatura('fiscNvaContainer');const el=document.getElementById('fiscNvaContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';const mI=el.querySelector('.campo-missao-turno');if(mI)mI.value=r.missaoDuranteTurno||'';});
+    (d.fiscAet||[]).forEach(r=>{addViatura('fiscAetContainer');const el=document.getElementById('fiscAetContainer').lastElementChild;const vtInp=el.querySelector('.vt-input');if(vtInp)vtInp.value=r.veiculo||'';const agInp=el.querySelector('.finput-agentes');if(agInp)agInp.value=r.agentes||'';const mI=el.querySelector('.campo-missao-turno');if(mI)mI.value=r.missaoDuranteTurno||'';});
     (d.zonaAzul||[]).forEach(r=>{addZonaAzul();const el=document.getElementById('zonaAzulContainer').lastElementChild;const _r=el.querySelector('.seletor-rota');if(_r)_r.value=r.rota||'';const _v=el.querySelector('.vt-input');if(_v)_v.value=r.veiculo||'';const _t=el.querySelector('.seletor-tipo');if(_t)_t.value=r.tipo||'';const _a=el.querySelector('input[placeholder="Digite os nomes dos agentes"]');if(_a)_a.value=r.agentes||'';});
     (d.apoioAeroporto||[]).forEach(r=>{addAeroporto();const el=document.getElementById('apoioAeroportoContainer').lastElementChild;const _v=el.querySelector('.vt-input');if(_v)_v.value=r.veiculo||'';const _p=el.querySelector('.seletor-plataforma');if(_p)_p.value=r.plataforma||'';const _a=el.querySelector('input[placeholder="Digite os nomes dos agentes"]');if(_a)_a.value=r.agentes||'';});
     (d.fiscalizacao||[]).forEach(r=>{addFiscalizacao();const el=document.getElementById('fiscalizacaoContainer').lastElementChild;if(el.querySelector('.seletor-rota'))el.querySelector('.seletor-rota').value=r.rota||'';const vtI=el.querySelector('.vt-input');if(vtI)vtI.value=r.veiculo||'';el.querySelector('.campo-agentes').value=r.agentes||'';
@@ -5270,9 +5270,27 @@ function adicionarRota(){
   atualizarBadgesViatura(cont);
   atualizarContagem();agendarAutoSave();
 }
+function vtAddObsMissao(div){
+  const w=document.createElement('div');w.className='rota-missao-wrap';w.style.cssText='width:100%;margin-top:4px;';
+  w.innerHTML=`<input type="text" class="finput campo-missao-turno" placeholder="Observação / missão durante o turno (opcional)" style="text-transform:uppercase;font-size:12px;" autocomplete="off">`;
+  const rem=div.querySelector('.btnrem');
+  if(rem)div.insertBefore(w,rem);else div.appendChild(w);
+  w.querySelector('input').addEventListener('input',agendarAutoSave);
+}
+function colsVtObs(arr){return ['#','Veículo','Agentes'].concat((arr||[]).some(x=>x&&x.missaoDuranteTurno)?['Observação / Missão']:[]);}
+function coletarViaturasObs(id){
+  return Array.from(document.getElementById(id).children).map(el=>{
+    const o={veiculo:el.querySelector('.vt-input')?.value||'',agentes:el.querySelector('.finput-agentes')?.value||''};
+    const m=el.querySelector('.campo-missao-turno');
+    const v=m?m.value.trim().toUpperCase():'';
+    if(v)o.missaoDuranteTurno=v;
+    return o;
+  });
+}
 function addViatura(id){
   const cont=document.getElementById(id);
   const div=criarViaturaSimples();
+  if(id==='fiscNvaContainer'||id==='fiscAetContainer')vtAddObsMissao(div);
   cont.appendChild(div);
   atualizarBadgesViatura(cont);
   atualizarContagem();agendarAutoSave();
@@ -5585,7 +5603,7 @@ function renderVisualizacao(d){
       if(c==='Veículo (Plataforma)')return`${(r.veiculo||'').toUpperCase()}${r.plataforma?' ('+r.plataforma.toUpperCase()+')':''}`;
       if(c==='Rota após rendição')return(r.rota||'').toUpperCase();
       if(c==='Composição')return fmtComposicao(r);
-      if(c==='Missão no Turno')return r.missaoDuranteTurno||'';
+      if(c==='Missão no Turno'||c==='Observação / Missão')return r.missaoDuranteTurno||'';
       return'';
     };
     const dataCols=cols.filter(c=>c!=='#');
@@ -5643,8 +5661,8 @@ function renderVisualizacao(d){
     ${sec('10. Aferição',fmtArr(d.afericao,[{label:'Local',key:'local'},{label:'Chefe',key:'chefe'}]))}
     ${sec('11. Apoio ETUFOR',tabela(d.apoioEtufor,['#','Veículo','Agentes']))}
     ${sec('12. Zona Azul / Acessibilidade',tabela(d.zonaAzul,['#','Rota','Veículo (Tipo)','Agentes']))}
-    ${sec('13. Fiscalização NVA',tabela(d.fiscNva,['#','Veículo','Agentes']))}
-    ${sec('14. Fiscalização AET',tabela(d.fiscAet,['#','Veículo','Agentes']))}
+    ${sec('13. Fiscalização NVA',tabela(d.fiscNva,colsVtObs(d.fiscNva)))}
+    ${sec('14. Fiscalização AET',tabela(d.fiscAet,colsVtObs(d.fiscAet)))}
     ${(d.apoioAeroporto&&d.apoioAeroporto.length)?sec('Apoio Aeroporto (hist.)',tabela(d.apoioAeroporto,['#','Veículo (Plataforma)','Agentes'])):''}
     ${sec('15. Fiscalização Volante',tabela(d.fiscalizacao,['#','Rota','Veículo','Agentes','Composição']))}
     ${sec('16. Comando',fmtArr(d.comando,[{label:'Local',key:'local'},{label:'Coordenador',key:'coordenador'}]))}
@@ -5689,6 +5707,8 @@ async function gerarPDF(){
     if(!dados.supervisor&&dados.savedBy) dados.supervisor=dados.savedBy;
     if(!dados.supervisor){toast('Nenhum relatório carregado para gerar o PDF.','err');return;}
   }
+  // PDF: tira vírgula/ponto e vírgula sobrando no fim da lista de agentes (não altera o que está salvo)
+  dados=(function rec(x){return Array.isArray(x)?x.map(rec):(x&&typeof x==='object')?Object.fromEntries(Object.entries(x).map(([k,v])=>[k,(k==='agentes'&&typeof v==='string')?v.replace(/[\s,;]+$/,''):rec(v)])):x;})(dados);
   const geradoPor=G.name;
   const geradoEm=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   const {jsPDF}=window.jspdf;
@@ -5721,7 +5741,7 @@ async function gerarPDF(){
     const td=arr.map((r,i)=>{
       if(titulo.includes('Zona Azul'))return[i+1,U(r.rota),`${U(r.veiculo)} (${U(r.tipo)})`,U(r.agentes)];
       if(titulo.includes('Aeroporto'))return[i+1,`${U(r.veiculo)} (${U(r.plataforma)})`,U(r.agentes)];
-      if(titulo.includes('NVA')||titulo.includes('AET'))return[i+1,U(r.veiculo),U(r.agentes)];
+      if(titulo.includes('NVA')||titulo.includes('AET'))return cols.length>3?[i+1,U(r.veiculo),U(r.agentes),U(r.missaoDuranteTurno||'')]:[i+1,U(r.veiculo),U(r.agentes)];
       if(titulo.includes('Fiscalização Volante')){
         const comp=U(fmtComposicao(r));
         return[i+1,U(r.rota),U(r.veiculo),U(r.agentes),comp];
@@ -5802,8 +5822,8 @@ async function gerarPDF(){
   await procComLocalChefe(dados.afericao,'10. Aferição');
   await procTabela(dados.apoioEtufor,'11. Apoio ETUFOR',false,['#','Veículo','Agentes']);
   await procTabela(dados.zonaAzul,'12. Zona Azul/Acessibilidade',true,['#','Rota','Veículo (Tipo)','Agentes']);
-  await procTabela(dados.fiscNva,'13. Fiscalização NVA',false,['#','Veículo','Agentes']);
-  await procTabela(dados.fiscAet,'14. Fiscalização AET',false,['#','Veículo','Agentes']);
+  await procTabela(dados.fiscNva,'13. Fiscalização NVA',false,colsVtObs(dados.fiscNva));
+  await procTabela(dados.fiscAet,'14. Fiscalização AET',false,colsVtObs(dados.fiscAet));
   // Apoio Aeroporto - suspenso; manter para dados históricos
   if(dados.apoioAeroporto&&dados.apoioAeroporto.length) await procTabela(dados.apoioAeroporto,'Apoio Aeroporto (hist.)',false,['#','Veículo (Plataforma)','Agentes']);
   await procTabela(dados.fiscalizacao,'15. Fiscalização Volante',true);
@@ -6414,6 +6434,13 @@ function qrvPrePopular(d){
     }
   };
 
+  const marcaMissaoVt=(v)=>{
+    if(!v||!v.missaoDuranteTurno)return;
+    const chave=(v.veiculo||'').trim().toUpperCase()||(v.agentes||'').split(',')[0].trim().toUpperCase();
+    const idEstavel=`sup_${isoData(G.data)}_${G.turno}_${chave}`.replace(/\s/g,'_');
+    const reg=novas.find(x=>x.id===idEstavel)||qrvRegistros.find(x=>x.id===idEstavel);
+    if(reg) reg.missaoDuranteTurno=v.missaoDuranteTurno;
+  };
   // Sequência idêntica ao relatório do supervisor, com origem para sub-cabeçalho
   (d.rotas||[]).forEach(r=>{
     addVt(r.veiculo,r.agentes,r.rota,'principal','07. Rotas');
@@ -6446,8 +6473,8 @@ function qrvPrePopular(d){
     (item.viaturas||[]).forEach(v=>addVt(v.veiculo,v.agentes,item.local,'demais','10. Aferição'));
   });
   (d.apoioEtufor||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','11. Apoio ETUFOR'));
-  (d.fiscNva||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','13. Fiscalização NVA'));
-  (d.fiscAet||[]).forEach(v=>addVt(v.veiculo,v.agentes,'','demais','14. Fiscalização AET'));
+  (d.fiscNva||[]).forEach(v=>{addVt(v.veiculo,v.agentes,'','demais','13. Fiscalização NVA');marcaMissaoVt(v);});
+  (d.fiscAet||[]).forEach(v=>{addVt(v.veiculo,v.agentes,'','demais','14. Fiscalização AET');marcaMissaoVt(v);});
   (d.zonaAzul||[]).forEach(r=>addVt(r.veiculo,r.agentes,r.rota,'demais','12. Zona Azul'));
   (d.apoioAeroporto||[]).forEach(r=>addVt(r.veiculo,r.agentes,'','demais','Apoio Aeroporto'));
   (d.fiscalizacao||[]).forEach(r=>{
@@ -6816,6 +6843,7 @@ function qrvRenderRow(r,podeEditar){
         <div style="flex:1;min-width:140px;">
           <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">${nomes||'—'}</div>
           ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+          ${(!r.rota&&r.missaoDuranteTurno)?`<div class="qrv-row-rota"><span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span></div>`:''}
           ${isRen&&r.localRendicao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rendição: ${r.localRendicao}</div>`:''}
           ${r.rotaAposMissao?`<div style="font-size:11px;color:#f97316;font-weight:700;font-family:'IBM Plex Mono',monospace;">↩ Rota após Missão: ${r.rotaAposMissao}</div>`:''}
         </div>
@@ -6835,6 +6863,7 @@ function qrvRenderRow(r,podeEditar){
       <div class="qrv-row-info">
         <div class="qrv-row-nomes">${nomes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>'}</div>
         ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
+        ${(!r.rota&&r.missaoDuranteTurno)?`<div class="qrv-row-rota"><span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span></div>`:''}
       </div>
       ${qrvGetStatusPills(r)}
       <input type="time" class="qrv-saida-input" value="${r.saida||''}" title="Hora de saída"
@@ -14693,4 +14722,169 @@ body.light-mode .btn-add-grande.ambar{color:#92400e;border-color:#d97706;backgro
   });
 })();
 </script>
+<style>
+/* ── Ajustes de contraste das abas (vZ2) ── */
+#appTabs button.tab-btn:not(.tab-ativa){color:rgba(255,255,255,.84)!important;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-bottom:none;}
+#appTabs button.tab-btn:not(.tab-ativa):hover{color:#fff!important;background:rgba(255,255,255,.14);}
+body:not(.light-mode) #telaServicos .srv-subtab:not(.active){color:rgba(255,255,255,.84)!important;}
+body.light-mode #appTabs button.tab-btn:not(.tab-ativa){color:#1e293b!important;background:#e2e8f0!important;border:1px solid #94a3b8!important;border-bottom:none!important;}
+body.light-mode #appTabs button.tab-btn:not(.tab-ativa):hover{color:#0f172a!important;background:#cbd5e1!important;}
+body.light-mode #appTabs button.tab-btn.tab-ativa{border-width:1px!important;border-style:solid!important;border-bottom:none!important;font-weight:800;}
+body.light-mode #telaServicos .srv-subtab:not(.active){color:#1e293b!important;background:#dbe3ee;border-right:1px solid #94a3b8;}
+body.light-mode #telaServicos .srv-subtab:last-child{border-right:none;}
+body.light-mode #telaServicos .srv-subtab.active{color:#7c2d12!important;background:#fff;border-bottom-color:#9a3412;}
+
+/* ── Copiar rendições de outro dia ── */
+.rcc-lnk{width:100%;margin:0 0 12px;padding:10px;background:rgba(59,130,246,.12);border:1px dashed rgba(59,130,246,.55);border-radius:8px;color:#60a5fa;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;}
+body.light-mode .rcc-lnk{color:#1d4ed8;background:#dbeafe;}
+.rcc-ban{display:none;margin:0 0 12px;padding:9px 10px;background:rgba(245,158,11,.14);border:1px solid rgba(245,158,11,.5);border-radius:8px;font-size:12px;color:var(--text);}
+.rcc-ban b{color:#f59e0b;}
+body.light-mode .rcc-ban b{color:#9a3412;}
+.rcc-ban .rcc-bt{display:flex;gap:6px;margin-top:7px;}
+.rcc-ban button{flex:1;padding:7px;border-radius:6px;border:1px solid var(--border2);background:var(--surface3);color:var(--text);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;cursor:pointer;}
+#rcCopiaMod .rcc-box{background:var(--surface2);border:1px solid var(--border2);border-radius:16px 16px 0 0;padding:18px 16px 22px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;}
+#rcCopiaMod .rcc-it{display:flex;gap:10px;align-items:flex-start;padding:10px;margin-bottom:6px;background:var(--surface3);border:1px solid var(--border2);border-radius:8px;cursor:pointer;}
+#rcCopiaMod .rcc-it input{margin-top:3px;width:18px;height:18px;flex:none;}
+#rcCopiaMod .rcc-l{font-weight:700;font-size:13px;color:var(--text);}
+#rcCopiaMod .rcc-m{font-size:12px;color:var(--text2);margin-top:2px;}
+#rcCopiaMod .rcc-t{font-size:10px;color:#f59e0b;font-weight:700;letter-spacing:.5px;margin-top:3px;}
+#rcCopiaMod .rcc-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end;}
+#rcCopiaMod .rcc-row>div{flex:1;}
+#rcCopiaMod .rcc-b{padding:12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface3);color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
+#rcCopiaMod .rcc-b.ok{background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;letter-spacing:1px;text-transform:uppercase;}
+#rcCopiaMod .rcc-b:disabled{opacity:.5;}
+</style>
+<div class="cov" id="rcCopiaMod" style="z-index:900;">
+  <div class="rcc-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;color:var(--text);">Copiar de outro dia</div>
+      <button onclick="rcCopiaFechar()" style="background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Traz só <b>local/posto</b> e <b>motivo</b>. Número do registro e agente ficam em branco para você preencher.</div>
+    <div class="rcc-row">
+      <div><span class="flabel">Copiar do dia</span><input type="date" class="finput" id="rccData" style="min-height:unset;padding:11px 12px;font-size:14px;"></div>
+      <div><span class="flabel">Turno</span><select class="finput" id="rccTurno" style="min-height:unset;padding:11px 12px;font-size:14px;"><option value="madrugada">Madrugada</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option></select></div>
+      <button class="rcc-b" id="rccBuscar" onclick="rcCopiaBuscar()" style="flex:none;">Buscar</button>
+    </div>
+    <div id="rccLista"></div>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="rcc-b" onclick="rcCopiaFechar()" style="flex:1;">Cancelar</button>
+      <button class="rcc-b ok" id="rccGo" onclick="rcCopiaIniciar()" style="flex:2;" disabled>Copiar selecionados</button>
+    </div>
+  </div>
+</div>
+<script>
+/* ── vZ2: copiar rendições de outro dia (um registro por vez, usando o salvamento normal) ── */
+(function(){
+  'use strict';
+  var RC={ativo:false,fila:[],n:0,total:0,feitos:0,turno:'',salvando:false,interno:false,achados:[]};
+  var $=function(i){return document.getElementById(i);};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function isoMais(iso,n){var p=iso.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]+n,12);return srvIso(d);}
+  function normData(r){var d=String(r.date||'').trim();if(d.indexOf('/')>=0)d=d.split('/').reverse().join('-');else if(d.length>10){try{d=srvIso(new Date(d));}catch(e){}}return d.substring(0,10);}
+  function chaveLM(r){return (String(r.local||'')+'|'+String(r.motivo||'')).trim().toUpperCase();}
+
+  function montaModal(){
+    var box=$('srvMRend'); if(!box||$('rccLnk'))return;
+    var inner=box.firstElementChild; if(!inner)return;
+    var lnk=document.createElement('button');lnk.type='button';lnk.id='rccLnk';lnk.className='rcc-lnk';lnk.textContent='📋 Copiar de outro dia';lnk.onclick=rcCopiaAbrir;
+    var ban=document.createElement('div');ban.id='rccBan';ban.className='rcc-ban';
+    ban.innerHTML='<div id="rccBanTxt"></div><div class="rcc-bt"><button type="button" onclick="rcCopiaPular()">Pular este</button><button type="button" onclick="rcCopiaParar()">Parar</button></div>';
+    inner.insertBefore(ban,inner.firstElementChild);
+    inner.insertBefore(lnk,inner.firstElementChild);
+  }
+  function atualizaModal(editando){
+    var l=$('rccLnk'),b=$('rccBan'); if(!l||!b)return;
+    l.style.display=(!editando&&!RC.ativo&&srvPodeEditar())?'':'none';
+    b.style.display=RC.ativo?'block':'none';
+    if(RC.ativo)$('rccBanTxt').innerHTML='Copiando <b>'+RC.n+' de '+RC.total+'</b> — preencha o número e o agente e salve.';
+  }
+  function parar(){RC.ativo=false;RC.fila=[];RC.n=0;RC.total=0;RC.feitos=0;atualizaModal(false);}
+
+  window.rcCopiaAbrir=function(){
+    var destino=srvIso(srvRD);
+    $('rccData').value=isoMais(destino,-1);
+    $('rccTurno').value=(typeof srvRendTab!=='undefined'&&srvRendTab)||'manha';
+    $('rccLista').innerHTML='';$('rccGo').disabled=true;
+    $('rcCopiaMod').classList.add('open');
+    rcCopiaBuscar();
+  };
+  window.rcCopiaFechar=function(){$('rcCopiaMod').classList.remove('open');};
+  window.rcCopiaBuscar=async function(){
+    var data=$('rccData').value,turno=$('rccTurno').value,lista=$('rccLista'),btn=$('rccBuscar');
+    if(!data){toast('Escolha o dia.','err');return;}
+    btn.disabled=true;$('rccGo').disabled=true;
+    lista.innerHTML='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px;">Buscando…</div>';
+    try{
+      var r=await apiSrv('getRenditions',{data:data});
+      var todos=(r&&r.data)||[];
+      var achados=todos.filter(function(x){return String(x.turno||'').toLowerCase()===turno;});
+      // o que já existe no dia/turno de destino (evita copiar duas vezes)
+      var destData=srvIso(srvRD),jaTem={};
+      (srvRends||[]).forEach(function(x){if(normData(x)===destData&&String(x.turno||'').toLowerCase()===turno)jaTem[chaveLM(x)]=1;});
+      RC.achados=achados.map(function(x){return {local:x.local||'',motivo:x.motivo||'',categoria:x.categoria||'rendicao',cancel:/cancel/i.test(String(x.status||'')),ja:!!jaTem[chaveLM(x)]};});
+      if(!RC.achados.length){lista.innerHTML='<div style="padding:16px;text-align:center;color:var(--text2);font-size:13px;">Nenhum registro nesse dia e turno.</div>';btn.disabled=false;return;}
+      lista.innerHTML=RC.achados.map(function(x,i){
+        var marcado=(!x.cancel&&!x.ja)?' checked':'';
+        return '<label class="rcc-it"><input type="checkbox" data-i="'+i+'"'+marcado+' onchange="rcCopiaConta()"><div><div class="rcc-l">'+esc(x.local||'(sem local)')+'</div><div class="rcc-m">'+esc(x.motivo||'(sem motivo)')+'</div>'+(x.ja?'<div class="rcc-t">JÁ EXISTE NO DIA ATUAL</div>':'')+(x.cancel?'<div class="rcc-t">CANCELADO NAQUELE DIA</div>':'')+'</div></label>';
+      }).join('');
+      rcCopiaConta();
+    }catch(ex){lista.innerHTML='<div style="padding:16px;text-align:center;color:#ef4444;font-size:13px;">Erro ao buscar: '+esc(ex.message)+'</div>';}
+    btn.disabled=false;
+  };
+  window.rcCopiaConta=function(){
+    var n=$('rccLista').querySelectorAll('input[type=checkbox]:checked').length;
+    var g=$('rccGo');g.disabled=n===0;g.textContent=n?('Copiar '+n+(n===1?' selecionado':' selecionados')):'Copiar selecionados';
+  };
+  window.rcCopiaIniciar=function(){
+    var sel=[];$('rccLista').querySelectorAll('input[type=checkbox]:checked').forEach(function(c){sel.push(RC.achados[+c.getAttribute('data-i')]);});
+    if(!sel.length)return;
+    RC.fila=sel.slice();RC.total=sel.length;RC.n=0;RC.feitos=0;RC.turno=$('rccTurno').value;RC.ativo=true;
+    rcCopiaFechar();
+    RC.interno=true;try{srvCm('srvMRend');}catch(e){}finally{RC.interno=false;}
+    prox();
+  };
+  function prox(){
+    if(!RC.fila.length){var t=RC.feitos;parar();toast(t?('Cópia concluída: '+t+(t===1?' registro salvo':' registros salvos')+' ✓'):'Nenhum registro foi copiado.',t?'ok':'');return;}
+    var it=RC.fila.shift();RC.n++;
+    RC.interno=true;
+    try{srvOpenRendModal();}finally{RC.interno=false;}
+    var set=function(id,v){var e=$(id);if(e)e.value=v;};
+    set('srvFRReg','');set('srvFRA','');set('srvFRS','');
+    set('srvFRL',String(it.local||'').toUpperCase());set('srvFRM',String(it.motivo||'').toUpperCase());
+    set('srvFRD',srvIso(srvRD));set('srvFRT',RC.turno);
+    if(window.rcSetCat)rcSetCat(it.categoria);
+    atualizaModal(false);
+  }
+  window.rcCopiaPular=function(){RC.interno=true;try{srvCm('srvMRend');}finally{RC.interno=false;}prox();};
+  window.rcCopiaParar=function(){parar();srvCm('srvMRend');};
+
+  // salvar: se deu certo e há fila, abre o próximo
+  var _save=window.srvSaveRend;
+  window.srvSaveRend=async function(){
+    RC.salvando=true;
+    try{ return await _save.apply(this,arguments); }
+    finally{
+      RC.salvando=false;
+      if(RC.ativo&&!$('srvMRend').classList.contains('open')){RC.feitos++;setTimeout(prox,350);}
+    }
+  };
+  // fechar o modal por fora (✕ / Cancelar) encerra a fila
+  var _cm=window.srvCm;
+  window.srvCm=function(id){
+    if(id==='srvMRend'&&RC.ativo&&!RC.salvando&&!RC.interno)parar();
+    return _cm.apply(this,arguments);
+  };
+  // abrir qualquer outro registro/novo fora da fila encerra a fila e mostra o botão de copiar
+  var _open=window.srvOpenRendModal;
+  window.srvOpenRendModal=async function(id){
+    if(!RC.interno&&RC.ativo)parar();
+    var r=await _open.apply(this,arguments);
+    atualizaModal(!!id);
+    return r;
+  };
+  montaModal();
+})();
+</script>
+
 </html>
