@@ -2090,7 +2090,19 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
 // ══════════════════════════════════════════════
 // CONFIGURAÇÃO
 // ══════════════════════════════════════════════
-const APP_VERSION='2026-11-23-vZ3'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+// Sem internet o navegador devolve "Failed to fetch" (inglês, técnico): troca por texto claro. Não altera o comportamento (continua sendo erro de rede).
+(function(){
+  var _f=window.fetch; if(!_f) return;
+  window.fetch=function(){
+    return _f.apply(this,arguments).catch(function(e){
+      if(e&&e.name==='TypeError'&&/failed to fetch|load failed|networkerror|network request failed/i.test(e.message||'')){
+        var ne=new TypeError('sem conexão com a internet. Confira o sinal do aparelho e tente de novo.'); ne.original=e; throw ne;
+      }
+      throw e;
+    });
+  };
+})();
+const APP_VERSION='2026-11-25-vZ5'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -9455,9 +9467,13 @@ function srvPostosTelaCheia(forcar){
 window.addEventListener('popstate',function(){ if(srvPostosFs) srvPostosTelaCheia(false); });
 document.addEventListener('keydown',function(e){ if(e.key==='Escape'&&srvPostosFs) srvPostosTelaCheia(false); });
 
+var srvPostosLocBuscando=false;
 function srvPostosLocalizar(centralizar){
-  if(!navigator.geolocation){ if(centralizar) toast('Seu navegador não suporta localização.','err'); return; }
+  if(!navigator.geolocation){ if(centralizar) toast('Seu aparelho não suporta localização.','err'); return; }
+  if(srvPostosLocBuscando) return;
+  srvPostosLocBuscando=true;
   function ok(pos){
+    srvPostosLocBuscando=false;
     if(!srvPostosMapa) return;
     var ll=[pos.coords.latitude,pos.coords.longitude];
     if(srvPostosUserMarker) srvPostosMapa.removeLayer(srvPostosUserMarker);
@@ -9466,18 +9482,18 @@ function srvPostosLocalizar(centralizar){
     if(centralizar){ srvPostosMapa.setView(ll,15); srvPostosUserMarker.openPopup(); }
   }
   function falha(err){
+    srvPostosLocBuscando=false;
     if(!centralizar) return;
     var c=err&&err.code;
-    if(c===1) toast('Localização negada. Habilite nas configurações do site.','err');
-    else if(c===3) toast('A localização demorou demais. Tente novamente.','err');
-    else toast('Este aparelho não conseguiu determinar a posição (computador sem GPS/Wi-Fi de localização ou bloqueio da rede). No celular costuma funcionar.','err');
+    if(c===1) toast('Localização negada. Libere a permissão de localização do app/navegador.','err');
+    else if(c===3) toast('Demorou para achar sua posição. Vá para um local aberto, confira o GPS e tente de novo.','err');
+    else toast('Não foi possível obter sua localização. Confira se o GPS está ligado e tente de novo.','err');
   }
-  // 1ª tentativa: precisa (GPS). Se falhar por indisponível/tempo, tenta de novo com precisão baixa (Wi-Fi/rede),
-  // que é o que funciona em computador de mesa.
+  // 1ª tentativa: rápida (rede/Wi-Fi ou posição recente de até 2 min). Se falhar, 2ª com GPS preciso e mais tempo.
   navigator.geolocation.getCurrentPosition(ok,function(err){
     if(err&&err.code===1){ falha(err); return; }
-    navigator.geolocation.getCurrentPosition(ok,falha,{enableHighAccuracy:false,timeout:15000,maximumAge:300000});
-  },{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+    navigator.geolocation.getCurrentPosition(ok,falha,{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+  },{enableHighAccuracy:false,timeout:6000,maximumAge:120000});
 }
 
 function srvAbrirRotaPosto(lat,lng){ window.open('https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng,'_blank'); }
@@ -14770,6 +14786,24 @@ body.light-mode .rcc-ban b{color:#9a3412;}
 #rcCopiaMod .rcc-b{padding:12px;border-radius:8px;border:1px solid var(--border2);background:var(--surface3);color:var(--text2);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
 #rcCopiaMod .rcc-b.ok{background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;letter-spacing:1px;text-transform:uppercase;}
 #rcCopiaMod .rcc-b:disabled{opacity:.5;}
+
+/* ── QRV no celular: cartão em 3 linhas (identificação · nomes/rota · botões) — só telas estreitas; computador não muda ── */
+@media(max-width:600px){
+  #telaQrv .qrv-row-main{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px;padding:9px 10px;}
+  #telaQrv .qrv-row-main > .qrv-vt-badge{order:1;font-size:14px;padding:3px 9px;}
+  #telaQrv .qrv-row-main > .qrv-status-pill{order:2;}
+  #telaQrv .qrv-row-main > .qrv-saida-input{order:3;margin-left:auto;width:86px;font-size:13px;padding:4px 6px;}
+  #telaQrv .qrv-row-main > .qrv-rel-tag{order:3;}
+  #telaQrv .qrv-row-main > .qrv-row-info{order:4;flex:0 0 100%;width:100%;min-width:0;}
+  #telaQrv .qrv-row-main .qrv-row-nomes{white-space:normal;overflow:visible;text-overflow:clip;font-size:13px;line-height:1.35;word-break:break-word;}
+  #telaQrv .qrv-row-main .qrv-row-rota{margin-top:3px;white-space:normal!important;overflow:visible!important;word-break:break-word;}
+  #telaQrv .qrv-row-main .qrv-rota-chip{white-space:normal;max-width:100%;}
+  #telaQrv .qrv-row-main > button,#telaQrv .qrv-row-main > .qrv-sync{order:5;}
+  #telaQrv .qrv-row-main > button[title="Copiar composição"],#telaQrv .qrv-row-main > .qrv-btn-status{min-width:40px;min-height:34px;display:inline-flex;align-items:center;justify-content:center;}
+  #telaQrv .qrv-row-main > .qrv-btn-expand,#telaQrv .qrv-row-main > .qrv-btn-del{order:6;min-width:38px;min-height:34px;font-size:16px;}
+  #telaQrv .qrv-row-main > .qrv-btn-expand{margin-left:auto;}
+  #telaQrv .qrv-row-extra{padding:4px 10px 10px;}
+}
 </style>
 <div class="cov" id="rcCopiaMod" style="z-index:900;">
   <div class="rcc-box">
