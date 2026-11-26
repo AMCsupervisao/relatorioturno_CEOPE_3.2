@@ -1228,11 +1228,39 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
     🔒 Dia anterior — somente leitura
   </div>
 
+  <!-- vZ9: linha única de ações (Biblioteca / Comando / Evento) -->
+  <div id="evtAcoesRow">
   <!-- Botão gerenciar biblioteca: só admin -->
   <div style="padding:8px 10px 0;" id="evtBtnBibliotecaWrap">
     <button onclick="bibAbrirPainel()" style="display:flex;align-items:center;gap:8px;width:100%;padding:10px 16px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:10px;color:#f59e0b;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
-      <i class="fas fa-book"></i> Gerenciar Biblioteca de Eventos
+      <i class="fas fa-book"></i> <span class="lg">Gerenciar </span>Biblioteca<span class="lg"> de Eventos</span>
     </button>
+  </div>
+
+  <!-- Botão Registrar Comando: só supervisor e admin -->
+  <div style="padding:4px 10px 0;" id="evtBtnCmdWrap">
+    <button onclick="cmdToggleForm()" id="evtBtnCmd"
+      style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.4);border-radius:10px;color:#a78bfa;cursor:pointer;text-align:left;">
+      <i class="fas fa-shield-alt" style="font-size:20px;flex-shrink:0;"></i>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;" id="evtBtnCmdTxt">Novo comando</div>
+        <div style="font-size:11px;color:rgba(167,139,250,0.7);font-family:'IBM Plex Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px;">Fixo ou Itinerante</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Botão Registrar Evento -->
+  <div style="padding:0 10px 4px;" id="evtBtnNovoWrap">
+    <button onclick="evtToggleForm()" id="evtBtnNovo"
+      style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(180,83,9,0.15));border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#f59e0b;cursor:pointer;text-align:left;">
+      <i class="fas fa-calendar-plus" style="font-size:20px;flex-shrink:0;"></i>
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;" id="evtBtnTxt">Novo evento</div>
+        <div style="font-size:11px;color:rgba(245,158,11,0.7);font-family:'IBM Plex Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px;">Corridas, Jogos e Missões Extras</div>
+      </div>
+    </button>
+  </div>
+
   </div>
 
   <!-- Painel Biblioteca -->
@@ -1315,32 +1343,24 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
   </div>
 
 
-  <!-- Botão Registrar Comando: só supervisor e admin -->
-  <div style="padding:4px 10px 0;" id="evtBtnCmdWrap">
-    <button onclick="cmdToggleForm()" id="evtBtnCmd"
-      style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.4);border-radius:10px;color:#a78bfa;cursor:pointer;text-align:left;">
-      <i class="fas fa-shield-alt" style="font-size:20px;flex-shrink:0;"></i>
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;" id="evtBtnCmdTxt">Registrar Comando</div>
-        <div style="font-size:11px;color:rgba(167,139,250,0.7);font-family:'IBM Plex Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px;">Fixo ou Itinerante</div>
-      </div>
-    </button>
-  </div>
 
   <!-- Formulário de Comando -->
   <div id="cmdFormWrap" style="display:none;padding:6px 10px 0;">
     <div class="fsec" style="border-color:rgba(167,139,250,0.3);">
+      <div id="cmdFaixa" class="form-faixa cmd"><i class="fas fa-shield-alt"></i> <span id="cmdFaixaTit">Novo comando</span></div>
+      <div id="cmdRascBar" class="rasc-bar" style="display:none;"></div>
       <div class="frow" style="margin-bottom:8px;">
         <div style="flex:2;">
           <span class="flabel" style="color:#a78bfa;">Local do Comando</span>
           <div style="position:relative;">
             <input type="text" class="finput" id="cmdLocal" placeholder="Ex: AVENIDA JUSTINIANO DE SERPA, 131" style="text-transform:uppercase;width:100%;" oninput="cmdLocalBuscar(this.value)" autocomplete="off">
+            <button type="button" id="cmdGpsBtn" class="gps-btn" onclick="cmdLocalGps()" title="Usar minha localização (GPS)" aria-label="Usar minha localização (GPS)"><i class="fas fa-map-marker-alt"></i></button>
             <div id="cmdLocalDrop" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:999;background:var(--surface2);border:1px solid rgba(109,40,217,0.4);border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
           </div>
         </div>
         <div>
           <span class="flabel" style="color:#a78bfa;">Horário</span>
-          <input type="time" class="finput" id="cmdHora">
+          <div class="time-wrap"><input type="text" class="finput hora-inp" id="cmdHora" inputmode="numeric" maxlength="5" placeholder="00:00" autocomplete="off" style="text-transform:none;"><button type="button" class="time-agora" onclick="horaAgora('cmdHora')">Agora</button></div>
         </div>
       </div>
       <div style="margin-bottom:8px;">
@@ -1364,24 +1384,12 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
     </div>
   </div>
 
-  <!-- Divisor -->
-  <div style="margin:8px 10px;height:1px;background:var(--border);"></div>
-
-  <!-- Botão Registrar Evento -->
-  <div style="padding:0 10px 4px;" id="evtBtnNovoWrap">
-    <button onclick="evtToggleForm()" id="evtBtnNovo"
-      style="display:flex;align-items:center;gap:12px;width:100%;padding:12px 16px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(180,83,9,0.15));border:1px solid rgba(245,158,11,0.4);border-radius:10px;color:#f59e0b;cursor:pointer;text-align:left;">
-      <i class="fas fa-calendar-plus" style="font-size:20px;flex-shrink:0;"></i>
-      <div>
-        <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;" id="evtBtnTxt">Registrar Evento</div>
-        <div style="font-size:11px;color:rgba(245,158,11,0.7);font-family:'IBM Plex Sans',sans-serif;font-weight:400;text-transform:none;letter-spacing:0;margin-top:2px;">Corridas, Jogos e Missões Extras</div>
-      </div>
-    </button>
-  </div>
 
   <!-- Formulário de evento -->
   <div id="evtFormWrap" style="display:none;padding:6px 10px 0;">
     <div class="fsec">
+      <div id="evtFaixa" class="form-faixa evt"><i class="fas fa-calendar-plus"></i> <span id="evtFaixaTit">Novo evento</span></div>
+      <div id="evtRascBar" class="rasc-bar" style="display:none;"></div>
       <div class="frow" style="margin-bottom:8px;">
         <div style="flex:2;">
           <span class="flabel">Nome do Evento</span>
@@ -1392,7 +1400,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
         </div>
         <div>
           <span class="flabel">Horário</span>
-          <input type="time" class="finput" id="evtHora" style="text-transform:none;">
+          <div class="time-wrap"><input type="text" class="finput hora-inp" id="evtHora" inputmode="numeric" maxlength="5" placeholder="00:00" autocomplete="off" style="text-transform:none;"><button type="button" class="time-agora" onclick="horaAgora('evtHora')">Agora</button></div>
         </div>
       </div>
       <div style="margin-bottom:8px;">
@@ -2102,7 +2110,7 @@ body.light-mode .qrv-rota-chip.rc-chegada{color:#475569;}
     });
   };
 })();
-const APP_VERSION='2026-11-25-vZ5'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
+const APP_VERSION='2026-11-26-vZ13'; // Sinistros Fatais integrado // ← atualize esta string a cada deploy
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwNQg7oS7yITWKweCAqi0XvF8Bgn45ua7a9uVyMjPf95RsD59AQJGMwHYTAjguI-JVs/exec';
 const LS={session:'amc_rel_session',agentes:'agentesPersonalizados',rotas:'rotasPersonalizadas'};
 // Limpar sessão ao detectar nova versão — força re-login em todos os usuários
@@ -2643,10 +2651,12 @@ document.addEventListener('click',e=>{
 });
 
 function cmdToggleForm(){
+  if(!cmdFormAberto&&!formLivrePara('cmd',cmdToggleForm))return;
   cmdFormAberto=!cmdFormAberto;
   document.getElementById('cmdFormWrap').style.display=cmdFormAberto?'block':'none';
-  document.getElementById('evtBtnCmdTxt').textContent=cmdFormAberto?'Fechar':'+ Comando';
+  document.getElementById('evtBtnCmdTxt').textContent=cmdFormAberto?'Fechar':'Novo comando';
   if(cmdFormAberto&&!cmdEditId){cmdLimparForm();cmdAdicionarVt();}
+  if(cmdFormAberto&&!cmdEditId) cmdRascunhoVerificar(); else rascOculta('cmd');
 }
 
 function cmdAdicionarVt(){
@@ -2654,7 +2664,7 @@ function cmdAdicionarVt(){
   const div=document.createElement('div');div.className='cmd-vt-form';
   div.innerHTML=`<div class="vt-wrap" data-cmdvtwrap style="width:110px;flex-shrink:0;"></div>
     <div class="input-wrap" style="flex:1;"><input type="text" class="finput finput-agentes" data-campo="agentes" placeholder="Agentes" autocomplete="off" style="width:100%;"></div>
-    <button onclick="if(confirm('Remover?'))this.closest('.cmd-vt-form').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;padding:6px 8px;cursor:pointer;font-size:11px;flex-shrink:0;"><i class="fas fa-trash"></i></button>`;
+    <button onclick="cmdRemoverVt(this)" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;padding:6px 8px;cursor:pointer;font-size:11px;flex-shrink:0;"><i class="fas fa-trash"></i></button>`;
   const vtWrap=div.querySelector('[data-cmdvtwrap]');
   const vtEl=criarVtInput('');
   const vtInp=vtEl.querySelector('input');
@@ -2668,13 +2678,14 @@ function cmdAdicionarVt(){
 function cmdColetarVts(){
   return Array.from(document.getElementById('cmdVtContainer').children).map(div=>{
     const vt=(div.querySelector('.vt-input')?.value||'').trim().toUpperCase();
-    const agentes=(div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase();
+    const agentes=evtLimpaNomes((div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase());
     return{vt,agentes};
   }).filter(v=>v.vt||v.agentes);
 }
 
 function cmdLimparForm(){
   cmdEditId=null;
+  cmdFaixa('Novo comando');
   document.getElementById('cmdLocal').value='';
   document.getElementById('cmdHora').value='';
   document.getElementById('cmdCoordenador').value=G.name||'';
@@ -2722,8 +2733,8 @@ async function cmdSalvar(){
   const cmd={
     id:cmdEditId||('cmd_'+Date.now()),
     local,hora:(document.getElementById('cmdHora').value||''),
-    coordenador:(document.getElementById('cmdCoordenador').value||'').trim().toUpperCase(),
-    ausencias:(document.getElementById('cmdAusencias').value||'').trim().toUpperCase(),
+    coordenador:evtLimpaNomes((document.getElementById('cmdCoordenador').value||'').trim().toUpperCase()),
+    ausencias:evtLimpaNomes((document.getElementById('cmdAusencias').value||'').trim().toUpperCase()),
     viaturas:vts,data:isoData(G.data),turno:evtTurno,
     criadoPor:(cmdEditId&&G.role==='admin')?(()=>{const o=cmdLista.find(c=>c.id===cmdEditId);return(o&&o.criadoPor)?o.criadoPor:G.name;})():G.name,
     criadoEm:(()=>{const o=cmdLista.find(c=>c.id===cmdEditId);return(o&&o.criadoEm)?o.criadoEm:new Date().toISOString();})(),
@@ -2734,6 +2745,7 @@ async function cmdSalvar(){
     api('saveBiblioteca',{entrada:{nome:'CMD: '+cmd.local,postos:[{local:cmd.local}],criadoPor:cmd.criadoPor}}).catch(()=>{});
     const idx=cmdLista.findIndex(c=>c.id===cmd.id);
     if(idx>=0) cmdLista[idx]=cmd; else cmdLista.unshift(cmd);
+    cmdRascunhoLimpar();
     cmdLimparForm();
     cmdFormAberto=true;cmdToggleForm();
     cmdRenderLista();
@@ -2748,44 +2760,48 @@ async function cmdSalvar(){
 function cmdRenderLista(){
   const el=document.getElementById('cmdLista');
   if(!el) return;
-  const podeEd=(G.role==='admin')||(G.role==='supervisor');
   const hoje=isoData(new Date());
   const soLeitura=isoData(G.data)!==hoje&&G.role!=='admin';
-  const minha=G.role==='admin'?cmdLista:['central','chefia'].includes(G.role)?cmdLista:cmdLista.filter(c=>c.criadoPor===G.name);
-  if(!minha.length){
-    // Só mostrar mensagem se não há nenhum no turno todo (nem de outros supervisores)
-    if(cmdLista.length>0) return; // há comandos de outros — não mostrar mensagem
-    el.innerHTML='<div class="empty"><span class="eico">🛡️</span><div class="etxt">Nenhum comando cadastrado neste turno</div></div>';
-    return;
-  }
+  const minha=evtMinhaCmd();
+  if(!minha.length){ el.innerHTML=''; evtRenderLista(); return; }
   el.innerHTML=minha.map((cmd,idx)=>{
     const podEd=!soLeitura&&((G.role==='admin')||(G.role==='supervisor'&&cmd.criadoPor===G.name));
     const numCmd=idx+1;
-    return`<div class="evt-card" style="border-left:4px solid #6d28d9;margin-top:8px;background:rgba(109,40,217,0.05);">
-      <div class="evt-card-header" style="background:rgba(109,40,217,0.25);border-radius:8px 8px 0 0;padding:8px 12px;margin:-12px -12px 8px;border-bottom:1px solid rgba(109,40,217,0.4);">
-        <div style="display:flex;align-items:center;gap:8px;flex:1;">
-          <span style="font-size:10px;font-weight:700;color:#c4b5fd;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;white-space:nowrap;background:rgba(109,40,217,0.4);padding:2px 6px;border-radius:4px;">🛡️ COMANDO ${numCmd}</span>
-          <div class="evt-nome" style="color:#e2d9ff;font-size:13px;font-weight:700;">${cmd.local}${cmd.hora?' · '+cmd.hora:''}</div>
+    const k='c_'+cmd.id;
+    const aberto=evtCardEstaAberto(k);
+    const vts=cmd.viaturas||[];
+    const respIgualCoord=evtNk(cmd.criadoPor)===evtNk(cmd.coordenador);
+    const ausTxt=evtLimpaNomes(cmd.ausencias||'');
+    const acoes=podEd?`<div class="evt2-acoes">
+        <button type="button" class="evt2-btn" onclick="cmdEditar('${cmd.id}')"><i class="fas fa-edit"></i> Editar</button>
+        <button type="button" class="evt2-btn del" onclick="cmdExcluir('${cmd.id}')"><i class="fas fa-trash"></i> Excluir</button>
+      </div>`:'';
+    return`<div class="evt-card evt2-card cmd${aberto?'':' fechado'}" id="evtc_${k}" data-k="${k}">
+      <div class="evt2-head" role="button" tabindex="0" aria-expanded="${aberto?'true':'false'}" onclick="evtToggleCard('${k}')">
+        <div class="evt2-title"><span class="evt2-tag">🛡️ Comando ${numCmd}</span> ${evtEsc(cmd.local)}</div>
+        <span class="evt2-chev">▾</span>
+        <div class="evt2-meta">
+          <span class="evt2-hora${cmd.hora?'':' vazio'}">${cmd.hora?'🕐 '+evtEsc(cmd.hora):''}</span>
+          <span class="evt2-resp${respIgualCoord?' vazio':''}">${respIgualCoord?'':'Resp.: '+evtEsc(evtTitulo(cmd.criadoPor))}</span>
+          <span class="evt2-cnt">${evtPl(vts.length,'viatura','viaturas')}</span>
         </div>
-        <span class="evt-autor">${cmd.criadoPor}</span>
-        ${podEd?`<button class="evt-btn-edit" onclick="cmdEditar('${cmd.id}')"><i class="fas fa-edit"></i></button>`:''}
-        ${podEd?`<button class="evt-btn-del" onclick="cmdExcluir('${cmd.id}')"><i class="fas fa-trash"></i></button>`:''}
       </div>
-      ${cmd.coordenador?`<div style="font-size:12px;color:#c4b5fd;padding:2px 0 6px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;">👤 COORD: ${cmd.coordenador}</div>`:''}
-      ${(cmd.viaturas||[]).map(v=>`
-        <div class="evt-posto" style="border-left:2px solid rgba(167,139,250,0.4);">
-          <div class="evt-posto-info">
-            ${v.vt?`<span class="evt-posto-vt" style="background:rgba(109,40,217,0.4);color:#c4b5fd;">${v.vt}</span> `:''}
-            <span style="color:var(--text1);font-size:13px;">${v.agentes||'—'}</span>
-          </div>
-        </div>`).join('')}
-      ${cmd.ausencias?`<div class="evt-apoio" style="border-left:3px solid #f59e0b;color:var(--text);white-space:pre-wrap;"><strong style="color:#f59e0b;">AUSÊNCIAS:</strong> ${cmd.ausencias}</div>`:''}
+      <div class="evt2-body">
+        ${cmd.coordenador?`<div class="evt2-coord">👤 Coord.: <b>${evtEsc(evtTitulo(evtLimpaNomes(cmd.coordenador)))}</b></div>`:''}
+        ${vts.length?`<div class="evt2-postos">${vts.map(v=>`<div class="evt-posto">
+          <div class="evt-posto-info"><div class="evt-posto-agentes">${v.vt?`<span class="evt-posto-vt cmd">${evtEsc(v.vt)}</span>`:''}<span class="evt-posto-nomes">${evtEsc(evtLimpaNomes(v.agentes||''))||'—'}</span></div></div>
+        </div>`).join('')}</div>`:''}
+        ${ausTxt?`<div class="evt2-aus"><b>Ausências:</b> ${evtEsc(ausTxt)}</div>`:''}
+        ${acoes}
+      </div>
     </div>`;
   }).join('');
+  evtRenderLista();
 }
 
 function cmdEditar(id){
   const cmd=cmdLista.find(c=>c.id===id);if(!cmd) return;
+  if(!formLivrePara('cmd',function(){cmdEditar(id);}))return;
   cmdEditId=id;
   document.getElementById('cmdLocal').value=cmd.local||'';
   document.getElementById('cmdHora').value=cmd.hora||'';
@@ -2800,6 +2816,7 @@ function cmdEditar(id){
     const agInp=div.querySelector('[data-campo="agentes"]');if(agInp) agInp.value=v.agentes||'';
   });
   document.getElementById('cmdBtnSalvar').innerHTML='<i class="fas fa-save"></i> Atualizar Comando';
+  cmdFaixa('Editando comando');
   if(!cmdFormAberto) cmdToggleForm();
   document.getElementById('cmdFormWrap').scrollIntoView({behavior:'smooth'});
 }
@@ -2965,10 +2982,12 @@ function evtGoHoje(){
   G.data=new Date();evtSincData();evtCarregar();
 }
 function evtToggleForm(){
+  if(!evtFormAberto&&!formLivrePara('evt',evtToggleForm))return;
   evtFormAberto=!evtFormAberto;
   document.getElementById('evtFormWrap').style.display=evtFormAberto?'block':'none';
-  document.getElementById('evtBtnTxt').textContent=evtFormAberto?'Fechar':'Novo Evento';
+  document.getElementById('evtBtnTxt').textContent=evtFormAberto?'Fechar':'Novo evento';
   if(evtFormAberto&&!evtEditId){evtLimparForm();evtAdicionarPosto();}
+  if(evtFormAberto&&!evtEditId) evtRascunhoVerificar(); else rascOculta('evt');
 }
 function evtSincData(){
   const inp=document.getElementById('evtDataInput');
@@ -2994,6 +3013,7 @@ function evtOnTurnoChange(){
 }
 
 async function evtCarregar(silent=false){
+  if(!silent){ for(var _k in _evtAberto) delete _evtAberto[_k]; } // sincronização manual: cartões voltam ao padrão
   if(!silent){const b=document.getElementById('evtBRef');if(b)b.classList.add('spin');}
   try{
     const r=await api('getEventos',{data:isoData(G.data),turno:evtTurno});
@@ -3051,23 +3071,25 @@ async function evtCarregar(silent=false){
 
 function evtAdicionarPosto(){
   const c=document.getElementById('evtPostosContainer');
-  const n=c.children.length+1;
   const div=document.createElement('div');div.className='evt-posto-form';
-  div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-    <span style="font-size:11px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace;">POSTO ${n}</span>
-    <button onclick="if(confirm('Remover este posto?'))this.closest('.evt-posto-form').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;cursor:pointer;font-size:11px;padding:4px 8px;"><i class='fas fa-trash'></i></button>
+  div.innerHTML=`<div class="evt-posto-hd">
+    <span class="evt-posto-n">POSTO</span>
+    <span class="evt-posto-hd-a">
+      <button type="button" class="evt-mini" title="Criar outro posto no mesmo local" onclick="evtDuplicarPosto(this)"><i class="fas fa-clone"></i> Mesmo local</button>
+      <button type="button" class="evt-mini del" title="Remover posto" onclick="evtRemoverPosto(this)"><i class='fas fa-trash'></i></button>
+    </span>
   </div>
-  <div style="margin-bottom:6px;">
-    <span class="flabel" style="font-size:10px;">Local</span>
-    <input type="text" class="finput" data-campo="local" placeholder="Ex: Av. Beira Mar x R. dos Tabajaras" style="text-transform:uppercase;width:100%;font-size:13px;padding:10px 12px;">
+  <div class="evt-campo">
+    <span class="flabel">Local</span>
+    <input type="text" class="finput" data-campo="local" placeholder="Ex: Av. Beira Mar x R. dos Tabajaras" style="text-transform:uppercase;width:100%;">
   </div>
-  <div class="frow">
-    <div style="max-width:120px;">
-      <span class="flabel" style="font-size:10px;">VT/MT</span>
+  <div class="evt-va">
+    <div class="vt-col">
+      <span class="flabel">VT/MT</span>
       <div class="vt-wrap" data-vtwrap></div>
     </div>
-    <div>
-      <span class="flabel" style="font-size:10px;">Agentes</span>
+    <div class="ag-col">
+      <span class="flabel">Agentes</span>
       <div class="input-wrap"><input type="text" class="finput finput-agentes" data-campo="agentes" placeholder="Agentes do posto" autocomplete="off"></div>
     </div>
   </div>`;
@@ -3083,6 +3105,26 @@ function evtAdicionarPosto(){
   const agEl=div.querySelector('.finput-agentes');
   if(agEl) addEventosAgentes(agEl);
   c.appendChild(div);
+  evtRenumerarPostos();
+}
+
+function evtRenumerarPostos(){
+  document.querySelectorAll('#evtPostosContainer .evt-posto-form .evt-posto-n').forEach((el,i)=>{el.textContent='POSTO '+(i+1);});
+}
+
+// vZ9: cria um novo posto logo abaixo, já com o mesmo local (ex.: vários postos no mesmo endereço)
+function evtDuplicarPosto(btn){
+  const src=btn&&btn.closest('.evt-posto-form'); if(!src) return;
+  const local=((src.querySelector('[data-campo="local"]')||{}).value)||'';
+  evtAdicionarPosto();
+  const c=document.getElementById('evtPostosContainer');
+  const novo=c.lastElementChild;
+  if(novo!==src.nextElementSibling) src.after(novo);
+  const li=novo.querySelector('[data-campo="local"]'); if(li) li.value=local;
+  evtRenumerarPostos();
+  try{novo.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
+  const vt=novo.querySelector('.vt-input'); if(vt){try{vt.focus({preventScroll:true});}catch(e){}}
+  evtRascunhoAgendar();
 }
 
 function evtValidarVtPosto(inp){
@@ -3114,7 +3156,7 @@ function evtColetarPostos(){
   return Array.from(document.getElementById('evtPostosContainer').children).map(div=>{
     const local=(div.querySelector('[data-campo="local"]')?.value||'').trim().toUpperCase();
     const vt=(div.querySelector('.vt-input')?.value||'').trim().toUpperCase();
-    const agentes=(div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase();
+    const agentes=evtLimpaNomes((div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase());
     return{local,vt,agentes};
   }).filter(p=>p.local||p.agentes||p.vt);
 }
@@ -3123,19 +3165,21 @@ function evtColetarPostos(){
 function evtAdicionarSupervisao(){
   const c=document.getElementById('evtSupervisaoContainer');
   // múltiplas supervisões permitidas
-  const div=document.createElement('div');div.className='evt-posto-form';
+  const div=document.createElement('div');div.className='evt-posto-form evt-sup-form';
   div.style.cssText='border:1px solid rgba(167,139,250,0.4);border-radius:8px;padding:10px;margin-bottom:6px;background:rgba(167,139,250,0.05);';
-  div.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-    <span style="font-size:11px;font-weight:700;color:#a78bfa;font-family:'IBM Plex Mono',monospace;">SUPERVISÃO</span>
-    <button onclick="if(confirm('Remover supervisão?'))this.closest('.evt-posto-form').remove()" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);border-radius:6px;color:#f87171;cursor:pointer;font-size:11px;padding:4px 8px;"><i class='fas fa-trash'></i></button>
+  div.innerHTML=`<div class="evt-posto-hd">
+    <span class="evt-posto-n" style="color:#a78bfa;">SUPERVISÃO</span>
+    <span class="evt-posto-hd-a">
+      <button type="button" class="evt-mini del" title="Remover supervisão" onclick="evtRemoverSup(this)"><i class='fas fa-trash'></i></button>
+    </span>
   </div>
-  <div class="frow">
-    <div style="max-width:120px;">
-      <span class="flabel" style="font-size:10px;color:#a78bfa;">VT/MT</span>
+  <div class="evt-va">
+    <div class="vt-col">
+      <span class="flabel" style="color:#a78bfa;">VT/MT</span>
       <div class="vt-wrap" data-supvtwrap></div>
     </div>
-    <div>
-      <span class="flabel" style="font-size:10px;color:#a78bfa;">Agentes</span>
+    <div class="ag-col">
+      <span class="flabel" style="color:#a78bfa;">Agentes</span>
       <div class="input-wrap"><input type="text" class="finput finput-agentes" data-campo="agentes" placeholder="Supervisor(es)" autocomplete="off"></div>
     </div>
   </div>`;
@@ -3154,7 +3198,7 @@ function evtColetarSupervisao(){
   if(!c||!c.children.length) return [];
   return Array.from(c.children).map(div=>{
     const vt=(div.querySelector('.vt-input')?.value||'').trim().toUpperCase();
-    const agentes=(div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase();
+    const agentes=evtLimpaNomes((div.querySelector('[data-campo="agentes"]')?.value||'').trim().toUpperCase());
     return(vt||agentes)?{vt,agentes}:null;
   }).filter(Boolean);
 }
@@ -3169,6 +3213,7 @@ function evtLimparForm(){
   if(sc) sc.innerHTML='';
   evtEditId=null;
   document.getElementById('evtBtnSalvar').textContent='Salvar Evento';
+  evtFaixa('Novo evento');
 }
 
 function evtExportarAusencias(){
@@ -3225,8 +3270,8 @@ async function evtSalvar(){
     hora:document.getElementById('evtHora').value||'',
     data:isoData(G.data),
     turno:evtTurno,
-    apoio:(document.getElementById('evtApoio').value||'').trim().toUpperCase(),
-    ausencias:(document.getElementById('evtAusencias').value||'').trim().toUpperCase(),
+    apoio:evtLimpaNomes((document.getElementById('evtApoio').value||'').trim().toUpperCase()),
+    ausencias:evtLimpaNomes((document.getElementById('evtAusencias').value||'').trim().toUpperCase()),
     postos,
     supervisao:supervisao.length?supervisao:null,
     // Preservar criadoPor original se admin editando evento de outro supervisor
@@ -3246,6 +3291,7 @@ async function evtSalvar(){
     // Atualizar lista local — garantir que o evento salvo fica na lista
     const idx=evtLista.findIndex(e=>e.id===evento.id);
     if(idx>=0) evtLista[idx]=evento; else evtLista.unshift(evento);
+    evtRascunhoLimpar();
     evtLimparForm();
     evtFormAberto=true; // evitar que toggle chame limparForm novamente
     evtToggleForm();    // fecha o formulário
@@ -3260,6 +3306,7 @@ async function evtSalvar(){
 function evtEditar(id){
   const evt=evtLista.find(e=>e.id===id);
   if(!evt)return;
+  if(!formLivrePara('evt',function(){evtEditar(id);}))return;
   // Verificar permissão
   if(!['admin'].includes(G.role)&&evt.criadoPor!==G.name){
     toast('Você só pode editar eventos que criou.','err');return;
@@ -3295,6 +3342,7 @@ function evtEditar(id){
     if(sagInp) sagInp.value=s.agentes||'';
   });
   document.getElementById('evtBtnSalvar').textContent='Atualizar Evento';
+  evtFaixa('Editando evento');
   if(!evtFormAberto) evtToggleForm();
   document.getElementById('evtFormWrap').scrollIntoView({behavior:'smooth'});
 }
@@ -3316,73 +3364,426 @@ async function evtExcluir(id){
   });
 }
 
+// ═════════ vZ9: aba Evento — leitura em cartões recolhíveis ═════════
+var _evtAberto=window._evtAberto=window._evtAberto||{};
+function evtEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+// limpa vírgulas/espaços sobrando ("MARTINS," → "MARTINS"; "A,B" → "A, B")
+function evtLimpaNomes(s){
+  return String(s==null?'':s)
+    .replace(/[ \t]*,[ \t]*/g,', ')
+    .replace(/(,\s*){2,}/g,', ')
+    .replace(/, \n/g,',\n')
+    .replace(/^[\s,;]+|[\s,;]+$/g,'')
+    .replace(/[ \t]{2,}/g,' ');
+}
+function evtNk(s){return String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
+function evtNomesSet(s){return String(s||'').split(',').map(evtNk).filter(Boolean);}
+function evtTitulo(s){
+  return String(s||'').toLowerCase().replace(/(^|[\s\-.])([a-zà-ú])/g,function(m,a,b){return a+b.toUpperCase();}).replace(/ (De|Da|Do|Dos|Das|E) /g,function(m){return m.toLowerCase();});
+}
+function evtPl(n,um,varios){return n+' '+(n===1?um:varios);}
+function evtCardAbertoPadrao(){return false;} // todos os cartões começam fechados (celular e PC)
+function evtCardEstaAberto(k){return Object.prototype.hasOwnProperty.call(_evtAberto,k)?_evtAberto[k]:evtCardAbertoPadrao();}
+function evtToggleCard(k){
+  const el=document.getElementById('evtc_'+k);if(!el)return;
+  const abrir=el.classList.contains('fechado');
+  const celular=!!(window.matchMedia&&window.matchMedia('(max-width:700px)').matches);
+  if(abrir&&celular){
+    document.querySelectorAll('#telaEvento .evt2-card').forEach(function(o){
+      if(o===el)return;
+      o.classList.add('fechado');_evtAberto[o.getAttribute('data-k')]=false;
+      const oh=o.querySelector('.evt2-head');if(oh)oh.setAttribute('aria-expanded','false');
+    });
+  }
+  el.classList.toggle('fechado',!abrir);
+  _evtAberto[k]=abrir;
+  const h=el.querySelector('.evt2-head');if(h)h.setAttribute('aria-expanded',abrir?'true':'false');
+  if(abrir&&celular){setTimeout(function(){try{el.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}},40);}
+}
+function evtExpandirTodos(v){
+  document.querySelectorAll('#telaEvento .evt2-card').forEach(function(el){
+    el.classList.toggle('fechado',!v);
+    _evtAberto[el.getAttribute('data-k')]=!!v;
+    const h=el.querySelector('.evt2-head');if(h)h.setAttribute('aria-expanded',v?'true':'false');
+  });
+}
+function evtIrPara(k){
+  const el=document.getElementById('evtc_'+k);if(!el)return;
+  if(el.classList.contains('fechado'))evtToggleCard(k);
+  try{el.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}
+}
+function evtMinhaCmd(){
+  return ['admin','central','chefia'].includes(G.role)?cmdLista:cmdLista.filter(c=>c.criadoPor===G.name);
+}
+function evtLinhaPosto(i,p){
+  const nomes=evtLimpaNomes(p.agentes||'');
+  return `<div class="evt-posto">
+    <span class="evt-posto-num">${i}</span>
+    <div class="evt-posto-info">
+      ${p.local?`<div class="evt-posto-local">${evtEsc(p.local)}</div>`:''}
+      <div class="evt-posto-agentes">${p.vt?`<span class="evt-posto-vt">${evtEsc(p.vt)}</span>`:''}<span class="evt-posto-nomes">${nomes?evtEsc(nomes):'—'}</span></div>
+    </div>
+  </div>`;
+}
+
 function evtRenderLista(){
   const el=document.getElementById('evtLista');
-  const podeEditar=['admin','supervisor'].includes(G.role);
-  const minhaLista=['admin','central','chefia'].includes(G.role)?evtLista:evtLista.filter(e=>e.criadoPor===G.name);
-  // Card de cabeçalho para central e chefia (sempre leitura)
-  const cabecalho=['central','chefia'].includes(G.role)?`
-    <div class="view-header" style="margin:0 0 12px;">
-      <div class="view-title">Relatório de Eventos</div>
-      <div class="view-meta">
-        <span><strong>${fmtData(isoData(G.data))}</strong></span>
-        <span>Turno: <strong>${evtTurno}</strong></span>
-        <span>Eventos: <strong>${minhaLista.length}</strong></span>
-        ${cmdLista.length?`<span>Comandos: <strong>${cmdLista.length}</strong></span>`:''}
-      </div>
-    </div>`:'';
-  if(!minhaLista.length&&!cmdLista.length){
-    // Verificar se há eventos de outros supervisores no turno
-    const temDeOutros=evtLista.length>0||cmdLista.length>0;
-    const msgVazia=temDeOutros
-      ?'Nenhum evento ou comando cadastrado por você neste turno'
-      :(['admin','central','chefia'].includes(G.role)?'Nenhum evento ou comando cadastrado neste turno':'Nenhum evento ou comando cadastrado por você neste turno');
-    el.innerHTML=cabecalho+`<div class="empty"><span class="eico">📅</span><div class="etxt">${msgVazia}</div></div>`;
+  if(!el) return;
+  const ehLeitura=['admin','central','chefia'].includes(G.role);
+  const minhaLista=ehLeitura?evtLista:evtLista.filter(e=>e.criadoPor===G.name);
+  const minhaCmd=evtMinhaCmd();
+  if(!minhaLista.length&&!minhaCmd.length){
+    const msg=ehLeitura?'Nenhum evento ou comando cadastrado neste turno':'Nenhum evento ou comando cadastrado por você neste turno';
+    el.innerHTML=`<div class="evt2-vazio"><span class="evt2-vazio-i">📅</span><span>${msg}</span></div>`;
     return;
   }
-  if(!minhaLista.length){
-    el.innerHTML=cabecalho; // sem eventos mas há comandos — só cabeçalho, comandos aparecem abaixo
-    return;
-  }
-  el.innerHTML=cabecalho+minhaLista.map(evt=>{
-    const evtHojeRend=isoData(new Date());
-    const evtDataSelRend=isoData(G.data);
-    const evtSoLeitura=G.role!=='admin'&&evtDataSelRend!==evtHojeRend;
+  // ordem por horário (sem horário vai para o fim)
+  const ordenados=minhaLista.map((e,i)=>({e,i})).sort((a,b)=>{
+    const ha=a.e.hora||'99:99',hb=b.e.hora||'99:99';
+    return ha<hb?-1:ha>hb?1:a.i-b.i;
+  }).map(x=>x.e);
+  const total=ordenados.length+minhaCmd.length;
+  const chips=total>=4?`<div class="evt2-idx">${
+    ordenados.map(e=>`<button type="button" onclick="evtIrPara('${e.id}')">${e.hora?evtEsc(e.hora)+' · ':''}${evtEsc(e.nome)}</button>`).join('')}${
+    minhaCmd.map((c,i)=>`<button type="button" class="cmd" onclick="evtIrPara('c_${c.id}')">🛡️ Comando ${i+1}</button>`).join('')}</div>`:'';
+  const resumo=`<div class="evt2-resumo">
+    <div class="evt2-resumo-t">
+      <span class="tt">Relatório de Eventos</span>
+      <span>${fmtData(isoData(G.data))}</span>
+      <span>${evtEsc(evtTurno)}</span>
+      <span><b>${evtPl(ordenados.length,'evento','eventos')}</b></span>
+      ${minhaCmd.length?`<span><b>${evtPl(minhaCmd.length,'comando','comandos')}</b></span>`:''}
+    </div>
+    ${total>1?`<div class="evt2-resumo-a"><button type="button" class="evt2-link" onclick="evtExpandirTodos(true)">Expandir tudo</button><button type="button" class="evt2-link" onclick="evtExpandirTodos(false)">Recolher tudo</button></div>`:''}
+    ${chips}
+  </div>`;
+  const evtHojeRend=isoData(new Date());
+  const evtDataSelRend=isoData(G.data);
+  const evtSoLeitura=G.role!=='admin'&&evtDataSelRend!==evtHojeRend;
+  el.innerHTML=resumo+ordenados.map(evt=>{
     const podeEd=!evtSoLeitura&&((G.role==='admin')||(G.role==='supervisor'&&evt.criadoPor===G.name));
-    const postoHtml=(evt.postos||[]).length?`
-      <div style="font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:1.5px;padding:6px 0 3px;font-family:'IBM Plex Mono',monospace;">POSTOS</div>
-      ${(evt.postos||[]).map((p,i)=>`
-      <div class="evt-posto">
-        <span class="evt-posto-num">${i+1}</span>
-        <div class="evt-posto-info">
-          ${p.local?`<div class="evt-posto-local">${p.local}</div>`:''}
-          <div class="evt-posto-agentes">${p.vt?`<span class="evt-posto-vt">${p.vt}</span> `:''}<span style="color:var(--text);">${p.agentes||'—'}</span></div>
-        </div>
+    const postos=evt.postos||[];
+    const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[];
+    const k=evt.id;
+    const aberto=evtCardEstaAberto(k);
+    // APOIO só aparece quando traz alguém que ainda não está no cartão
+    const conhecidos=new Set([evtNk(evt.criadoPor)]);
+    supArr.forEach(s=>evtNomesSet(s.agentes).forEach(n=>conhecidos.add(n)));
+    const apoioNomes=evtNomesSet(evt.apoio);
+    const mostraApoio=apoioNomes.length&&!apoioNomes.every(n=>conhecidos.has(n));
+    const apoioTxt=evtLimpaNomes(evt.apoio||'');
+    const ausTxt=evtLimpaNomes(evt.ausencias||'');
+    const postoHtml=postos.length?`<div class="evt2-sec">Postos</div><div class="evt2-postos">${postos.map((p,i)=>evtLinhaPosto(i+1,p)).join('')}</div>`:'';
+    const supHtml=supArr.length?`<div class="evt2-sec">Supervisão</div>${supArr.map((s,i)=>`
+      <div class="evt-posto evt2-sup">
+        <span class="evt-posto-num evt2-sup-n">${supArr.length>1?i+1:'SUP'}</span>
+        <div class="evt-posto-info"><div class="evt-posto-agentes">${s.vt?`<span class="evt-posto-vt sup">${evtEsc(s.vt)}</span>`:''}<span class="evt-posto-nomes">${evtEsc(evtLimpaNomes(s.agentes||''))||'—'}</span></div></div>
       </div>`).join('')}`:'';
-    const supArr=evt.supervisao?(Array.isArray(evt.supervisao)?evt.supervisao:[evt.supervisao]):[]; 
-    const supHtml=supArr.length?`
-      <div style="font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:1.5px;padding:6px 0 3px;font-family:'IBM Plex Mono',monospace;">SUPERVISÃO</div>
-      ${supArr.map((s,i)=>`
-      <div class="evt-posto" style="background:rgba(167,139,250,0.07);border-left:3px solid #a78bfa;">
-        <span class="evt-posto-num" style="color:#f59e0b;">${supArr.length>1?i+1:'SUP'}</span>
-        <div class="evt-posto-info">
-          <div class="evt-posto-agentes">${s.vt?`<span class="evt-posto-vt" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.4);">${s.vt}</span> `:''}<span style="color:#f59e0b;">${s.agentes||'—'}</span></div>
+    const acoes=podeEd?`<div class="evt2-acoes">
+        <button type="button" class="evt2-btn" onclick="evtEditar('${evt.id}')"><i class="fas fa-edit"></i> Editar</button>
+        <button type="button" class="evt2-btn del" onclick="evtExcluir('${evt.id}')"><i class="fas fa-trash"></i> Excluir</button>
+      </div>`:'';
+    return`<div class="evt-card evt2-card${aberto?'':' fechado'}" id="evtc_${k}" data-k="${k}">
+      <div class="evt2-head" role="button" tabindex="0" aria-expanded="${aberto?'true':'false'}" onclick="evtToggleCard('${k}')">
+        <div class="evt2-title">${evtEsc(evt.nome)}</div>
+        <span class="evt2-chev">▾</span>
+        <div class="evt2-meta">
+          <span class="evt2-hora${evt.hora?'':' vazio'}">${evt.hora?'🕐 '+evtEsc(evt.hora):''}</span>
+          <span class="evt2-resp">Resp.: ${evtEsc(evtTitulo(evt.criadoPor))}</span>
+          <span class="evt2-cnt">${evtPl(postos.length,'posto','postos')}${supArr.length?' · supervisão':''}</span>
         </div>
-      </div>`).join('')}`:'';
-    return`<div class="evt-card">
-      <div class="evt-card-header">
-        <div class="evt-nome">${evt.nome}</div>
-        ${evt.hora?`<span class="evt-hora">🕐 ${evt.hora}</span>`:''}
-        <span class="evt-autor">${evt.criadoPor}</span>
-        ${podeEd?`<button class="evt-btn-edit" onclick="evtEditar('${evt.id}')"><i class="fas fa-edit"></i></button>`:''}
-        ${podeEd?`<button class="evt-btn-del" onclick="evtExcluir('${evt.id}')"><i class="fas fa-trash"></i></button>`:''}
       </div>
-      ${postoHtml}
-      ${supHtml}
-      ${evt.apoio?`<div class="evt-apoio"><strong>APOIO:</strong> ${evt.apoio}</div>`:''}
-      ${evt.ausencias?`<div class="evt-apoio" style="border-left:3px solid #f59e0b;color:var(--text);white-space:pre-wrap;"><strong style="color:#f59e0b;">AUSÊNCIAS:</strong> ${evt.ausencias}</div>`:''}
+      <div class="evt2-body">
+        ${postoHtml}
+        ${supHtml}
+        ${mostraApoio?`<div class="evt2-apoio"><b>Apoio:</b> ${evtEsc(apoioTxt)}</div>`:''}
+        ${ausTxt?`<div class="evt2-aus"><b>Ausências:</b> ${evtEsc(ausTxt)}</div>`:''}
+        ${acoes}
+      </div>
     </div>`;
   }).join('');
+}
+
+
+// ═════════ vZ9: rascunho automático dos formulários de Evento e Comando ═════════
+// Guarda o que o supervisor digitou neste aparelho (some ao salvar). Evita perder tudo se o app for fechado
+// ao ir ao WhatsApp, por exemplo. Só oferece restaurar — nunca preenche sozinho.
+(function(){
+  'use strict';
+  var VALIDADE=12*3600*1000;
+  function val(id){var e=document.getElementById(id);return e?(e.value||''):'';}
+  function setv(id,v){var e=document.getElementById(id);if(e)e.value=v||'';}
+  var CFG={
+    evt:{
+      key:'amc_rasc_evt_v1',bar:'evtRascBar',wrap:'evtFormWrap',
+      editando:function(){return !!evtEditId;},
+      aberto:function(){return !!evtFormAberto;},
+      coleta:function(){
+        var postos=Array.from(document.querySelectorAll('#evtPostosContainer .evt-posto-form')).map(function(d){return{
+          local:(d.querySelector('[data-campo="local"]')||{}).value||'',
+          vt:(d.querySelector('.vt-input')||{}).value||'',
+          agentes:(d.querySelector('[data-campo="agentes"]')||{}).value||''};});
+        var sup=Array.from(document.querySelectorAll('#evtSupervisaoContainer .evt-posto-form')).map(function(d){return{
+          vt:(d.querySelector('.vt-input')||{}).value||'',
+          agentes:(d.querySelector('[data-campo="agentes"]')||{}).value||''};});
+        return{nome:val('evtNome'),hora:val('evtHora'),apoio:val('evtApoio'),aus:val('evtAusencias'),postos:postos,sup:sup};
+      },
+      vazio:function(d){
+        var p=(d.postos||[]).some(function(x){return x.local||x.vt||x.agentes;});
+        var s=(d.sup||[]).some(function(x){return x.vt||x.agentes;});
+        // apoio vem preenchido com o nome do próprio usuário — não conta como conteúdo
+        return !(d.nome||d.hora||d.aus||p||s||((d.apoio||'').trim()&&(d.apoio||'').trim().toUpperCase()!==(G.name||'').toUpperCase()));
+      },
+      titulo:function(d){return d.nome||'';},
+      aplica:function(d){
+        evtLimparForm();
+        setv('evtNome',d.nome);setv('evtHora',d.hora);setv('evtApoio',d.apoio||G.name||'');
+        var a=document.getElementById('evtAusencias');if(a){a.value=d.aus||'';a.style.height='auto';a.style.height=a.scrollHeight+'px';}
+        (d.postos&&d.postos.length?d.postos:[{}]).forEach(function(p){
+          evtAdicionarPosto();var div=document.getElementById('evtPostosContainer').lastElementChild;
+          var l=div.querySelector('[data-campo="local"]');if(l)l.value=p.local||'';
+          var v=div.querySelector('.vt-input');if(v)v.value=p.vt||'';
+          var g=div.querySelector('[data-campo="agentes"]');if(g)g.value=p.agentes||'';
+        });
+        (d.sup||[]).forEach(function(s){
+          evtAdicionarSupervisao();var div=document.getElementById('evtSupervisaoContainer').lastElementChild;
+          var v=div.querySelector('.vt-input');if(v)v.value=s.vt||'';
+          var g=div.querySelector('[data-campo="agentes"]');if(g)g.value=s.agentes||'';
+        });
+      }
+    },
+    cmd:{
+      key:'amc_rasc_cmd_v1',bar:'cmdRascBar',wrap:'cmdFormWrap',
+      editando:function(){return !!cmdEditId;},
+      aberto:function(){return !!cmdFormAberto;},
+      coleta:function(){
+        var vts=Array.from(document.querySelectorAll('#cmdVtContainer .cmd-vt-form')).map(function(d){return{
+          vt:(d.querySelector('.vt-input')||{}).value||'',
+          agentes:(d.querySelector('[data-campo="agentes"]')||{}).value||''};});
+        return{local:val('cmdLocal'),hora:val('cmdHora'),coord:val('cmdCoordenador'),aus:val('cmdAusencias'),vts:vts};
+      },
+      vazio:function(d){
+        var v=(d.vts||[]).some(function(x){return x.vt||x.agentes;});
+        return !(d.local||d.hora||d.aus||v||((d.coord||'').trim()&&(d.coord||'').trim().toUpperCase()!==(G.name||'').toUpperCase()));
+      },
+      titulo:function(d){return d.local||'';},
+      aplica:function(d){
+        cmdLimparForm();
+        setv('cmdLocal',d.local);setv('cmdHora',d.hora);setv('cmdCoordenador',d.coord||G.name||'');
+        var a=document.getElementById('cmdAusencias');if(a){a.value=d.aus||'';a.style.height='auto';a.style.height=a.scrollHeight+'px';}
+        (d.vts&&d.vts.length?d.vts:[{}]).forEach(function(x){
+          cmdAdicionarVt();var div=document.getElementById('cmdVtContainer').lastElementChild;
+          var v=div.querySelector('.vt-input');if(v)v.value=x.vt||'';
+          var g=div.querySelector('[data-campo="agentes"]');if(g)g.value=x.agentes||'';
+        });
+      }
+    }
+  };
+  var timers={};
+  function ler(t){
+    try{
+      var raw=localStorage.getItem(CFG[t].key);if(!raw)return null;
+      var o=JSON.parse(raw);
+      if(!o||o.u!==G.name||!o.ts||(Date.now()-o.ts)>VALIDADE)return null;
+      return o;
+    }catch(e){return null;}
+  }
+  window.rascOculta=function(t){var b=document.getElementById(CFG[t].bar);if(b){b.style.display='none';b.innerHTML='';}};
+  function salvar(t){
+    var c=CFG[t];
+    if(!c.aberto()||c.editando()||!G.name)return;
+    try{
+      var d=c.coleta();
+      if(c.vazio(d)){localStorage.removeItem(c.key);return;}
+      localStorage.setItem(c.key,JSON.stringify({u:G.name,ts:Date.now(),d:d}));
+      window.rascOculta(t); // já está digitando por cima: some o aviso
+    }catch(e){}
+  }
+  function agendar(t){
+    var c=CFG[t];if(!c.aberto()||c.editando())return;
+    clearTimeout(timers[t]);timers[t]=setTimeout(function(){salvar(t);},700);
+  }
+  function limpar(t){clearTimeout(timers[t]);try{localStorage.removeItem(CFG[t].key);}catch(e){}window.rascOculta(t);}
+  function verificar(t){
+    var c=CFG[t],bar=document.getElementById(c.bar);if(!bar)return;
+    var o=ler(t);
+    if(!o||c.vazio(o.d)){window.rascOculta(t);return;}
+    var hh=new Date(o.ts).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    var ti=c.titulo(o.d);
+    bar.innerHTML='';
+    var tx=document.createElement('span');tx.className='rasc-tx';
+    tx.textContent='📝 Rascunho salvo às '+hh+(ti?' — '+ti:'');
+    var b1=document.createElement('button');b1.type='button';b1.className='rasc-b ok';b1.textContent='Restaurar';
+    b1.onclick=function(){c.aplica(o.d);window.rascOculta(t);};
+    var b2=document.createElement('button');b2.type='button';b2.className='rasc-b';b2.textContent='Descartar';
+    b2.onclick=function(){limpar(t);};
+    bar.appendChild(tx);bar.appendChild(b1);bar.appendChild(b2);
+    bar.style.display='flex';
+  }
+  window.evtRascunhoAgendar=function(){agendar('evt');};
+  window.evtRascunhoLimpar=function(){limpar('evt');};
+  window.evtRascunhoVerificar=function(){verificar('evt');};
+  window.cmdRascunhoAgendar=function(){agendar('cmd');};
+  window.cmdRascunhoLimpar=function(){limpar('cmd');};
+  window.cmdRascunhoVerificar=function(){verificar('cmd');};
+  window.rascEstado=function(t){var c=CFG[t];if(!c.aberto())return{aberto:false};var ed=c.editando(),tem=false;try{tem=!c.vazio(c.coleta());}catch(e){}return{aberto:true,editando:ed,tem:ed?true:tem};};
+  ['input','change','click','focusout'].forEach(function(ev){
+    document.addEventListener(ev,function(e){
+      var t=e.target;if(!t||!t.closest)return;
+      if(t.closest('#evtFormWrap'))agendar('evt');
+      else if(t.closest('#cmdFormWrap'))agendar('cmd');
+    },true);
+  });
+})();
+
+
+// ═════════ vZ10: horário digitado (HH:MM) e remoções com o diálogo do sistema ═════════
+(function(){
+  'use strict';
+  function fmt(v){
+    var d=String(v||'').replace(/\D/g,'').slice(0,4);
+    return d.length>2?d.slice(0,2)+':'+d.slice(2):d;
+  }
+  function normaliza(v){
+    var d=String(v||'').replace(/\D/g,'');
+    if(!d)return '';
+    var h,m;
+    if(d.length===1){h='0'+d;m='00';}
+    else if(d.length===2){h=d;m='00';}
+    else if(d.length===3){h='0'+d[0];m=d.slice(1);}
+    else{h=d.slice(0,2);m=d.slice(2,4);}
+    if(+h>23||+m>59)return null;
+    return h+':'+m;
+  }
+  document.addEventListener('input',function(e){
+    var t=e.target;
+    if(t&&t.classList&&t.classList.contains('hora-inp')){
+      var n=fmt(t.value);if(n!==t.value)t.value=n;
+    }
+  },true);
+  document.addEventListener('focusout',function(e){
+    var t=e.target;
+    if(t&&t.classList&&t.classList.contains('hora-inp')){
+      var n=normaliza(t.value);
+      if(n===null){t.value='';try{toast('Horário inválido. Use o formato 00:00.','err');}catch(x){}}
+      else if(n!==t.value)t.value=n;
+    }
+  },true);
+  window.horaAgora=function(id){
+    var el=document.getElementById(id);if(!el)return;
+    var d=new Date();
+    el.value=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+  };
+  function vazia(div){return !Array.from(div.querySelectorAll('input')).some(function(i){return (i.value||'').trim();});}
+  window.evtRemoverPosto=function(btn){
+    var d=btn&&btn.closest('.evt-posto-form');if(!d)return;
+    var fn=function(){d.remove();evtRenumerarPostos();evtRascunhoAgendar();};
+    if(vazia(d))fn();else conf('Remover posto','Remover este posto?',fn);
+  };
+  window.evtRemoverSup=function(btn){
+    var d=btn&&btn.closest('.evt-posto-form');if(!d)return;
+    var fn=function(){d.remove();evtRascunhoAgendar();};
+    if(vazia(d))fn();else conf('Remover supervisão','Remover esta supervisão?',fn);
+  };
+  window.cmdRemoverVt=function(btn){
+    var d=btn&&btn.closest('.cmd-vt-form');if(!d)return;
+    var fn=function(){d.remove();cmdRascunhoAgendar();};
+    if(vazia(d))fn();else conf('Remover viatura','Remover esta viatura do comando?',fn);
+  };
+})();
+
+
+// ═════════ vZ12: um formulário por vez, faixas de título e GPS no local do comando ═════════
+function evtFaixa(t){var e=document.getElementById('evtFaixaTit');if(e)e.textContent=t;}
+function cmdFaixa(t){var e=document.getElementById('cmdFaixaTit');if(e)e.textContent=t;}
+function evtFecharForm(){
+  evtFormAberto=false;
+  var w=document.getElementById('evtFormWrap');if(w)w.style.display='none';
+  var b=document.getElementById('evtBtnTxt');if(b)b.textContent='Novo evento';
+  if(evtEditId)evtLimparForm();
+  if(window.rascOculta)rascOculta('evt');
+}
+function cmdFecharForm(){
+  cmdFormAberto=false;
+  var w=document.getElementById('cmdFormWrap');if(w)w.style.display='none';
+  var b=document.getElementById('evtBtnCmdTxt');if(b)b.textContent='Novo comando';
+  if(cmdEditId)cmdLimparForm();
+  if(window.rascOculta)rascOculta('cmd');
+}
+// true = pode abrir agora; false = abriu um aviso (a ação é refeita se a pessoa confirmar)
+function formLivrePara(quem,depois){
+  var outro=quem==='evt'?'cmd':'evt';
+  var st=window.rascEstado?rascEstado(outro):{aberto:false};
+  if(!st.aberto)return true;
+  var fechar=function(){if(outro==='cmd')cmdFecharForm();else evtFecharForm();};
+  if(!st.tem){fechar();return true;}
+  var nOutro=outro==='cmd'?'comando':'evento',nQuem=quem==='cmd'?'comando':'evento';
+  var msg=st.editando
+    ?'Você está editando um '+nOutro+' e ainda não salvou. Abrir o '+nQuem+' agora vai descartar essas alterações. Continuar?'
+    :'Você está preenchendo um '+nOutro+' e ainda não salvou. Abrir o '+nQuem+' mesmo assim? O que você digitou fica guardado como rascunho.';
+  conf('Formulário não salvo',msg,function(){fechar();depois();});
+  return false;
+}
+
+var cmdGpsBuscando=false;
+function cmdGpsEstado(b){
+  var btn=document.getElementById('cmdGpsBtn');if(!btn)return;
+  btn.disabled=!!b;btn.classList.toggle('buscando',!!b);
+  btn.innerHTML=b?'<i class="fas fa-spinner fa-spin"></i>':'<i class="fas fa-map-marker-alt"></i>';
+}
+async function cmdGpsNominatim(lat,lng){
+  var ctl=new AbortController(),t=setTimeout(function(){ctl.abort();},12000);
+  try{
+    var r=await fetch('https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=pt-BR&lat='+lat+'&lon='+lng,{signal:ctl.signal});
+    clearTimeout(t);
+    var d=await r.json(),a=(d&&d.address)||{};
+    var rua=a.road||a.pedestrian||a.residential||'';
+    if(!rua)return null;
+    var num=a.house_number||'';
+    return{rua:rua,numero:num,bairro:a.suburb||a.neighbourhood||'',endereco:rua+(num?', '+num:'')};
+  }catch(e){clearTimeout(t);return null;}
+}
+// 1º tenta o geocodificador do Google (Apps Script); se não estiver disponível, usa o serviço aberto
+async function cmdGpsEndereco(lat,lng){
+  try{
+    var r=await api('reverseGeocode',{lat:lat,lng:lng});
+    if(r&&r.data&&r.data.endereco)return r.data;
+  }catch(e){}
+  return await cmdGpsNominatim(lat,lng);
+}
+function cmdLocalGps(){
+  if(cmdGpsBuscando)return;
+  if(!navigator.geolocation){toast('Seu aparelho não suporta localização.','err');return;}
+  cmdGpsBuscando=true;cmdGpsEstado(true);
+  var fim=function(){cmdGpsBuscando=false;cmdGpsEstado(false);};
+  var falha=function(err){
+    fim();var c=err&&err.code;
+    toast(c===1?'Localização negada. Libere a permissão de localização do app/navegador.'
+      :c===3?'Demorou para achar sua posição. Vá para um local aberto, confira o GPS e tente de novo.'
+      :'Não foi possível obter sua localização. Confira se o GPS está ligado e tente de novo.','err');
+  };
+  var ok=async function(pos){
+    var acc=pos.coords.accuracy;
+    var end=null;
+    try{end=await cmdGpsEndereco(pos.coords.latitude,pos.coords.longitude);}catch(e){}
+    fim();
+    if(!end||!end.endereco){toast('Achei sua posição, mas não consegui descobrir o endereço. Digite o local.','err');return;}
+    var el=document.getElementById('cmdLocal');if(!el)return;
+    el.value=String(end.endereco).toUpperCase();
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    setTimeout(function(){var d=document.getElementById('cmdLocalDrop');if(d)d.style.display='none';},60);
+    var msg='Local preenchido pelo GPS'+(acc?' (precisão ±'+Math.round(acc)+' m)':'');
+    if(!end.numero)msg+=' — complete o número, se houver';
+    if(acc>150)msg+='. Precisão baixa: confira o endereço';
+    toast(msg,acc>150?'err':'ok');
+    if(!end.numero){try{el.focus();el.setSelectionRange(el.value.length,el.value.length);}catch(e){}}
+  };
+  // GPS preciso primeiro (endereço exige precisão); se demorar, aceita posição aproximada
+  navigator.geolocation.getCurrentPosition(ok,function(err){
+    if(err&&err.code===1){falha(err);return;}
+    navigator.geolocation.getCurrentPosition(ok,falha,{enableHighAccuracy:false,timeout:10000,maximumAge:60000});
+  },{enableHighAccuracy:true,timeout:12000,maximumAge:10000});
 }
 
 // Injetar eventos na aba QRV como seção extra
@@ -6794,7 +7195,7 @@ function qrvGetStatusPills(r){
   if(r.statusPosto) pills.push(`<span class="qrv-status-pill posto">POSTO${r.horaPosto?' '+r.horaPosto:''}</span>`);
   if(r.statusOutros) pills.push(`<span class="qrv-status-pill outros">OUTROS</span>`);
   if(r.chegada) pills.push(`<span class="qrv-status-pill chegada">CHEGADA ${r.chegada}</span>`);
-  if(!pills.length) pills.push(`<span class="qrv-status-pill livre">● LIVRE</span>`);
+  if(!pills.length) pills.push(`<span class="qrv-status-pill livre">LIVRE</span>`);
   return pills.join('');
 }
 
@@ -6859,17 +7260,17 @@ function qrvRenderRow(r,podeEditar){
 
   // Badge: rendição com rota → laranja + sufixo REN
   const isRen = !!r.isRendicao;
-  const badgeStyle = isRen ? 'style="background:#c2410c;color:#fff;"' : '';
+  const badgeStyle = '';
   const badgeLabel = (r.vt||'?') + (isRen ? ' · REN' : '');
   const badgeHtml = `<span class="qrv-vt-badge ${badgeClass}" ${badgeStyle}>${badgeLabel}</span>`;
 
   // Layout simplificado para somente leitura (supervisor/chefia)
   if(!podeEditar){
-    return`<div class="qrv-row" data-id="${r.id}" style="cursor:default;">
-      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap;">
+    return`<div class="qrv-row qrv-ro" data-id="${r.id}" style="cursor:default;">
+      <div class="qrv-ro-main" style="display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap;">
         <span class="qrv-vt-badge ${badgeClass}" ${badgeStyle} style="font-size:14px;padding:4px 12px;">${badgeLabel}</span>
-        ${r.saida?`<span style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#60a5fa;font-weight:700;">▶ ${r.saida}</span>`:''}
-        <div style="flex:1;min-width:140px;">
+        <span class="qrv-ro-saida" style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#60a5fa;font-weight:700;">${r.saida?'▶ '+r.saida:''}</span>
+        <div class="qrv-ro-info" style="flex:1;min-width:140px;">
           <div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">${nomes||'—'}</div>
           ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
           ${(!r.rota&&r.missaoDuranteTurno)?`<div class="qrv-row-rota"><span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span></div>`:''}
@@ -6894,7 +7295,7 @@ function qrvRenderRow(r,podeEditar){
         ${r.rota?`<div class="qrv-row-rota">${qrvRotaChip(r)}${isRen&&r.localRendicao?` <span style="color:#f97316;font-weight:700;">↩ ${r.localRendicao}</span>`:''}${r.rotaAposMissao?` <span style="color:#f97316;font-weight:700;">↩ ${r.rotaAposMissao}</span>`:''}${fmtComposicao(r)?` <span style="color:#f97316;font-weight:700;">[${fmtComposicao(r)}]</span>`:''}${r.missaoDuranteTurno?` <span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span>`:''}</div>`:''}
         ${(!r.rota&&r.missaoDuranteTurno)?`<div class="qrv-row-rota"><span style="color:#f97316;font-weight:700;">🎯 ${r.missaoDuranteTurno}</span></div>`:''}
       </div>
-      ${qrvGetStatusPills(r)}
+      <span class="qrv-pills">${qrvGetStatusPills(r)}</span>
       <input type="time" class="qrv-saida-input" value="${r.saida||''}" title="Hora de saída"
         onclick="event.stopPropagation()"
         onblur="event.stopPropagation();qrvSalvarCampo('${r.id}','saida',this.value)">
@@ -8849,7 +9250,7 @@ function qrvvlGetStatusPills(r) {
   if (r.statusPosto)  pills.push('<span class="qrv-status-pill posto">POSTO'+(r.horaPosto?' '+r.horaPosto:'')+'</span>');
   if (r.statusOutros) pills.push('<span class="qrv-status-pill outros">OUTROS</span>');
   if (r.chegada)      pills.push('<span class="qrv-status-pill chegada">CHEGADA '+r.chegada+'</span>');
-  if (!pills.length)  pills.push('<span class="qrv-status-pill livre">● LIVRE</span>');
+  if (!pills.length)  pills.push('<span class="qrv-status-pill livre">LIVRE</span>');
   return pills.join('');
 }
 
@@ -8869,7 +9270,7 @@ function qrvvlRenderRow(r, podeEditar) {
   var badgeClass = isMain ? 'principal' : isSup ? 'supervisao' : '';
   var vtBadge;
   if ((isPostos || isMissao) && !temVt) {
-    vtBadge = '<span class="qrv-vt-badge" style="background:#92400e;font-size:14px;padding:3px 7px;">🚶</span>';
+    vtBadge = '<span class="qrv-vt-badge sem-vt">🚶</span>';
   } else {
     vtBadge = '<span class="qrv-vt-badge '+badgeClass+'">'+(r.vt||'?')+'</span>';
   }
@@ -8879,11 +9280,11 @@ function qrvvlRenderRow(r, podeEditar) {
   // Somente leitura
   if (!podeEditar) {
     var mostrarStatus = ['admin','operadorvl'].includes(G.role);
-    return '<div class="qrv-row" data-id="'+r.id+'" style="cursor:default;">'
-      +'<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap;">'
+    return '<div class="qrv-row qrv-ro" data-id="'+r.id+'" style="cursor:default;">'
+      +'<div class="qrv-ro-main" style="display:flex;align-items:center;gap:8px;padding:10px 12px;flex-wrap:wrap;">'
       +vtBadge
-      +(r.saida?'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;color:#fb923c;font-weight:700;">▶ '+r.saida+'</span>':'')
-      +'<div style="flex:1;min-width:140px;">'
+      +'<span class="qrv-ro-saida" style="font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:700;">'+(r.saida?'▶ '+r.saida:'')+'</span>'
+      +'<div class="qrv-ro-info" style="flex:1;min-width:140px;">'
       +'<div style="font-size:13px;color:var(--text);font-weight:600;line-height:1.4;">'+(r.agentes||'—')+'</div>'
       +(r.rota?'<div class="qrv-row-rota">'+qrvRotaChip(r)+'</div>':'')
       +'</div>'
@@ -8896,13 +9297,13 @@ function qrvvlRenderRow(r, podeEditar) {
 
   // Editável
   return '<div class="qrv-row" data-id="'+r.id+'">'
-    +'<div class="qrv-row-main qrvvl-card-main">'
+    +'<div class="qrv-row-main">'
     +vtBadge
     +'<div class="qrv-row-info">'
     +'<div class="qrv-row-nomes">'+(r.agentes||'<span style="color:var(--text3);font-style:italic;">sem agentes</span>')+'</div>'
     +(r.rota?'<div class="qrv-row-rota">'+qrvRotaChip(r)+'</div>':'')
     +'</div>'
-    +qrvvlGetStatusPills(r)
+    +'<span class="qrv-pills">'+qrvvlGetStatusPills(r)+'</span>'
     +'<input type="time" class="qrv-saida-input" id="qrvvlSaidaInp_'+r.id+'" value="'+(r.saida||'')+'" title="Hora de saída"'
     +' onclick="event.stopPropagation()"'
     +' onchange="event.stopPropagation();qrvvlSalvarCampo(\''+r.id+'\',\'saida\',this.value)"'
@@ -14791,7 +15192,7 @@ body.light-mode .rcc-ban b{color:#9a3412;}
 @media(max-width:600px){
   #telaQrv .qrv-row-main{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px;padding:9px 10px;}
   #telaQrv .qrv-row-main > .qrv-vt-badge{order:1;font-size:14px;padding:3px 9px;}
-  #telaQrv .qrv-row-main > .qrv-status-pill{order:2;}
+  #telaQrv .qrv-row-main > .qrv-pills{order:2;}
   #telaQrv .qrv-row-main > .qrv-saida-input{order:3;margin-left:auto;width:86px;font-size:13px;padding:4px 6px;}
   #telaQrv .qrv-row-main > .qrv-rel-tag{order:3;}
   #telaQrv .qrv-row-main > .qrv-row-info{order:4;flex:0 0 100%;width:100%;min-width:0;}
@@ -14804,6 +15205,463 @@ body.light-mode .rcc-ban b{color:#9a3412;}
   #telaQrv .qrv-row-main > .qrv-btn-expand{margin-left:auto;}
   #telaQrv .qrv-row-extra{padding:4px 10px 10px;}
 }
+
+/* ── QRV (Central/Admin e demais perfis): menos cor, mesma altura, colunas alinhadas — só a aba QRV ── */
+#telaQrv .qrv-vt-badge{background:#2f5fd0;color:#fff;min-width:78px;height:26px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-size:13px;padding:0 8px;}
+#telaQrv .qrv-vt-badge.principal{background:var(--gold);color:#000;}
+#telaQrv .qrv-vt-badge.supervisao{background:#2f5fd0;color:#fff;}
+#telaQrv .qrv-status-pill,#telaQrv .qrv-rota-chip,#telaQrv .etil-tag{height:22px;box-sizing:border-box;display:inline-flex;align-items:center;font-size:11px;padding:0 8px;border-radius:5px;line-height:1;margin:0;}
+#telaQrv .qrv-status-pill{min-width:78px;justify-content:center;}
+#telaQrv .qrv-status-pill.livre{background:rgba(148,163,184,.12);color:#a7f3d0;border:1px solid rgba(148,163,184,.3);}
+#telaQrv .qrv-status-pill.outros{background:rgba(148,163,184,.12);color:#94a3b8;border:1px solid rgba(148,163,184,.3);}
+#telaQrv .qrv-status-pill.chegada{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.35);}
+#telaQrv .qrv-rota-chip.rc-chegada{background:rgba(96,165,250,.14);color:#93c5fd;border-color:rgba(96,165,250,.35);}
+/* livre/outros só aparece (no selo) para Central/Admin; a caixa da rota fica neutra para todos */
+#telaQrv .qrv-rota-chip.rc-livre,#telaQrv .qrv-rota-chip.rc-outros,#telaQrv .qrv-row-main .qrv-rota-chip{background:transparent;color:#cbd5e1;border-color:rgba(148,163,184,.35);}
+#telaQrv .etil-tag{background:transparent;color:#5eead4;border:1px solid rgba(94,234,212,.35);}
+#telaQrv .qrv-row-rota{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+#telaQrv .qrv-row-rota > span[style*="f97316"]{font-weight:600;}
+#telaQrv .qrv-saida-input{width:86px;}
+/* perfis de leitura: etiqueta e horário em colunas fixas (nome sempre alinhado) */
+#telaQrv .qrv-ro .qrv-vt-badge{min-width:84px;}
+#telaQrv .qrv-ro .qrv-ro-saida{min-width:68px;display:inline-block;}
+body.light-mode #telaQrv .qrv-rota-chip.rc-livre,body.light-mode #telaQrv .qrv-rota-chip.rc-outros,body.light-mode #telaQrv .qrv-row-main .qrv-rota-chip{color:#475569;border-color:#cbd5e1;}
+body.light-mode #telaQrv .qrv-status-pill.outros{color:#64748b;}
+body.light-mode #telaQrv .qrv-status-pill.livre{color:#15803d;}
+body.light-mode #telaQrv .etil-tag{color:#0f766e;border-color:rgba(15,118,110,.4);}
+body.light-mode #telaQrv .qrv-ro .qrv-ro-saida{color:#2563eb!important;}
+@media(max-width:600px){
+  #telaQrv .qrv-ro .qrv-ro-main{gap:6px 8px;}
+  #telaQrv .qrv-ro .qrv-ro-main > .qrv-vt-badge{order:1;}
+  #telaQrv .qrv-ro .qrv-ro-saida{order:2;min-width:0;}
+  #telaQrv .qrv-ro .qrv-ro-saida:empty{display:none;}
+  #telaQrv .qrv-ro .qrv-ro-main > button{order:3;margin-left:auto;}
+  #telaQrv .qrv-ro .qrv-ro-info{order:4;flex:0 0 100%!important;min-width:0!important;}
+}
+
+/* ── QRV vZ7: caixa da rota com tom próprio, ETILÔMETRO discreto, computador em colunas (menos vazio no meio) ── */
+#telaQrv .qrv-rota-chip.rc-livre,#telaQrv .qrv-rota-chip.rc-outros,#telaQrv .qrv-row-main .qrv-rota-chip{background:rgba(129,140,248,.16);color:#c7d2fe;border-color:rgba(129,140,248,.42);font-weight:700;}
+#telaQrv .etil-tag{background:rgba(110,231,183,.08);color:#a7f3d0;border:1px solid rgba(110,231,183,.26);font-weight:600;}
+body.light-mode #telaQrv .qrv-rota-chip.rc-livre,body.light-mode #telaQrv .qrv-rota-chip.rc-outros,body.light-mode #telaQrv .qrv-row-main .qrv-rota-chip{background:rgba(79,70,229,.08);color:#4338ca;border-color:rgba(79,70,229,.3);}
+body.light-mode #telaQrv .etil-tag{background:rgba(16,185,129,.07);color:#047857;border-color:rgba(16,185,129,.3);}
+@media(min-width:601px){
+  #telaQrv .qrv-row-main > .qrv-vt-badge{width:100px;height:auto;min-height:26px;white-space:normal;text-align:center;line-height:1.15;padding:2px 6px;}
+  #telaQrv .qrv-rota-chip{height:auto;min-height:22px;padding-top:2px;padding-bottom:2px;white-space:normal;}
+  #telaQrv .qrv-row-main .qrv-row-nomes{font-size:13px;line-height:1.35;white-space:normal;overflow:visible;text-overflow:clip;}
+}
+/* telas médias / zoom ampliado (601–1299 px): 1ª linha = VT, status, horário, botões · 2ª linha = agentes e rota (nada se sobrepõe) */
+@media(min-width:601px) and (max-width:1299px){
+  #telaQrv .qrv-row-main{flex-wrap:wrap;gap:8px 10px;padding:9px 12px;}
+  #telaQrv .qrv-row-main > *{order:6;flex-shrink:0;}
+  #telaQrv .qrv-row-main > .qrv-vt-badge{order:1;}
+  #telaQrv .qrv-pills{order:2;display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;}
+  #telaQrv .qrv-row-main > .qrv-saida-input{order:5;margin-left:auto;}
+  #telaQrv .qrv-row-main > .qrv-rel-tag{order:5;}
+  #telaQrv .qrv-row-main > .qrv-row-info{order:7;flex:0 0 100%;width:100%;min-width:0;}
+  #telaQrv .qrv-row-main .qrv-row-rota{margin-top:4px;}
+}
+/* tela larga (1300 px ou mais): uma linha em colunas — VT | status | agentes | rota e missão ........ horário | botões */
+@media(min-width:1300px){
+  #telaQrv .qrv-row-main{flex-wrap:nowrap;gap:10px;padding:8px 12px;}
+  #telaQrv .qrv-row-main > *{order:6;flex-shrink:0;}
+  #telaQrv .qrv-row-main > .qrv-vt-badge{order:1;}
+  #telaQrv .qrv-pills{order:2;display:flex;align-items:center;align-content:center;gap:4px 6px;flex-wrap:wrap;width:124px;}
+  #telaQrv .qrv-row-main > .qrv-row-info{display:contents;}
+  #telaQrv .qrv-row-main .qrv-row-nomes{order:3;flex:0 0 clamp(200px,20%,360px);width:clamp(200px,20%,360px);}
+  #telaQrv .qrv-row-main .qrv-row-rota{order:4;flex:1 1 0;min-width:0;margin:0;}
+  #telaQrv .qrv-row-main .qrv-row-nomes:only-of-type{flex:1 1 0;}
+  #telaQrv .qrv-row-main > .qrv-saida-input{order:5;margin-left:auto;}
+  #telaQrv .qrv-row-main > .qrv-rel-tag{order:5;}
+}
+
+/* ══════════ vZ9 — aba EVENTO (leitura, formulários, topo compacto) ══════════ */
+
+/* ── linha de ações compacta ── */
+#evtAcoesRow{display:flex;gap:8px;padding:8px 10px 0;align-items:stretch;}
+#evtAcoesRow>div{padding:0!important;flex:1 1 0;min-width:0;}
+#evtAcoesRow button{width:100%;height:100%;box-sizing:border-box;padding:9px 8px!important;gap:6px!important;justify-content:center;align-items:center;border-radius:10px!important;font-size:13px!important;letter-spacing:.5px!important;white-space:nowrap;text-align:center!important;}
+#evtAcoesRow button>div{min-width:0;}
+#evtAcoesRow button>div>div:nth-child(2){display:none!important;}
+#evtAcoesRow button>div>div:first-child{font-size:13px!important;letter-spacing:.5px!important;}
+#evtAcoesRow button i{font-size:14px!important;flex-shrink:0;}
+#evtAcoesRow .lg{display:none;}
+@media(min-width:700px){
+  #evtAcoesRow>div{flex:0 0 auto;}
+  #evtAcoesRow button{width:auto;padding:10px 18px!important;font-size:14px!important;}
+  #evtAcoesRow button>div>div:first-child{font-size:14px!important;}
+  #evtAcoesRow .lg{display:inline;}
+}
+
+/* ── resumo ── */
+#telaEvento .evt2-resumo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:9px 12px;margin:0 0 10px;background:linear-gradient(135deg,rgba(21,128,61,.30),rgba(21,128,61,.12));border:1px solid rgba(74,222,128,.28);border-radius:10px;}
+#telaEvento .evt2-resumo-t{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;font-size:13px;color:var(--text2);}
+#telaEvento .evt2-resumo-t b{color:var(--text);}
+#telaEvento .evt2-resumo-t .tt{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text);}
+#telaEvento .evt2-resumo-a{display:flex;gap:6px;}
+#telaEvento .evt2-link{background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;letter-spacing:.6px;text-transform:uppercase;}
+#telaEvento .evt2-link:hover{color:var(--text);border-color:var(--text2);}
+#telaEvento .evt2-idx{flex:1 1 100%;display:flex;gap:6px;overflow-x:auto;padding:2px 0 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+#telaEvento .evt2-idx::-webkit-scrollbar{display:none;}
+#telaEvento .evt2-idx button{flex:0 0 auto;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.35);color:var(--gold);border-radius:999px;padding:4px 11px;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;cursor:pointer;}
+#telaEvento .evt2-idx button.cmd{background:rgba(109,40,217,.18);border-color:rgba(167,139,250,.45);color:#c4b5fd;}
+
+/* ── cartões ── */
+#telaEvento .evt2-card{scroll-margin-top:140px;margin-bottom:10px;}
+#telaEvento .evt2-head{cursor:pointer;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:start;padding:12px 14px;background:rgba(245,158,11,.10);border-bottom:1px solid rgba(245,158,11,.22);-webkit-tap-highlight-color:transparent;user-select:none;}
+#telaEvento .evt2-card.fechado .evt2-head{border-bottom:none;}
+#telaEvento .evt2-title{grid-column:1;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:17px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold);line-height:1.2;min-width:0;overflow-wrap:anywhere;}
+#telaEvento .evt2-chev{grid-column:2;grid-row:1;align-self:center;color:var(--text2);font-size:16px;line-height:1;transition:transform .18s;}
+#telaEvento .evt2-card.fechado .evt2-chev{transform:rotate(-90deg);}
+#telaEvento .evt2-meta{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;}
+#telaEvento .evt2-hora{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#fbbf24;background:rgba(245,158,11,.16);border:1px solid rgba(245,158,11,.4);border-radius:6px;padding:2px 8px;line-height:1.35;}
+#telaEvento .evt2-resp{font-size:13px;color:var(--text);opacity:.9;}
+#telaEvento .evt2-cnt{font-size:12px;color:var(--text2);}
+#telaEvento .evt2-card.fechado .evt2-body{display:none;}
+@media(min-width:900px){
+  #telaEvento .evt2-head{display:flex;align-items:center;gap:14px;}
+  #telaEvento .evt2-title{flex:1 1 auto;order:1;}
+  #telaEvento .evt2-meta{flex:0 0 auto;order:2;flex-wrap:nowrap;gap:14px;}
+  #telaEvento .evt2-chev{order:3;}
+}
+
+/* comando (roxo) */
+#telaEvento .evt2-card.cmd{border-left:4px solid #6d28d9;background:rgba(109,40,217,.05);}
+#telaEvento .evt2-card.cmd .evt2-head{background:rgba(109,40,217,.22);border-bottom-color:rgba(109,40,217,.4);}
+#telaEvento .evt2-card.cmd .evt2-title{color:#e2d9ff;font-size:16px;}
+#telaEvento .evt2-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1px;color:#c4b5fd;background:rgba(109,40,217,.4);padding:2px 7px;border-radius:4px;margin-right:6px;vertical-align:middle;white-space:nowrap;}
+#telaEvento .evt2-card.cmd .evt2-hora{color:#ddd6fe;background:rgba(109,40,217,.3);border-color:rgba(167,139,250,.5);}
+#telaEvento .evt2-coord{padding:9px 14px 2px;font-size:13px;color:#c4b5fd;}
+#telaEvento .evt2-coord b{color:var(--text);}
+
+/* seções e postos */
+#telaEvento .evt2-sec{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--text2);padding:10px 14px 4px;}
+#telaEvento .evt2-postos{display:grid;grid-template-columns:minmax(0,1fr);}
+#telaEvento .evt2-postos .evt-posto{padding:10px 14px;border-bottom:1px solid var(--border);}
+#telaEvento .evt2-postos .evt-posto:last-child{border-bottom:none;}
+#telaEvento .evt-posto-num{color:var(--gold);}
+#telaEvento .evt-posto-local{font-family:'IBM Plex Sans',sans-serif;font-size:13px;letter-spacing:0;color:var(--text2);margin-bottom:4px;line-height:1.3;}
+#telaEvento .evt-posto-agentes{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;font-size:14px;color:var(--text);font-weight:500;}
+#telaEvento .evt-posto-nomes{color:var(--text);overflow-wrap:anywhere;}
+#telaEvento .evt-posto-vt{margin-left:0;font-size:12px;padding:2px 8px;}
+#telaEvento .evt-posto-vt.cmd{background:rgba(109,40,217,.4);color:#ddd6fe;}
+#telaEvento .evt-posto-vt.sup{background:rgba(245,158,11,.16);color:#fbbf24;border:1px solid rgba(245,158,11,.4);}
+#telaEvento .evt2-sup{background:rgba(167,139,250,.08);border-left:3px solid #a78bfa;padding:9px 14px;border-bottom:none;}
+#telaEvento .evt2-sup-n{color:#a78bfa;}
+#telaEvento .evt2-apoio{padding:8px 14px;font-size:13px;color:var(--text);background:rgba(245,158,11,.04);}
+#telaEvento .evt2-apoio b,#telaEvento .evt2-aus b{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);font-weight:700;margin-right:4px;}
+#telaEvento .evt2-aus{border-left:3px solid #f59e0b;padding:8px 14px;background:rgba(245,158,11,.06);font-size:13px;color:var(--text);white-space:pre-wrap;}
+#telaEvento .evt2-acoes{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:rgba(0,0,0,.12);}
+#telaEvento .evt2-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.45);color:#93c5fd;border-radius:8px;padding:8px 14px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:.6px;text-transform:uppercase;cursor:pointer;}
+#telaEvento .evt2-btn.del{margin-left:auto;background:rgba(239,68,68,.10);border-color:rgba(248,113,113,.4);color:#f87171;}
+@media(min-width:1000px){
+  #telaEvento .evt2-postos{grid-template-columns:repeat(2,minmax(0,1fr));}
+  #telaEvento .evt2-postos .evt-posto:nth-child(odd){border-right:1px solid var(--border);}
+  #telaEvento .evt2-postos .evt-posto:nth-last-child(2):nth-child(odd){border-bottom:none;}
+}
+@media(min-width:1600px){
+  #telaEvento .evt2-postos{grid-template-columns:repeat(3,minmax(0,1fr));}
+  #telaEvento .evt2-postos .evt-posto:nth-child(odd){border-right:none;}
+  #telaEvento .evt2-postos .evt-posto:not(:nth-child(3n)){border-right:1px solid var(--border);}
+  #telaEvento .evt2-postos .evt-posto:nth-last-child(2):nth-child(odd){border-bottom:1px solid var(--border);}
+}
+
+/* vazio compacto */
+#telaEvento .evt2-vazio{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;border:1px dashed var(--border2);border-radius:10px;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:14px;letter-spacing:1px;text-transform:uppercase;text-align:center;}
+#telaEvento .evt2-vazio-i{font-size:20px;}
+
+/* ── formulário da supervisão ── */
+#telaEvento .evt-posto-form .flabel{font-size:10px;margin-bottom:3px;}
+#telaEvento .evt-posto-form .finput{min-height:46px;padding:10px 12px;font-size:15px;}
+#telaEvento .evt-posto-form .vt-input{min-height:46px;box-sizing:border-box;}
+#telaEvento .evt-posto-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+#telaEvento .evt-posto-n{font-size:11px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace;}
+#telaEvento .evt-posto-hd-a{display:flex;gap:6px;}
+#telaEvento .evt-mini{background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.4);border-radius:6px;color:#93c5fd;cursor:pointer;font-size:11px;font-weight:700;padding:4px 8px;font-family:'Rajdhani',sans-serif;letter-spacing:.4px;text-transform:uppercase;}
+#telaEvento .evt-mini.del{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:#f87171;}
+#telaEvento .evt-campo{margin-bottom:6px;}
+#telaEvento .evt-va{display:flex;gap:8px;align-items:flex-start;}
+#telaEvento .evt-va .vt-col{flex:0 0 112px;min-width:0;}
+#telaEvento .evt-va .ag-col{flex:1 1 0;min-width:0;}
+
+/* horário: dica "--:--" só em tela de toque (no celular o campo vazio aparece em branco) */
+#telaEvento .time-wrap{position:relative;}
+#telaEvento .time-dica{display:none;position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#64748b;font-size:16px;pointer-events:none;}
+@media(pointer:coarse){#telaEvento .time-wrap input:invalid{color:transparent;}#telaEvento .time-wrap input:invalid+.time-dica{display:block;}}
+
+/* rascunho */
+#telaEvento .rasc-bar{align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;margin-bottom:10px;background:rgba(59,130,246,.12);border:1px solid rgba(96,165,250,.4);border-radius:8px;font-size:12px;color:var(--text);}
+#telaEvento .rasc-tx{flex:1 1 180px;}
+#telaEvento .rasc-b{background:transparent;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'Rajdhani',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+#telaEvento .rasc-b.ok{background:rgba(59,130,246,.25);border-color:rgba(96,165,250,.6);color:#bfdbfe;}
+
+/* ── celular ── */
+@media(max-width:700px){
+  /* botão Salvar sempre à vista enquanto o formulário está aberto */
+  #evtBtnSalvar,#cmdBtnSalvar{position:sticky!important;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:30;box-shadow:0 -10px 14px rgba(8,17,31,.9),0 4px 14px rgba(0,0,0,.45);}
+  #telaEvento .toolbar{padding:6px 8px;gap:3px;}
+  #telaEvento .toolbar-row2{flex-wrap:nowrap;}
+  #telaEvento .refresh-info{font-size:10px;margin-left:0;white-space:nowrap;}
+  #evtAcoesRow{gap:6px;}
+  #evtAcoesRow button{font-size:12px!important;letter-spacing:0!important;padding:8px 4px!important;gap:4px!important;}
+  #evtAcoesRow button>div>div:first-child{font-size:12px!important;letter-spacing:0!important;}
+  #telaEvento .evt2-resumo{padding:8px 10px;}
+  #telaEvento .evt2-idx{display:none;}
+}
+/* topo (todas as abas, só celular): cabeçalho numa linha só */
+@media(max-width:600px){
+  #stickyHeader .aph{padding:6px 10px;}
+  #stickyHeader .htitle{display:none;}
+  #stickyHeader .uchip{padding:3px 7px;}
+  #stickyHeader .uname{font-size:13px;white-space:nowrap;}
+  #stickyHeader .urole{letter-spacing:.3px;white-space:nowrap;}
+  #stickyHeader .hright{gap:5px;}
+}
+
+/* ── modo claro ── */
+body.light-mode #telaEvento .evt2-title{color:#92400e;}
+body.light-mode #telaEvento .evt2-hora{color:#92400e;background:#fef3c7;border-color:#f59e0b;}
+body.light-mode #telaEvento .evt2-head{background:#fff7ed;border-bottom-color:#fdba74;}
+body.light-mode #telaEvento .evt2-card.cmd .evt2-head{background:#ede9fe;border-bottom-color:#c4b5fd;}
+body.light-mode #telaEvento .evt2-card.cmd .evt2-title{color:#4c1d95;}
+body.light-mode #telaEvento .evt2-card.cmd .evt2-hora{color:#4c1d95;background:#ddd6fe;border-color:#a78bfa;}
+body.light-mode #telaEvento .evt2-tag{color:#4c1d95;background:#ddd6fe;}
+body.light-mode #telaEvento .evt2-coord{color:#5b21b6;}
+body.light-mode #telaEvento .evt-posto-num{color:#b45309;}
+body.light-mode #telaEvento .evt-posto-vt{color:#fff;}
+body.light-mode #telaEvento .evt-posto-vt.sup{background:#fef3c7;color:#92400e;border-color:#f59e0b;}
+body.light-mode #telaEvento .evt-posto-vt.cmd{background:#ddd6fe;color:#4c1d95;}
+body.light-mode #telaEvento .evt2-sup{background:#f5f3ff;}
+body.light-mode #telaEvento .evt2-apoio{background:#fffbeb;}
+body.light-mode #telaEvento .evt2-aus{background:#fffbeb;}
+body.light-mode #telaEvento .evt2-acoes{background:#f1f5f9;}
+body.light-mode #telaEvento .evt2-btn{background:#dbeafe;color:#1d4ed8;border-color:#60a5fa;}
+body.light-mode #telaEvento .evt2-btn.del{background:#fee2e2;color:#b91c1c;border-color:#f87171;}
+body.light-mode #telaEvento .evt2-resumo{background:linear-gradient(135deg,#dcfce7,#f0fdf4);border-color:#86efac;}
+body.light-mode #telaEvento .evt2-idx button{background:#fef3c7;color:#92400e;border-color:#f59e0b;}
+body.light-mode #telaEvento .evt2-idx button.cmd{background:#ede9fe;color:#4c1d95;border-color:#a78bfa;}
+body.light-mode #telaEvento .evt-mini{background:#dbeafe;color:#1d4ed8;border-color:#60a5fa;}
+body.light-mode #telaEvento .evt-mini.del{background:#fee2e2;color:#b91c1c;border-color:#f87171;}
+body.light-mode #telaEvento .rasc-bar{background:#dbeafe;border-color:#60a5fa;}
+body.light-mode #telaEvento .rasc-b.ok{background:#bfdbfe;color:#1e3a8a;}
+
+/* ══════════ vZ10 — ajustes da aba EVENTO após teste no celular ══════════ */
+
+/* horário digitado + botão Agora */
+#telaEvento .time-wrap .finput{padding-right:84px;}
+#telaEvento .time-agora{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(59,130,246,.18);border:1px solid rgba(96,165,250,.55);color:#bfdbfe;border-radius:6px;padding:6px 12px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;}
+body.light-mode #telaEvento .time-agora{background:#dbeafe;color:#1d4ed8;border-color:#60a5fa;}
+
+/* sugestões de VT só aparecem quando começa a digitar */
+#telaEvento .vt-wrap:has(.vt-input:placeholder-shown) .vt-drop{display:none!important;}
+
+/* VT numa linha e agentes embaixo (campo de nomes maior) */
+#telaEvento .evt-va{display:block;}
+#telaEvento .evt-va .vt-col{width:140px;max-width:100%;margin-bottom:6px;}
+#telaEvento .evt-va .ag-col{width:100%;}
+
+/* ── paleta enxuta: neutro + uma cor por tipo (evento = âmbar, comando = roxo) ── */
+#telaEvento .evt2-card{margin-bottom:14px;border:1px solid var(--border2);border-left:4px solid #f59e0b;}
+#telaEvento .evt2-card.cmd{border-left-color:#7c3aed;}
+#telaEvento .evt2-head{background:rgba(148,163,184,.08);border-bottom:1px solid var(--border2);}
+#telaEvento .evt2-card.cmd .evt2-head{background:rgba(124,58,237,.16);border-bottom-color:rgba(124,58,237,.4);}
+#telaEvento .evt2-card:not(.fechado){box-shadow:0 0 0 1px rgba(148,163,184,.30),0 8px 20px rgba(0,0,0,.40);}
+#telaEvento .evt2-card:not(.fechado) .evt2-head{background:rgba(148,163,184,.16);}
+#telaEvento .evt2-card.cmd:not(.fechado) .evt2-head{background:rgba(124,58,237,.26);}
+#telaEvento .evt2-card.fechado .evt2-head{border-bottom:none;}
+#telaEvento .evt2-title,#telaEvento .evt2-card.cmd .evt2-title{color:var(--text);}
+#telaEvento .evt2-hora,#telaEvento .evt2-card.cmd .evt2-hora{color:var(--text);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.28);}
+#telaEvento .evt2-hora.vazio{background:none;border:none;padding:0;}
+#telaEvento .evt-posto-num{color:var(--text2);}
+#telaEvento .evt2-sup-n{color:#a78bfa;}
+#telaEvento .evt-posto-vt.sup{background:rgba(167,139,250,.20);color:#ddd6fe;border:1px solid rgba(167,139,250,.5);}
+#telaEvento .evt2-resumo{background:rgba(148,163,184,.08);border:1px solid var(--border2);}
+#telaEvento .evt2-idx button{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.25);color:var(--text);}
+#telaEvento .evt2-idx button.cmd{background:rgba(124,58,237,.2);border-color:rgba(167,139,250,.55);color:#e9d5ff;}
+#telaEvento .evt2-btn{background:transparent;border-color:rgba(148,163,184,.55);color:var(--text);}
+#telaEvento .evt2-btn.del{background:transparent;border-color:rgba(248,113,113,.55);color:#f87171;}
+/* Expandir/Recolher tudo: botões claros, letra escura */
+#telaEvento .evt2-link{background:#e2e8f0;border:1px solid #e2e8f0;color:#0f172a;font-weight:800;font-size:12px;padding:6px 12px;letter-spacing:.5px;}
+#telaEvento .evt2-link:hover{background:#fff;color:#000;border-color:#fff;}
+
+/* linhas internas completas (cada célula desenha só o que precisa) */
+#telaEvento .evt2-postos .evt-posto{border:none!important;box-shadow:inset 0 -1px 0 var(--border);}
+@media(min-width:1000px){
+  #telaEvento .evt2-postos .evt-posto:nth-child(odd){box-shadow:inset -1px 0 0 var(--border),inset 0 -1px 0 var(--border);}
+  #telaEvento .evt2-postos .evt-posto:nth-child(even){box-shadow:inset 0 -1px 0 var(--border);}
+}
+@media(min-width:1600px){
+  #telaEvento .evt2-postos .evt-posto{box-shadow:inset -1px 0 0 var(--border),inset 0 -1px 0 var(--border)!important;}
+  #telaEvento .evt2-postos .evt-posto:nth-child(3n){box-shadow:inset 0 -1px 0 var(--border)!important;}
+}
+
+/* desktop: colunas fixas no cabeçalho (horário, responsável e contagem alinhados) */
+@media(min-width:900px){
+  #telaEvento .evt2-head{display:grid;grid-template-columns:minmax(0,1fr) 104px 230px 190px 20px;align-items:center;gap:0 14px;}
+  #telaEvento .evt2-title{grid-column:1;order:0;}
+  #telaEvento .evt2-meta{display:contents;}
+  #telaEvento .evt2-hora{grid-column:2;justify-self:start;}
+  #telaEvento .evt2-resp{grid-column:3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #telaEvento .evt2-cnt{grid-column:4;white-space:nowrap;}
+  #telaEvento .evt2-chev{grid-column:5;order:0;justify-self:end;}
+}
+/* celular */
+@media(max-width:899px){
+  #telaEvento .evt2-hora.vazio,#telaEvento .evt2-resp.vazio{display:none;}
+  #telaEvento .evt2-hora{min-width:92px;text-align:center;}
+}
+@media(max-width:700px){
+  #telaEvento .evt2-card{scroll-margin-top:96px;}
+  /* a barra de data rolava e ficava meio escondida atrás do cabeçalho: agora rola junto com a página */
+  #telaEvento .toolbar{position:static;}
+  #telaEvento .toolbar-row2{flex-wrap:wrap;}
+  #telaEvento .refresh-info{flex:1 1 auto;}
+  #telaEvento .bpdf{white-space:nowrap;}
+}
+
+/* ── modo claro ── */
+body.light-mode #telaEvento .evt2-card{border-color:#cbd5e1;border-left-color:#d97706;}
+body.light-mode #telaEvento .evt2-card.cmd{border-left-color:#7c3aed;}
+body.light-mode #telaEvento .evt2-head{background:#f1f5f9;border-bottom-color:#cbd5e1;}
+body.light-mode #telaEvento .evt2-card:not(.fechado) .evt2-head{background:#e2e8f0;}
+body.light-mode #telaEvento .evt2-card.cmd .evt2-head{background:#f5f3ff;border-bottom-color:#c4b5fd;}
+body.light-mode #telaEvento .evt2-card.cmd:not(.fechado) .evt2-head{background:#ede9fe;}
+body.light-mode #telaEvento .evt2-card:not(.fechado){box-shadow:0 0 0 1px #94a3b8,0 6px 16px rgba(15,23,42,.15);}
+body.light-mode #telaEvento .evt2-title,body.light-mode #telaEvento .evt2-card.cmd .evt2-title{color:#0f172a;}
+body.light-mode #telaEvento .evt2-hora,body.light-mode #telaEvento .evt2-card.cmd .evt2-hora{color:#0f172a;background:#fff;border-color:#94a3b8;}
+body.light-mode #telaEvento .evt-posto-num{color:#64748b;}
+body.light-mode #telaEvento .evt-posto-vt.sup{background:#ede9fe;color:#4c1d95;border-color:#a78bfa;}
+body.light-mode #telaEvento .evt2-resumo{background:#f1f5f9;border-color:#cbd5e1;}
+body.light-mode #telaEvento .evt2-idx button{background:#fff;color:#0f172a;border-color:#94a3b8;}
+body.light-mode #telaEvento .evt2-idx button.cmd{background:#ede9fe;color:#4c1d95;border-color:#a78bfa;}
+body.light-mode #telaEvento .evt2-btn{background:#fff;color:#1e293b;border-color:#94a3b8;}
+body.light-mode #telaEvento .evt2-btn.del{background:#fff;color:#b91c1c;border-color:#f87171;}
+body.light-mode #telaEvento .evt2-link{background:#1e293b;border-color:#1e293b;color:#fff;}
+body.light-mode #telaEvento .evt2-link:hover{background:#0f172a;}
+
+/* ══════════ vZ12 — botões grandes, faixas de título, GPS ══════════ */
+#evtAcoesRow{gap:10px;}
+#evtAcoesRow button{min-height:64px!important;flex-direction:column!important;gap:4px!important;font-size:14px!important;letter-spacing:.6px!important;padding:8px 6px!important;}
+#evtAcoesRow button>div>div:first-child{font-size:14px!important;letter-spacing:.6px!important;}
+#evtAcoesRow button i{font-size:20px!important;}
+@media(min-width:700px){
+  #evtAcoesRow button{flex-direction:row!important;min-height:52px!important;gap:10px!important;padding:10px 24px!important;}
+  #evtAcoesRow button i{font-size:18px!important;}
+}
+/* faixa de título dos formulários */
+#telaEvento .form-faixa{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:12px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-transform:uppercase;}
+#telaEvento .form-faixa.evt{background:rgba(245,158,11,.16);border:1px solid rgba(245,158,11,.5);color:#fbbf24;}
+#telaEvento .form-faixa.cmd{background:rgba(124,58,237,.22);border:1px solid rgba(167,139,250,.55);color:#ddd6fe;}
+#evtFormWrap .fsec{border-color:rgba(245,158,11,.45);border-left:4px solid #f59e0b;}
+#cmdFormWrap .fsec{border-color:rgba(167,139,250,.45);border-left:4px solid #7c3aed;}
+body.light-mode #telaEvento .form-faixa.evt{background:#fef3c7;border-color:#f59e0b;color:#92400e;}
+body.light-mode #telaEvento .form-faixa.cmd{background:#ede9fe;border-color:#a78bfa;color:#4c1d95;}
+/* botão de GPS no local do comando */
+#cmdLocal{padding-right:62px;}
+#telaEvento .gps-btn{position:absolute;right:7px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:rgba(124,58,237,.25);border:1px solid rgba(167,139,250,.6);color:#ddd6fe;border-radius:8px;font-size:18px;cursor:pointer;padding:0;}
+#telaEvento .gps-btn:disabled{opacity:.7;cursor:progress;}
+body.light-mode #telaEvento .gps-btn{background:#ede9fe;color:#4c1d95;border-color:#a78bfa;}
+/* ── QRV VL (vZ13, igual à QRV): QRV no celular: cartão em 3 linhas (identificação · nomes/rota · botões) — só telas estreitas; computador não muda ── */
+@media(max-width:600px){
+  #telaQrvVl .qrv-row-main{display:flex;flex-wrap:wrap;align-items:center;gap:6px 6px;padding:9px 10px;}
+  #telaQrvVl .qrv-row-main > .qrv-vt-badge{order:1;font-size:14px;padding:3px 9px;}
+  #telaQrvVl .qrv-row-main > .qrv-pills{order:2;}
+  #telaQrvVl .qrv-row-main > .qrv-saida-input{order:3;margin-left:auto;width:86px;font-size:13px;padding:4px 6px;}
+  #telaQrvVl .qrv-row-main > .qrv-rel-tag{order:3;}
+  #telaQrvVl .qrv-row-main > .qrv-row-info{order:4;flex:0 0 100%;width:100%;min-width:0;}
+  #telaQrvVl .qrv-row-main .qrv-row-nomes{white-space:normal;overflow:visible;text-overflow:clip;font-size:13px;line-height:1.35;word-break:break-word;}
+  #telaQrvVl .qrv-row-main .qrv-row-rota{margin-top:3px;white-space:normal!important;overflow:visible!important;word-break:break-word;}
+  #telaQrvVl .qrv-row-main .qrv-rota-chip{white-space:normal;max-width:100%;}
+  #telaQrvVl .qrv-row-main > button,#telaQrvVl .qrv-row-main > .qrv-sync{order:5;}
+  #telaQrvVl .qrv-row-main > button[title="Copiar composição"],#telaQrvVl .qrv-row-main > .qrv-btn-status{min-width:40px;min-height:34px;display:inline-flex;align-items:center;justify-content:center;}
+  #telaQrvVl .qrv-row-main > .qrv-btn-expand,#telaQrvVl .qrv-row-main > .qrv-btn-del{order:6;min-width:38px;min-height:34px;font-size:16px;}
+  #telaQrvVl .qrv-row-main > .qrv-btn-expand{margin-left:auto;}
+  #telaQrvVl .qrv-row-extra{padding:4px 10px 10px;}
+}
+
+/* ── QRV (Central/Admin e demais perfis): menos cor, mesma altura, colunas alinhadas — só a aba QRV ── */
+#telaQrvVl .qrv-vt-badge{background:#2f5fd0;color:#fff;min-width:78px;height:26px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;font-size:13px;padding:0 8px;}
+#telaQrvVl .qrv-vt-badge.principal{background:var(--gold);color:#000;}
+#telaQrvVl .qrv-vt-badge.supervisao{background:#2f5fd0;color:#fff;}
+#telaQrvVl .qrv-status-pill,#telaQrvVl .qrv-rota-chip,#telaQrvVl .etil-tag{height:22px;box-sizing:border-box;display:inline-flex;align-items:center;font-size:11px;padding:0 8px;border-radius:5px;line-height:1;margin:0;}
+#telaQrvVl .qrv-status-pill{min-width:78px;justify-content:center;}
+#telaQrvVl .qrv-status-pill.livre{background:rgba(148,163,184,.12);color:#a7f3d0;border:1px solid rgba(148,163,184,.3);}
+#telaQrvVl .qrv-status-pill.outros{background:rgba(148,163,184,.12);color:#94a3b8;border:1px solid rgba(148,163,184,.3);}
+#telaQrvVl .qrv-status-pill.chegada{background:rgba(96,165,250,.14);color:#93c5fd;border:1px solid rgba(96,165,250,.35);}
+#telaQrvVl .qrv-rota-chip.rc-chegada{background:rgba(96,165,250,.14);color:#93c5fd;border-color:rgba(96,165,250,.35);}
+/* livre/outros só aparece (no selo) para Central/Admin; a caixa da rota fica neutra para todos */
+#telaQrvVl .qrv-rota-chip.rc-livre,#telaQrvVl .qrv-rota-chip.rc-outros,#telaQrvVl .qrv-row-main .qrv-rota-chip{background:transparent;color:#cbd5e1;border-color:rgba(148,163,184,.35);}
+#telaQrvVl .etil-tag{background:transparent;color:#5eead4;border:1px solid rgba(94,234,212,.35);}
+#telaQrvVl .qrv-row-rota{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+#telaQrvVl .qrv-row-rota > span[style*="f97316"]{font-weight:600;}
+#telaQrvVl .qrv-saida-input{width:86px;}
+/* perfis de leitura: etiqueta e horário em colunas fixas (nome sempre alinhado) */
+#telaQrvVl .qrv-ro .qrv-vt-badge{min-width:84px;}
+#telaQrvVl .qrv-ro .qrv-ro-saida{min-width:68px;display:inline-block;}
+body.light-mode #telaQrvVl .qrv-rota-chip.rc-livre,body.light-mode #telaQrvVl .qrv-rota-chip.rc-outros,body.light-mode #telaQrvVl .qrv-row-main .qrv-rota-chip{color:#475569;border-color:#cbd5e1;}
+body.light-mode #telaQrvVl .qrv-status-pill.outros{color:#64748b;}
+body.light-mode #telaQrvVl .qrv-status-pill.livre{color:#15803d;}
+body.light-mode #telaQrvVl .etil-tag{color:#0f766e;border-color:rgba(15,118,110,.4);}
+body.light-mode #telaQrvVl .qrv-ro .qrv-ro-saida{color:#2563eb!important;}
+@media(max-width:600px){
+  #telaQrvVl .qrv-ro .qrv-ro-main{gap:6px 8px;}
+  #telaQrvVl .qrv-ro .qrv-ro-main > .qrv-vt-badge{order:1;}
+  #telaQrvVl .qrv-ro .qrv-ro-saida{order:2;min-width:0;}
+  #telaQrvVl .qrv-ro .qrv-ro-saida:empty{display:none;}
+  #telaQrvVl .qrv-ro .qrv-ro-main > button{order:3;margin-left:auto;}
+  #telaQrvVl .qrv-ro .qrv-ro-info{order:4;flex:0 0 100%!important;min-width:0!important;}
+}
+
+/* ── QRV vZ7: caixa da rota com tom próprio, ETILÔMETRO discreto, computador em colunas (menos vazio no meio) ── */
+#telaQrvVl .qrv-rota-chip.rc-livre,#telaQrvVl .qrv-rota-chip.rc-outros,#telaQrvVl .qrv-row-main .qrv-rota-chip{background:rgba(129,140,248,.16);color:#c7d2fe;border-color:rgba(129,140,248,.42);font-weight:700;}
+#telaQrvVl .etil-tag{background:rgba(110,231,183,.08);color:#a7f3d0;border:1px solid rgba(110,231,183,.26);font-weight:600;}
+body.light-mode #telaQrvVl .qrv-rota-chip.rc-livre,body.light-mode #telaQrvVl .qrv-rota-chip.rc-outros,body.light-mode #telaQrvVl .qrv-row-main .qrv-rota-chip{background:rgba(79,70,229,.08);color:#4338ca;border-color:rgba(79,70,229,.3);}
+body.light-mode #telaQrvVl .etil-tag{background:rgba(16,185,129,.07);color:#047857;border-color:rgba(16,185,129,.3);}
+@media(min-width:601px){
+  #telaQrvVl .qrv-row-main > .qrv-vt-badge{width:100px;height:auto;min-height:26px;white-space:normal;text-align:center;line-height:1.15;padding:2px 6px;}
+  #telaQrvVl .qrv-rota-chip{height:auto;min-height:22px;padding-top:2px;padding-bottom:2px;white-space:normal;}
+  #telaQrvVl .qrv-row-main .qrv-row-nomes{font-size:13px;line-height:1.35;white-space:normal;overflow:visible;text-overflow:clip;}
+}
+/* telas médias / zoom ampliado (601–1299 px): 1ª linha = VT, status, horário, botões · 2ª linha = agentes e rota (nada se sobrepõe) */
+@media(min-width:601px) and (max-width:1299px){
+  #telaQrvVl .qrv-row-main{flex-wrap:wrap;gap:8px 10px;padding:9px 12px;}
+  #telaQrvVl .qrv-row-main > *{order:6;flex-shrink:0;}
+  #telaQrvVl .qrv-row-main > .qrv-vt-badge{order:1;}
+  #telaQrvVl .qrv-pills{order:2;display:flex;align-items:center;gap:4px 6px;flex-wrap:wrap;}
+  #telaQrvVl .qrv-row-main > .qrv-saida-input{order:5;margin-left:auto;}
+  #telaQrvVl .qrv-row-main > .qrv-rel-tag{order:5;}
+  #telaQrvVl .qrv-row-main > .qrv-row-info{order:7;flex:0 0 100%;width:100%;min-width:0;}
+  #telaQrvVl .qrv-row-main .qrv-row-rota{margin-top:4px;}
+}
+/* tela larga (1300 px ou mais): uma linha em colunas — VT | status | agentes | rota e missão ........ horário | botões */
+@media(min-width:1300px){
+  #telaQrvVl .qrv-row-main{flex-wrap:nowrap;gap:10px;padding:8px 12px;}
+  #telaQrvVl .qrv-row-main > *{order:6;flex-shrink:0;}
+  #telaQrvVl .qrv-row-main > .qrv-vt-badge{order:1;}
+  #telaQrvVl .qrv-pills{order:2;display:flex;align-items:center;align-content:center;gap:4px 6px;flex-wrap:wrap;width:124px;}
+  #telaQrvVl .qrv-row-main > .qrv-row-info{display:contents;}
+  #telaQrvVl .qrv-row-main .qrv-row-nomes{order:3;flex:0 0 clamp(200px,20%,360px);width:clamp(200px,20%,360px);}
+  #telaQrvVl .qrv-row-main .qrv-row-rota{order:4;flex:1 1 0;min-width:0;margin:0;}
+  #telaQrvVl .qrv-row-main .qrv-row-nomes:only-of-type{flex:1 1 0;}
+  #telaQrvVl .qrv-row-main > .qrv-saida-input{order:5;margin-left:auto;}
+  #telaQrvVl .qrv-row-main > .qrv-rel-tag{order:5;}
+}
+
+
+/* ══════════ vZ13 — QRV VL: cores próprias, porém discretas ══════════ */
+#telaQrvVl .qrv-vt-badge.supervisao{background:#5b4fc4;color:#fff;}
+#telaQrvVl .qrv-vt-badge.sem-vt{background:rgba(180,83,9,.40);color:#fde6c8;border:1px solid rgba(251,146,60,.38);min-width:44px;font-size:14px;}
+#telaQrvVl .qrv-ro .qrv-vt-badge.sem-vt{min-width:84px;}
+@media(min-width:601px){#telaQrvVl .qrv-row-main > .qrv-vt-badge.sem-vt{width:100px;}}
+#telaQrvVl .qrv-ro .qrv-ro-saida{color:#fdba74;}
+#telaQrvVl .qrv-secao-titulo{filter:saturate(.7);font-size:13px;}
+#telaQrvVl .qrv-secao-header{border-bottom:1px solid var(--border);margin-bottom:6px;}
+#qrvvlSyncBar{background:rgba(251,146,60,.06)!important;border-bottom:1px solid rgba(251,146,60,.14)!important;color:#d9a577!important;}
+#telaQrvVl .bpdf[onclick*="GerarPDF"]{background:linear-gradient(135deg,#9a4a1c,#c2703a)!important;}
+body.light-mode #telaQrvVl .qrv-ro .qrv-ro-saida{color:#c2410c!important;}
+body.light-mode #telaQrvVl .qrv-vt-badge.sem-vt{background:#fde7cf;color:#9a3412;border-color:#f3b27a;}
+body.light-mode #qrvvlSyncBar{color:#9a5b2b!important;}
+body.light-mode #telaQrvVl .qrv-row-main .qrv-rota-chip{color:#4338ca!important;}
+@media(max-width:600px){#telaQrvVl .qrv-rota-chip{height:auto;min-height:22px;padding:3px 8px;line-height:1.3;white-space:normal;}}
 </style>
 <div class="cov" id="rcCopiaMod" style="z-index:900;">
   <div class="rcc-box">
